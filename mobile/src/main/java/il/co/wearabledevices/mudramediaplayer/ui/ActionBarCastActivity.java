@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package il.co.wearabledevices.mudramediaplayer;
+package il.co.wearabledevices.mudramediaplayer.ui;
 
 import android.app.ActivityOptions;
 import android.app.FragmentManager;
@@ -253,16 +253,16 @@ public abstract class ActionBarCastActivity extends AppCompatActivity {
     }
 
     protected void initializeToolbar() {
-        mToolbar = findViewById(R.id.toolbar);
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
         if (mToolbar == null) {
             throw new IllegalStateException("Layout is required to include a Toolbar with id " +
                 "'toolbar'");
         }
         mToolbar.inflateMenu(R.menu.main);
 
-        mDrawerLayout = findViewById(R.id.drawer_layout);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (mDrawerLayout != null) {
-            NavigationView navigationView = findViewById(R.id.nav_view);
+            NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
             if (navigationView == null) {
                 throw new IllegalStateException("Layout requires a NavigationView " +
                         "with id 'nav_view'");

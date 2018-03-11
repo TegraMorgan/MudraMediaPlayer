@@ -13,10 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package il.co.wearabledevices.mudramediaplayer;
 
-import android.support.v4.media.MediaBrowserCompat;
+package il.co.wearabledevices.mudramediaplayer.model;
 
-public interface MediaBrowserProvider {
-    MediaBrowserCompat getMediaBrowser();
+import android.support.v4.media.MediaMetadataCompat;
+
+import java.util.Iterator;
+
+public interface MusicProviderSource {
+    String CUSTOM_METADATA_TRACK_SOURCE = "__SOURCE__";
+    Iterator<MediaMetadataCompat> iterator();
 }

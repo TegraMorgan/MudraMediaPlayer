@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package il.co.wearabledevices.mudramediaplayer;
+package il.co.wearabledevices.mudramediaplayer.ui;
 
 import android.app.FragmentTransaction;
 import android.app.SearchManager;
