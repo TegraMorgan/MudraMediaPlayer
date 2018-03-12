@@ -1,5 +1,6 @@
 package il.co.wearabledevices.mudramediaplayer;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -15,8 +16,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         mBrowseAlbums = findViewById(R.id.bt_sel_albm);
 mBrowseAlbums.setOnClickListener((v)-> {
-    Intent intent = new Intent(MainActivity.this,AlbumSelectionActivity.class);
-    startActivity(intent);
+    Context mainContext = MainActivity.this;
+    Class destinationActivity = AlbumSelectionActivity.class;
+    Intent albumSelection = new Intent(mainContext,destinationActivity);
+    startActivity(albumSelection);
 });
     }
 }
