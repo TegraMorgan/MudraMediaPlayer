@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <ScrollView
+    <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="8dp"
@@ -22,11 +22,15 @@
                 android:id="@+id/bt_sel_albm"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/browse_albums"
+                android:text="@string/browse_albums" />
 
-                />
+            <Button
+                android:id="@+id/bt_sel_artist"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/browse_artists" />
         </LinearLayout>
-    </ScrollView>
+    </android.support.v4.widget.NestedScrollView>
 
 
 </android.support.constraint.ConstraintLayout>

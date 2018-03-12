@@ -5,10 +5,12 @@
     android:padding="16dp">
 
     <TextView
-        android:id="@+id/tv_album_name"
+        android:id="@+id/tv_file_info"
         style="@style/TextAppearance.AppCompat.Title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="monospace"
-        android:textSize="42sp" />
+        android:padding="8dp"
+        android:text="Lorem ipsum"
+        android:textSize="30sp" />
 </FrameLayout>
