@@ -2,9 +2,9 @@
 <android.support.v7.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="5dp"
     android:onClick="albumPicked"
     android:orientation="vertical"
+    android:padding="5dp"
     >
     <TextView
         android:id="@+id/tv_song_album"
@@ -14,10 +14,7 @@
         android:fontFamily="monospace"
         android:padding="8dp"
         android:text="Lorem ipsum"
-        android:autoSizeMaxTextSize="20dp"
-        android:autoSizeMinTextSize="8dp"
-        android:autoSizeTextType="uniform"
-        android:textSize="16dp"
+        android:textSize="16sp"
 
         />
     <TextView
@@ -25,13 +22,10 @@
         style="@style/TextAppearance.AppCompat.Title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:autoSizeMaxTextSize="20dp"
-        android:autoSizeMinTextSize="8dp"
-        android:autoSizeTextType="uniform"
-        android:textSize="16dp"
         android:fontFamily="monospace"
         android:padding="8dp"
-        android:text="Lorem ipsum" />
+        android:text="Lorem ipsum"
+        android:textSize="16sp" />
 
 
 
