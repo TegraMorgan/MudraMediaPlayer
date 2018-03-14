@@ -15,7 +15,6 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 
 import il.co.wearabledevices.mudramediaplayer.model.Album;
 import il.co.wearabledevices.mudramediaplayer.model.Song;
@@ -54,17 +53,8 @@ public class AlbumSelectionActivity extends AppCompatActivity {
         numOfAlbums = mAlbums.size();
 
         // sort the songs
-        Collections.sort(mSongs, new Comparator<Song>() {
-            public int compare(Song a, Song b) {
-                return a.getTitle().compareTo(b.getTitle());
-            }
-        });
-        mAlbums.sort(new Comparator<Album>() {
-            @Override
-            public int compare(Album s, Album t1) {
-                return s.getaName().compareTo(t1.getaName());
-            }
-        });
+        Collections.sort(mSongs, (a, b) -> a.getTitle().compareTo(b.getTitle()));
+        mAlbums.sort((s, t1) -> s.getaName().compareTo(t1.getaName()));
         for (Album alb : mAlbums
                 ) {
             Log.v(TAG, alb.getaName() + " : " + alb.getaArtist());
@@ -104,6 +94,7 @@ public class AlbumSelectionActivity extends AppCompatActivity {
             String thisArtist;
             String thisAlbum;
             int thisDur;
+            Song thisSong;
             do {
                 thisID = cursor.getLong(idColumn);
                 thisTitle = cursor.getString(titleColumn);
@@ -123,8 +114,9 @@ public class AlbumSelectionActivity extends AppCompatActivity {
                 if (thisAlbum.compareTo("<unknown>") == 0) {
                     thisAlbum = "Unknown album";
                 }
-                mSongs.add(new Song(thisID, thisTitle, thisArtist, thisAlbum, thisDur));
-                addAlbumIf(mAlbums, new Album(thisAlbum, thisArtist));
+
+                thisSong = new Song(thisID, thisTitle, thisArtist, thisAlbum, thisDur))
+                addAlbumIf(mAlbums, new Album(thisAlbum, thisArtist), thisSong);
                 /*
                 Log.v(TAG, "Song title : " + thisTitle);
                 Log.v(TAG, "Artist : " + thisArtist);
@@ -134,8 +126,9 @@ public class AlbumSelectionActivity extends AppCompatActivity {
         }
     }
 
-    private void addAlbumIf(ArrayList<Album> an, Album ta) {
+    private void addAlbumIf(ArrayList<Album> an, Album ta, Song ts) {
         if (!an.contains(ta)) {
+            ta.getaSongs().add(ts);
             an.add(ta);
         }
     }
