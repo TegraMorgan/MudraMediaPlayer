@@ -14,20 +14,18 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Comparator;
 
 import il.co.wearabledevices.mudramediaplayer.model.Album;
 import il.co.wearabledevices.mudramediaplayer.model.Song;
 
 public class AlbumSelectionActivity extends AppCompatActivity {
     private static final String TAG = AlbumSelectionActivity.class.getSimpleName();
-    private int numOfSongs;
-    private int numOfAlbums;
     private AlbumAdapter mAdapter;
     private RecyclerView recyclerViewAlbums;
-    private ArrayList<Song> mSongs;
     private ArrayList<Album> mAlbums;
 
+    @SuppressWarnings("Convert2Diamond")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,19 +40,13 @@ public class AlbumSelectionActivity extends AppCompatActivity {
                     .setAction("Action", null).show();
         });
 
-        mSongs = new ArrayList<Song>();
         mAlbums = new ArrayList<Album>();
 
         // get the songs
         getSongList();
 
-        // set counters
-        numOfSongs = mSongs.size();
-        numOfAlbums = mAlbums.size();
-
         // sort the songs
-        Collections.sort(mSongs, (a, b) -> a.getTitle().compareTo(b.getTitle()));
-        mAlbums.sort((s, t1) -> s.getaName().compareTo(t1.getaName()));
+        mAlbums.sort(Comparator.comparing(Album::getaName));
         for (Album alb : mAlbums
                 ) {
             Log.v(TAG, alb.getaName() + " : " + alb.getaArtist());
@@ -78,8 +70,6 @@ public class AlbumSelectionActivity extends AppCompatActivity {
         Uri musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         Cursor cursor = resolver.query(musicUri, null, null, null, null);
         if (cursor != null && cursor.moveToFirst()) {
-            // count songs
-            numOfSongs = cursor.getColumnIndex(MediaStore.Audio.Media._COUNT);
             //get columns
             int titleColumn = cursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
             int fileNameColumn = cursor.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME);
@@ -99,7 +89,7 @@ public class AlbumSelectionActivity extends AppCompatActivity {
                 thisID = cursor.getLong(idColumn);
                 thisTitle = cursor.getString(titleColumn);
                 if (thisTitle == null || thisTitle.isEmpty())
-                    thisTitle = parseFileToSongname(cursor.getString(fileNameColumn));
+                    thisTitle = parseFileToSongName(cursor.getString(fileNameColumn));
                 if (thisTitle.compareTo("<unknown>") == 0) {
                     thisTitle = "Unknown artist";
                 }
@@ -115,7 +105,7 @@ public class AlbumSelectionActivity extends AppCompatActivity {
                     thisAlbum = "Unknown album";
                 }
 
-                thisSong = new Song(thisID, thisTitle, thisArtist, thisAlbum, thisDur))
+                thisSong = new Song(thisID, thisTitle, thisArtist, thisAlbum, thisDur);
                 addAlbumIf(mAlbums, new Album(thisAlbum, thisArtist), thisSong);
                 /*
                 Log.v(TAG, "Song title : " + thisTitle);
@@ -124,12 +114,18 @@ public class AlbumSelectionActivity extends AppCompatActivity {
                 */
             } while (cursor.moveToNext());
         }
+        if (cursor != null) {
+            cursor.close();
+        }
     }
 
     private void addAlbumIf(ArrayList<Album> an, Album ta, Song ts) {
-        if (!an.contains(ta)) {
+        int ind = an.indexOf(ta);
+        if (ind == -1) {
             ta.getaSongs().add(ts);
             an.add(ta);
+        } else {
+            an.get(ind).getaSongs().add(ts);
         }
     }
 
@@ -140,13 +136,13 @@ public class AlbumSelectionActivity extends AppCompatActivity {
         return res;
     }
 
-    public String parseFileToSongname(String fname) {
-        String res = "";
-        String[] a = fname.split(".");
+    public String parseFileToSongName(String fName) {
+        StringBuilder res = new StringBuilder();
+        String[] a = fName.split(".");
         for (int i = 0; i < a.length - 1; i++) {
-            res += a[i];
+            res.append(a[i]);
         }
-        return res;
+        return res.toString();
     }
 
 }
