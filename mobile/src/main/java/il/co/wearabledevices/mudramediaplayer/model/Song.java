@@ -10,12 +10,14 @@ public class Song {
     private String title;
     private String artist;
     private String album;
+    private int duration;
 
-    public Song(long songID, String songTitle, String songArtist, String songAlbum) {
+    public Song(long songID, String songTitle, String songArtist, String songAlbum, int songDur) {
         id = songID;
         title = songTitle;
         artist = songArtist;
         album = songAlbum;
+        duration = songDur;
     }
 
     public long getId() {
@@ -49,4 +51,8 @@ public class Song {
     public void setAlbum(String album) {
         this.album = album;
     }
+
+    public int getDuration() {return duration;}
+
+    public void setDuration(int duration) {this.duration = duration;}
 }

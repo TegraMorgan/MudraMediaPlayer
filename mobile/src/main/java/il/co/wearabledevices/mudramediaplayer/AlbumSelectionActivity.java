@@ -41,13 +41,16 @@ public class AlbumSelectionActivity extends AppCompatActivity {
         songList = new ArrayList<Song>();
         albumNames = new ArrayList<String>();
 
+        //get the songs
+        getSongList();
+
         // set the recycler
         albumsList = findViewById(R.id.rv_albums);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         albumsList.setLayoutManager(layoutManager);
         albumsList.setHasFixedSize(true);
         // instantiate the adapter with number of albums
-        mAdapter = new AlbumAdapter(NUM_OF_GENRES);
+        mAdapter = new AlbumAdapter(numOfAlbums);
         albumsList.setAdapter(mAdapter);
 
     }
@@ -74,15 +77,19 @@ public class AlbumSelectionActivity extends AppCompatActivity {
             String thisTitle;
             String thisArtist;
             String thisAlbum;
-
+            int thisDur;
             do {
-
-
+                thisID = cursor.getLong(idColumn);
+                thisTitle = cursor.getString(titleColumn);
+                if (thisTitle == null || thisTitle.isEmpty())
+                    thisTitle = parseFileToSongname(cursor.getString(fileNameColumn));
+                thisArtist = cursor.getString(artistColumn);
+                thisDur = (int) cursor.getLong(durationColumn) / 1000;
+                thisAlbum = cursor.getString(albumColumn);
+                if (thisAlbum == null || thisAlbum.isEmpty())
+                    thisAlbum = parseDirectoryToAlbum(cursor.getString(pathColumn));
             } while (cursor.moveToNext());
-
         }
-
-
     }
 
     public String parseDirectoryToAlbum(String path) {
