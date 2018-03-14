@@ -11,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,6 +21,7 @@ import il.co.wearabledevices.mudramediaplayer.model.Album;
 import il.co.wearabledevices.mudramediaplayer.model.Song;
 
 public class AlbumSelectionActivity extends AppCompatActivity {
+    private static final String TAG = AlbumSelectionActivity.class.getSimpleName();
     private int numOfSongs;
     private int numOfAlbums;
     private AlbumAdapter mAdapter;
@@ -63,7 +65,11 @@ public class AlbumSelectionActivity extends AppCompatActivity {
                 return s.getaName().compareTo(t1.getaName());
             }
         });
+        for (Album alb : mAlbums
+                ) {
+            Log.v(TAG, alb.getaName() + " : " + alb.getaArtist());
 
+        }
         // set the recycler
         recyclerViewAlbums = findViewById(R.id.rv_albums);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
@@ -103,13 +109,27 @@ public class AlbumSelectionActivity extends AppCompatActivity {
                 thisTitle = cursor.getString(titleColumn);
                 if (thisTitle == null || thisTitle.isEmpty())
                     thisTitle = parseFileToSongname(cursor.getString(fileNameColumn));
+                if (thisTitle.compareTo("<unknown>") == 0) {
+                    thisTitle = "Unknown artist";
+                }
                 thisArtist = cursor.getString(artistColumn);
+                if (thisArtist.compareTo("<unknown>") == 0) {
+                    thisArtist = "Unknown artist";
+                }
                 thisDur = (int) cursor.getLong(durationColumn) / 1000;
                 thisAlbum = cursor.getString(albumColumn);
                 if (thisAlbum == null || thisAlbum.isEmpty())
                     thisAlbum = parseDirectoryToAlbum(cursor.getString(pathColumn));
+                if (thisAlbum.compareTo("<unknown>") == 0) {
+                    thisAlbum = "Unknown album";
+                }
                 mSongs.add(new Song(thisID, thisTitle, thisArtist, thisAlbum, thisDur));
                 addAlbumIf(mAlbums, new Album(thisAlbum, thisArtist));
+                /*
+                Log.v(TAG, "Song title : " + thisTitle);
+                Log.v(TAG, "Artist : " + thisArtist);
+                Log.v(TAG, "Album : " + thisAlbum);
+                */
             } while (cursor.moveToNext());
         }
     }

@@ -2,7 +2,6 @@ package il.co.wearabledevices.mudramediaplayer;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +18,7 @@ import il.co.wearabledevices.mudramediaplayer.model.Album;
 
 public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.GenresViewHolder> {
     private static final String TAG = AlbumAdapter.class.getSimpleName();
+    private static final int ACCEPTABLE_LENGTH = 25;
     private int mAlbumsCount;
     private ArrayList<Album> albums;
 
@@ -41,7 +41,6 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.GenresViewHo
 
     @Override
     public void onBindViewHolder(GenresViewHolder holder, int position) {
-        Log.d(TAG, "Binding " + position);
         holder.bind(position);
     }
 
@@ -63,8 +62,12 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.GenresViewHo
 
         void bind(int listIndex) {
             Album curr = albums.get(listIndex);
-            listItemAlbum.setText(curr.getaName());
-            listItemArtist.setText(curr.getaArtist());
+            String name = curr.getaName().trim();
+            String art = curr.getaArtist().trim();
+            if (name.length() > ACCEPTABLE_LENGTH) name = name.substring(0, ACCEPTABLE_LENGTH - 1);
+            if (art.length() > ACCEPTABLE_LENGTH) art = art.substring(0, ACCEPTABLE_LENGTH - 1);
+            listItemAlbum.setText(name + " - ");
+            listItemArtist.setText(art);
         }
     }
 }

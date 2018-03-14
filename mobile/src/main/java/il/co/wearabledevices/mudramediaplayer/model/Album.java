@@ -8,10 +8,14 @@ public class Album {
     private String aName;
     private String aArtist;
 
-    public Album(String albumName,String albumArtist)
-    {
-        aName=albumName;
-        aArtist=albumArtist;
+    public Album(String albumName, String albumArtist) {
+        aName = albumName;
+        aArtist = albumArtist;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return this.aName.equals(((Album) obj).aName);
     }
 
     public String getaName() {
