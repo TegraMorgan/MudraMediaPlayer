@@ -70,7 +70,7 @@ public class AlbumSelectionActivity extends AppCompatActivity {
         recyclerViewAlbums.setLayoutManager(layoutManager);
         recyclerViewAlbums.setHasFixedSize(true);
         // instantiate the adapter with number of albums
-        mAdapter = new AlbumAdapter(this,mAlbums);
+        mAdapter = new AlbumAdapter(mAlbums);
         recyclerViewAlbums.setAdapter(mAdapter);
 
     }

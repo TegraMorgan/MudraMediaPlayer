@@ -23,7 +23,7 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.GenresViewHo
     private ArrayList<Album> albums;
 
 
-    public AlbumAdapter(Context context, ArrayList<Album> theAlbums) {
+    public AlbumAdapter(ArrayList<Album> theAlbums) {
         mAlbumsCount = theAlbums.size();
         albums = theAlbums;
 
@@ -52,15 +52,19 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.GenresViewHo
 
     class GenresViewHolder extends RecyclerView.ViewHolder {
         TextView listItemAlbum;
+        TextView listItemArtist;
 
         private GenresViewHolder(View view) {
             super(view);
 
             listItemAlbum = view.findViewById(R.id.tv_song_album);
+            listItemArtist = view.findViewById(R.id.tv_song_artist);
         }
 
         void bind(int listIndex) {
-            listItemAlbum.setText(String.valueOf(listIndex));
+            Album curr = albums.get(listIndex);
+            listItemAlbum.setText(curr.getaName());
+            listItemArtist.setText(curr.getaArtist());
         }
     }
 }
