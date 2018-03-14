@@ -8,6 +8,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+
+import il.co.wearabledevices.mudramediaplayer.model.Album;
+
 /**
  * Created by Tegra on 11/03/2018.
  * Work in progress
@@ -15,10 +19,14 @@ import android.widget.TextView;
 
 public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.GenresViewHolder> {
     private static final String TAG = AlbumAdapter.class.getSimpleName();
-    private int mGenreItems;
+    private int mAlbumsCount;
+    private ArrayList<Album> albums;
 
-    public AlbumAdapter(int nGenres) {
-        mGenreItems = nGenres;
+
+    public AlbumAdapter(ArrayList<Album> theAlbums) {
+        mAlbumsCount = theAlbums.size();
+        albums = theAlbums;
+
     }
 
     @Override
@@ -39,20 +47,24 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.GenresViewHo
 
     @Override
     public int getItemCount() {
-        return mGenreItems;
+        return mAlbumsCount;
     }
 
     class GenresViewHolder extends RecyclerView.ViewHolder {
         TextView listItemAlbum;
+        TextView listItemArtist;
 
         private GenresViewHolder(View view) {
             super(view);
 
-            listItemAlbum = view.findViewById(R.id.tv_album_name);
+            listItemAlbum = view.findViewById(R.id.tv_song_album);
+            listItemArtist = view.findViewById(R.id.tv_song_artist);
         }
 
         void bind(int listIndex) {
-            listItemAlbum.setText(String.valueOf(listIndex));
+            Album curr = albums.get(listIndex);
+            listItemAlbum.setText(curr.getaName());
+            listItemArtist.setText(curr.getaArtist());
         }
     }
 }
