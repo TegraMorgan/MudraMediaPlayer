@@ -34,7 +34,8 @@ dependencies {
     compile 'com.android.support:design:26.0.2'
     compile 'com.android.support:recyclerview-v7:26.0.2'
     compile 'com.android.support:appcompat-v7:26.0.2'
-    compile 'com.google.android.wearable:wearable:2.2.0'
+    compile 'com.android.support:cardview-v7:26.0.2'
+    provided 'com.google.android.wearable:wearable:2.2.0'
     compile 'com.google.android.support:wearable:2.2.0'
     compile 'com.google.android.gms:play-services-wearable:11.8.0'
 }

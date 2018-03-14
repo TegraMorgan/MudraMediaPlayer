@@ -16,15 +16,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+import il.co.wearabledevices.mudramediaplayer.model.Album;
 import il.co.wearabledevices.mudramediaplayer.model.Song;
 
 public class AlbumSelectionActivity extends AppCompatActivity {
     private int numOfSongs;
     private int numOfAlbums;
     private AlbumAdapter mAdapter;
-    private RecyclerView albumsList;
-    private ArrayList<Song> songList;
-    private ArrayList<String> albumNames;
+    private RecyclerView recyclerViewAlbums;
+    private ArrayList<Song> mSongs;
+    private ArrayList<Album> mAlbums;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,37 +41,37 @@ public class AlbumSelectionActivity extends AppCompatActivity {
                     .setAction("Action", null).show();
         });
 
-        songList = new ArrayList<Song>();
-        albumNames = new ArrayList<String>();
+        mSongs = new ArrayList<Song>();
+        mAlbums = new ArrayList<Album>();
 
         // get the songs
         getSongList();
 
         // set counters
-        numOfSongs = songList.size();
-        numOfAlbums = albumNames.size();
+        numOfSongs = mSongs.size();
+        numOfAlbums = mAlbums.size();
 
         // sort the songs
-        Collections.sort(songList,new Comparator<Song>(){
-            public int compare(Song a, Song b){
+        Collections.sort(mSongs, new Comparator<Song>() {
+            public int compare(Song a, Song b) {
                 return a.getTitle().compareTo(b.getTitle());
             }
         });
-        albumNames.sort(new Comparator<String>() {
+        mAlbums.sort(new Comparator<Album>() {
             @Override
-            public int compare(String s, String t1) {
-                return s.compareTo(t1);
+            public int compare(Album s, Album t1) {
+                return s.getaName().compareTo(t1.getaName());
             }
         });
 
         // set the recycler
-        albumsList = findViewById(R.id.rv_albums);
+        recyclerViewAlbums = findViewById(R.id.rv_albums);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        albumsList.setLayoutManager(layoutManager);
-        albumsList.setHasFixedSize(true);
+        recyclerViewAlbums.setLayoutManager(layoutManager);
+        recyclerViewAlbums.setHasFixedSize(true);
         // instantiate the adapter with number of albums
-        mAdapter = new AlbumAdapter(numOfAlbums);
-        albumsList.setAdapter(mAdapter);
+        mAdapter = new AlbumAdapter(this,mAlbums);
+        recyclerViewAlbums.setAdapter(mAdapter);
 
     }
 
@@ -107,14 +108,16 @@ public class AlbumSelectionActivity extends AppCompatActivity {
                 thisAlbum = cursor.getString(albumColumn);
                 if (thisAlbum == null || thisAlbum.isEmpty())
                     thisAlbum = parseDirectoryToAlbum(cursor.getString(pathColumn));
-                songList.add(new Song(thisID, thisTitle, thisArtist, thisAlbum, thisDur));
-                addAlbumIf(albumNames, thisAlbum);
+                mSongs.add(new Song(thisID, thisTitle, thisArtist, thisAlbum, thisDur));
+                addAlbumIf(mAlbums, new Album(thisAlbum, thisArtist));
             } while (cursor.moveToNext());
         }
     }
 
-    private void addAlbumIf(ArrayList<String> an, String ta) {
-        if (!an.contains(ta)) an.add(ta);
+    private void addAlbumIf(ArrayList<Album> an, Album ta) {
+        if (!an.contains(ta)) {
+            an.add(ta);
+        }
     }
 
     public String parseDirectoryToAlbum(String path) {
