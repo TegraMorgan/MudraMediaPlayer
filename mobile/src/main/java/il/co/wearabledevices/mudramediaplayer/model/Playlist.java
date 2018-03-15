@@ -47,4 +47,10 @@ public class Playlist {
         if (position-- < 0) position = 0;
         return songs.get(position);
     }
+
+    public void setPosition(int pos) {
+        if (songs.size() == 0) position = 0;
+        if (songs.size() >= pos) position = songs.size() - 1;
+        position = pos;
+    }
 }

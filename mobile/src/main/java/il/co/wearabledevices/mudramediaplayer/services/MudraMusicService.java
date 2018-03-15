@@ -48,6 +48,7 @@ public class MudraMusicService extends android.app.Service implements MediaPlaye
     }
 
     public void setList(ArrayList<Song> theSongs) {
+
         nowPlaying.songs = theSongs;
     }
 
@@ -79,14 +80,15 @@ public class MudraMusicService extends android.app.Service implements MediaPlaye
     }
 
     @Override
-    public void onPrepared(MediaPlayer mediaPlayer) {
-        mediaPlayer.start();
+    public void onPrepared(MediaPlayer mp) {
+        mp.start();
     }
 
     public void playSong() {
         Log.v(TAG, "Starting music playback");
         player.reset();
         Song s = nowPlaying.getCurrent();
+        Log.v(TAG, "Selected song" + s.getTitle());
         long cs = s.getId();
         Uri trackUri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, cs);
         try {
@@ -95,11 +97,12 @@ public class MudraMusicService extends android.app.Service implements MediaPlaye
             e.printStackTrace();
             Log.e("MUSIC SERVICE", "Error setting data source");
         }
+        Log.v(TAG, "Data Source set, prepareAsync");
         player.prepareAsync();
     }
 
     public void setSong(int songIndex) {
-        nowPlaying.position = songIndex;
+        nowPlaying.setPosition(songIndex);
     }
 
     public class MusicBinder extends Binder {
