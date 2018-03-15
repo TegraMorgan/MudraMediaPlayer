@@ -93,7 +93,7 @@ public class AlbumSelectionActivity extends AppCompatActivity implements AlbumAd
         recyclerViewAlbums.setLayoutManager(layoutManager);
         recyclerViewAlbums.setHasFixedSize(true);
         // instantiate the adapter with number of albums
-        mAdapter = new AlbumAdapter(mAlbums);
+        mAdapter = new AlbumAdapter(mAlbums, this);
         recyclerViewAlbums.setAdapter(mAdapter);
 
     }
@@ -194,12 +194,9 @@ public class AlbumSelectionActivity extends AppCompatActivity implements AlbumAd
     */
 
     @Override
-    public void onListItemClick(int clickedItemIndex) {
+    public void onListItemClick(int cii) {
         Log.v(TAG, "Album selected");
-
-        int albNo = Integer.parseInt(view.getTag().toString());
-
-        Album sel = mAlbums.get(albNo);
+        Album sel = mAlbums.get(cii);
         Log.v(TAG, sel.getaName() + " selected");
         musicSrv.setList(new Playlist(sel));
         musicSrv.playSong();
