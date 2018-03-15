@@ -2,7 +2,6 @@ package il.co.wearabledevices.mudramediaplayer;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,13 +18,15 @@ import il.co.wearabledevices.mudramediaplayer.model.Album;
 
 public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.GenresViewHolder> {
     private static final String TAG = AlbumAdapter.class.getSimpleName();
+    private static final int ACCEPTABLE_LENGTH = 25;
+    final private ListItemClickListener mOnClickListener;
     private int mAlbumsCount;
     private ArrayList<Album> albums;
 
-
-    public AlbumAdapter(ArrayList<Album> theAlbums) {
+    public AlbumAdapter(ArrayList<Album> theAlbums, ListItemClickListener listener) {
         mAlbumsCount = theAlbums.size();
         albums = theAlbums;
+        mOnClickListener = listener;
 
     }
 
@@ -41,7 +42,6 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.GenresViewHo
 
     @Override
     public void onBindViewHolder(GenresViewHolder holder, int position) {
-        Log.d(TAG, "Binding " + position);
         holder.bind(position);
     }
 
@@ -50,7 +50,11 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.GenresViewHo
         return mAlbumsCount;
     }
 
-    class GenresViewHolder extends RecyclerView.ViewHolder {
+    public interface ListItemClickListener {
+        void onListItemClick(int clickedItemIndex);
+    }
+
+    class GenresViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         TextView listItemAlbum;
         TextView listItemArtist;
 
@@ -59,12 +63,23 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.GenresViewHo
 
             listItemAlbum = view.findViewById(R.id.tv_song_album);
             listItemArtist = view.findViewById(R.id.tv_song_artist);
+            itemView.setOnClickListener(this);
         }
 
         void bind(int listIndex) {
             Album curr = albums.get(listIndex);
-            listItemAlbum.setText(curr.getaName());
-            listItemArtist.setText(curr.getaArtist());
+            String name = curr.getaName().trim();
+            String art = curr.getaArtist().trim();
+            if (name.length() > ACCEPTABLE_LENGTH) name = name.substring(0, ACCEPTABLE_LENGTH - 1);
+            if (art.length() > ACCEPTABLE_LENGTH) art = art.substring(0, ACCEPTABLE_LENGTH - 1);
+            listItemAlbum.setText(name + " - ");
+            listItemArtist.setText(art);
+        }
+
+        @Override
+        public void onClick(View view) {
+            int cliPos = getAdapterPosition();
+            mOnClickListener.onListItemClick(cliPos);
         }
     }
 }

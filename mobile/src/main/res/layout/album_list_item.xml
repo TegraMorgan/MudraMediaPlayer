@@ -1,31 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:onClick="albumPicked"
-    android:orientation="vertical"
+    android:layout_height="wrap_content"
+    android:backgroundTint="@color/cardview_light_background"
+    android:orientation="horizontal"
     android:padding="5dp">
+
     <TextView
         android:id="@+id/tv_song_album"
         style="@style/TextAppearance.AppCompat.Title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="monospace"
+        android:fontFamily="casual"
+        android:gravity="center|left"
         android:padding="8dp"
         android:text="Lorem ipsum"
-        android:textSize="16sp"
-
-        />
+        android:textSize="12sp" />
 
     <TextView
         android:id="@+id/tv_song_artist"
         style="@style/TextAppearance.AppCompat.Title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="monospace"
+        android:fontFamily="casual"
+        android:gravity="center|right"
         android:padding="8dp"
         android:text="Lorem ipsum"
-        android:textSize="16sp" />
+        android:textSize="12sp" />
 
 
 </android.support.v7.widget.LinearLayoutCompat>
