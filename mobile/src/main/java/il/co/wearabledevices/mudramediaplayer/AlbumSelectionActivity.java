@@ -1,9 +1,14 @@
 package il.co.wearabledevices.mudramediaplayer;
 
+import android.content.ComponentName;
 import android.content.ContentResolver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -18,12 +23,42 @@ import java.util.Comparator;
 
 import il.co.wearabledevices.mudramediaplayer.model.Album;
 import il.co.wearabledevices.mudramediaplayer.model.Song;
+import il.co.wearabledevices.mudramediaplayer.services.MudraMusicService;
+import il.co.wearabledevices.mudramediaplayer.services.MudraMusicService.MusicBinder;
 
 public class AlbumSelectionActivity extends AppCompatActivity {
     private static final String TAG = AlbumSelectionActivity.class.getSimpleName();
     private AlbumAdapter mAdapter;
     private RecyclerView recyclerViewAlbums;
     private ArrayList<Album> mAlbums;
+    private MudraMusicService musicSrv;
+    private Intent playIntent;
+    private boolean musicBound;
+    private ServiceConnection musicConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            MusicBinder binder = (MusicBinder) service;
+            // get the service pointer
+            musicSrv = binder.getService();
+            //mark as bounded
+            musicBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            musicBound = false;
+        }
+    };
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (playIntent == null) {
+            playIntent = new Intent(this, MudraMusicService.class);
+            bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
+            startService(playIntent);
+        }
+    }
 
     @SuppressWarnings("Convert2Diamond")
     @Override
@@ -47,10 +82,8 @@ public class AlbumSelectionActivity extends AppCompatActivity {
 
         // sort the songs
         mAlbums.sort(Comparator.comparing(Album::getaName));
-        for (Album alb : mAlbums
-                ) {
+        for (Album alb : mAlbums) {
             Log.v(TAG, alb.getaName() + " : " + alb.getaArtist());
-
         }
         // set the recycler
         recyclerViewAlbums = findViewById(R.id.rv_albums);
@@ -144,5 +177,6 @@ public class AlbumSelectionActivity extends AppCompatActivity {
         }
         return res.toString();
     }
+
 
 }

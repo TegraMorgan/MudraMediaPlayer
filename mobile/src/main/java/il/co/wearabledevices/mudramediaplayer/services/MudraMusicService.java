@@ -24,6 +24,7 @@ import il.co.wearabledevices.mudramediaplayer.model.Song;
 
 public class MudraMusicService extends android.app.Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
         MediaPlayer.OnCompletionListener {
+    private static final String TAG = "MusicService";
     private final IBinder musicBind = new MusicBinder();
     private MediaPlayer player;
     private Playlist nowPlaying;
@@ -40,13 +41,18 @@ public class MudraMusicService extends android.app.Service implements MediaPlaye
     public void initMusicPlayer() {
         player.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
         player.setAudioStreamType(AudioManager.STREAM_MUSIC);
+
         player.setOnPreparedListener(this);
         player.setOnCompletionListener(this);
         player.setOnErrorListener(this);
     }
 
     public void setList(ArrayList<Song> theSongs) {
-        nowPlaying.plSongs = theSongs;
+        nowPlaying.songs = theSongs;
+    }
+
+    public void setList(Playlist thePlaylist) {
+        nowPlaying = thePlaylist;
     }
 
     @Nullable
@@ -78,8 +84,9 @@ public class MudraMusicService extends android.app.Service implements MediaPlaye
     }
 
     public void playSong() {
+        Log.v(TAG, "Starting music playback");
         player.reset();
-        Song s = nowPlaying.currentSong();
+        Song s = nowPlaying.getCurrent();
         long cs = s.getId();
         Uri trackUri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, cs);
         try {
