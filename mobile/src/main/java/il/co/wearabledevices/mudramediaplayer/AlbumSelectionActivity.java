@@ -16,7 +16,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.View;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -27,7 +26,7 @@ import il.co.wearabledevices.mudramediaplayer.model.Song;
 import il.co.wearabledevices.mudramediaplayer.services.MudraMusicService;
 import il.co.wearabledevices.mudramediaplayer.services.MudraMusicService.MusicBinder;
 
-public class AlbumSelectionActivity extends AppCompatActivity {
+public class AlbumSelectionActivity extends AppCompatActivity implements AlbumAdapter.ListItemClickListener {
     private static final String TAG = AlbumSelectionActivity.class.getSimpleName();
     private AlbumAdapter mAdapter;
     private RecyclerView recyclerViewAlbums;
@@ -188,9 +187,18 @@ public class AlbumSelectionActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
+    /*
     public void albumPicked(View view) {
+
+    }
+    */
+
+    @Override
+    public void onListItemClick(int clickedItemIndex) {
         Log.v(TAG, "Album selected");
+
         int albNo = Integer.parseInt(view.getTag().toString());
+
         Album sel = mAlbums.get(albNo);
         Log.v(TAG, sel.getaName() + " selected");
         musicSrv.setList(new Playlist(sel));

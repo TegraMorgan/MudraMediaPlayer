@@ -19,13 +19,14 @@ import il.co.wearabledevices.mudramediaplayer.model.Album;
 public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.GenresViewHolder> {
     private static final String TAG = AlbumAdapter.class.getSimpleName();
     private static final int ACCEPTABLE_LENGTH = 25;
+    final private ListItemClickListener mOnClickListener;
     private int mAlbumsCount;
     private ArrayList<Album> albums;
 
-
-    public AlbumAdapter(ArrayList<Album> theAlbums) {
+    public AlbumAdapter(ArrayList<Album> theAlbums, ListItemClickListener listener) {
         mAlbumsCount = theAlbums.size();
         albums = theAlbums;
+        mOnClickListener = listener;
 
     }
 
@@ -49,7 +50,11 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.GenresViewHo
         return mAlbumsCount;
     }
 
-    class GenresViewHolder extends RecyclerView.ViewHolder {
+    public interface ListItemClickListener {
+        void onListItemClick(int clickedItemIndex);
+    }
+
+    class GenresViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         TextView listItemAlbum;
         TextView listItemArtist;
 
@@ -58,6 +63,7 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.GenresViewHo
 
             listItemAlbum = view.findViewById(R.id.tv_song_album);
             listItemArtist = view.findViewById(R.id.tv_song_artist);
+            itemView.setOnClickListener(this);
         }
 
         void bind(int listIndex) {
@@ -68,6 +74,12 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.GenresViewHo
             if (art.length() > ACCEPTABLE_LENGTH) art = art.substring(0, ACCEPTABLE_LENGTH - 1);
             listItemAlbum.setText(name + " - ");
             listItemArtist.setText(art);
+        }
+
+        @Override
+        public void onClick(View view) {
+            int cliPos = getAdapterPosition();
+            mOnClickListener.onListItemClick(cliPos);
         }
     }
 }
