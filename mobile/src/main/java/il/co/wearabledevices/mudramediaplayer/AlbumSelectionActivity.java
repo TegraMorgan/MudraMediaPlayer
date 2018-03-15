@@ -126,7 +126,7 @@ public class AlbumSelectionActivity extends AppCompatActivity implements AlbumAd
                 if (thisTitle == null || thisTitle.isEmpty())
                     thisTitle = parseFileToSongName(cursor.getString(fileNameColumn));
                 if (thisTitle.compareTo("<unknown>") == 0) {
-                    thisTitle = "Unknown artist";
+                    thisTitle = "Unknown song";
                 }
                 thisArtist = cursor.getString(artistColumn);
                 if (thisArtist.compareTo("<unknown>") == 0) {
@@ -183,7 +183,9 @@ public class AlbumSelectionActivity extends AppCompatActivity implements AlbumAd
     @Override
     protected void onDestroy() {
         stopService(playIntent);
+        unbindService(musicConnection); //TODO check if leaked ServiceConnection exception persists
         musicSrv = null;
+
         super.onDestroy();
     }
 

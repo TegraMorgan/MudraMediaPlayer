@@ -40,7 +40,7 @@ public class MudraMusicService extends android.app.Service implements MediaPlaye
 
     public void initMusicPlayer() {
         player.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
-        player.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        player.setAudioStreamType(AudioManager.STREAM_MUSIC); // TODO seems deprecated - fix it setAudioStreamType()
 
         player.setOnPreparedListener(this);
         player.setOnCompletionListener(this);
