@@ -14,7 +14,7 @@ public class Album {
     public Album(String albumName, String albumArtist) {
         aName = albumName;
         aArtist = albumArtist;
-        aSongs = null;
+        aSongs = new ArrayList<Song>();
     }
 
     public Album(String albumName, String albumArtist, ArrayList<Song> albumSongs) {
