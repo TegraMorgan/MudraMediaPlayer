@@ -23,7 +23,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".services.MudraMusicService" />
+        <service android:name=".service.MudraMusicService" />
 
         <activity
             android:name=".AlbumSelectionActivity"

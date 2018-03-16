@@ -1,4 +1,4 @@
-package il.co.wearabledevices.mudramediaplayer.services;
+package il.co.wearabledevices.mudramediaplayer.service;
 
 import android.content.ContentUris;
 import android.content.Intent;

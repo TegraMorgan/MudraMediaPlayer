@@ -23,8 +23,8 @@ import java.util.Comparator;
 import il.co.wearabledevices.mudramediaplayer.model.Album;
 import il.co.wearabledevices.mudramediaplayer.model.Playlist;
 import il.co.wearabledevices.mudramediaplayer.model.Song;
-import il.co.wearabledevices.mudramediaplayer.services.MudraMusicService;
-import il.co.wearabledevices.mudramediaplayer.services.MudraMusicService.MusicBinder;
+import il.co.wearabledevices.mudramediaplayer.service.MudraMusicService;
+import il.co.wearabledevices.mudramediaplayer.service.MudraMusicService.MusicBinder;
 
 public class AlbumSelectionActivity extends AppCompatActivity implements AlbumAdapter.ListItemClickListener {
     private static final String TAG = AlbumSelectionActivity.class.getSimpleName();
