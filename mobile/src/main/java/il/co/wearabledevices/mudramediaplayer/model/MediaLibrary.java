@@ -13,17 +13,20 @@ import java.util.ArrayList;
  */
 
 public class MediaLibrary {
+    private static final String TAG = "Media Library";
+
     private ArrayList<Album> mAlbums;
 
     public MediaLibrary(Context context, String rtPath) {
         getSongList(context, rtPath);
     }
 
-    public MediaLibrary(Context con) {
-        getSongList(con, "/music/");
+    public MediaLibrary(Context context) {
+        getSongList(context, "/music/");
     }
 
     public void getSongList(Context con, String rootPath) {
+        mAlbums = new ArrayList<>();
         //retrieve song info
 
         ContentResolver resolver = con.getContentResolver();
@@ -45,8 +48,10 @@ public class MediaLibrary {
             String thisAlbum;
             int thisDur;
             Song thisSong;
+            String pathLowerCase;
             do {
-                if (cursor.getString(pathColumn).contains(rootPath)) {
+                pathLowerCase = cursor.getString(pathColumn).toLowerCase();
+                if (pathLowerCase.contains(rootPath)) {
                     thisID = cursor.getLong(idColumn);
                     thisTitle = cursor.getString(titleColumn);
                     if (thisTitle == null || thisTitle.isEmpty())
@@ -105,5 +110,22 @@ public class MediaLibrary {
             res.append(a[i]);
         }
         return res.toString();
+    }
+
+    public ArrayList<Album> getmAlbums() {
+        return mAlbums;
+    }
+
+
+    /**
+     * @return Array of Album names as strings
+     */
+    public String[] getAlbumNames() {
+        if (mAlbums.size() == 0) return null;
+        String[] result = new String[mAlbums.size()];
+        for (int i = 0; i < mAlbums.size(); i++) {
+            result[i] = mAlbums.get(i).getaName();
+        }
+        return result;
     }
 }

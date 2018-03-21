@@ -2,7 +2,7 @@ package il.co.wearabledevices.mudramediaplayer.service;
 
 import android.content.ContentUris;
 import android.content.Intent;
-import android.media.AudioManager;
+import android.media.AudioAttributes;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Binder;
@@ -40,8 +40,8 @@ public class MudraMusicService extends android.app.Service implements MediaPlaye
 
     public void initMusicPlayer() {
         player.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
-        player.setAudioStreamType(AudioManager.STREAM_MUSIC);
-
+        AudioAttributes mediaPlayerAttributes = new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA).setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build();
+        player.setAudioAttributes(mediaPlayerAttributes);
         player.setOnPreparedListener(this);
         player.setOnCompletionListener(this);
         player.setOnErrorListener(this);
@@ -66,6 +66,7 @@ public class MudraMusicService extends android.app.Service implements MediaPlaye
     public boolean onUnbind(Intent intent) {
         player.stop();
         player.release();
+        player = null;
         return false;
     }
 
@@ -85,10 +86,8 @@ public class MudraMusicService extends android.app.Service implements MediaPlaye
     }
 
     public void playSong() {
-        Log.v(TAG, "Starting music playback");
         player.reset();
         Song s = nowPlaying.getCurrent();
-        Log.v(TAG, "Selected song" + s.getTitle());
         long cs = s.getId();
         Uri trackUri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, cs);
         try {
@@ -97,7 +96,6 @@ public class MudraMusicService extends android.app.Service implements MediaPlaye
             e.printStackTrace();
             Log.e("MUSIC SERVICE", "Error setting data source");
         }
-        Log.v(TAG, "Data Source set, prepareAsync");
         player.prepareAsync();
     }
 
