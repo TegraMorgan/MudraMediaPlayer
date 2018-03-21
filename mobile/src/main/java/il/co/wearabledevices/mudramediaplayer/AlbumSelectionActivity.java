@@ -71,6 +71,7 @@ public class AlbumSelectionActivity extends AppCompatActivity implements AlbumAd
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(view -> {
+            //TODO floating button action
             stopService(playIntent);
             musicSrv = null;
             System.exit(0);
