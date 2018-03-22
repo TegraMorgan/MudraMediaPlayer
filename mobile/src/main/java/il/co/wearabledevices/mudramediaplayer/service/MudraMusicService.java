@@ -19,7 +19,9 @@ import il.co.wearabledevices.mudramediaplayer.model.Playlist;
 import il.co.wearabledevices.mudramediaplayer.model.Song;
 
 /**
+ * Media Player Service
  * Created by tegra on 14/03/18.
+ *
  */
 
 public class MudraMusicService extends android.app.Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
