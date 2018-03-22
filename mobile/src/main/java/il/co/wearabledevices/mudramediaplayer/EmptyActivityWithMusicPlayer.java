@@ -11,6 +11,10 @@ import android.support.v7.app.AppCompatActivity;
 import il.co.wearabledevices.mudramediaplayer.model.Playlist;
 import il.co.wearabledevices.mudramediaplayer.service.MudraMusicService;
 
+/**
+ * Copy this activity if you need to create new activity with controls of music service
+ */
+
 public class EmptyActivityWithMusicPlayer extends AppCompatActivity {
 
 
@@ -50,9 +54,10 @@ public class EmptyActivityWithMusicPlayer extends AppCompatActivity {
         setContentView(R.layout.activity_empty_with_music_player);
     }
 
+
     @Override
     protected void onDestroy() {
-        stopService(playIntent);
+        stopService(playIntent); // Do this only if you want to stop the music when you exit the activity
         unbindService(musicConnection);
         musicSrv = null;
 
