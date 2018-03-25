@@ -27,6 +27,8 @@ import il.co.wearabledevices.mudramediaplayer.R;
 
 public class MudraMusicService2 extends MediaBrowserServiceCompat implements MediaPlayer.OnCompletionListener, android.media.AudioManager.OnAudioFocusChangeListener {
     private static final String TAG = MudraMusicService2.class.getSimpleName();
+    private static final float LOW_VOLUME = 0.3f;
+    private static final float FULL_VOLUME = 1.0f;
     private MediaPlayer mMediaPlayer;
     private MediaSessionCompat mMediaSessionCompat;
 
@@ -99,7 +101,7 @@ public class MudraMusicService2 extends MediaBrowserServiceCompat implements Med
         mMediaPlayer = new MediaPlayer();
         mMediaPlayer.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
         mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        mMediaPlayer.setVolume(1.0f, 1.0f);
+        mMediaPlayer.setVolume(FULL_VOLUME, FULL_VOLUME);
     }
 
     private void initMediaSession() {
@@ -134,4 +136,34 @@ public class MudraMusicService2 extends MediaBrowserServiceCompat implements Med
         initNoisyReceiver();
     }
 
+    @Override
+    public void onAudioFocusChange(int focusChange) {
+        switch (focusChange) {
+            case AudioManager.AUDIOFOCUS_LOSS: {
+                if (mMediaPlayer.isPlaying()) {
+                    mMediaPlayer.stop();
+                }
+                break;
+            }
+            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT: {
+                mMediaPlayer.pause();
+                break;
+            }
+            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK: {
+                if (mMediaPlayer != null) {
+                    mMediaPlayer.setVolume(LOW_VOLUME, LOW_VOLUME);
+                }
+                break;
+            }
+            case AudioManager.AUDIOFOCUS_GAIN: {
+                if (mMediaPlayer != null) {
+                    if (!mMediaPlayer.isPlaying()) {
+                        mMediaPlayer.start();
+                    }
+                    mMediaPlayer.setVolume(FULL_VOLUME, FULL_VOLUME);
+                }
+                break;
+            }
+        }
+    }
 }
