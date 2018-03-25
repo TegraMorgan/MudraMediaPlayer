@@ -2,6 +2,7 @@ package il.co.wearabledevices.mudramediaplayer.service;
 
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -13,6 +14,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.os.ResultReceiver;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationManagerCompat;
@@ -26,10 +28,12 @@ import android.support.v7.app.NotificationCompat;
 import android.text.TextUtils;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import il.co.wearabledevices.mudramediaplayer.R;
 import il.co.wearabledevices.mudramediaplayer.model.Playlist;
+import il.co.wearabledevices.mudramediaplayer.model.Song;
 
 /**
  * Created by tegra on 25/03/18.
@@ -338,4 +342,26 @@ public class MudraMusicService2 extends MediaBrowserServiceCompat implements Med
         mMediaSessionCompat.release();
         NotificationManagerCompat.from(this).cancel(1);
     }
+
+    public void setList(ArrayList<Song> theSongs) {
+
+        nowPlaying.songs = theSongs;
+    }
+
+    public void setList(Playlist thePlaylist) {
+        nowPlaying = thePlaylist;
+    }
+
+    public void setSong(int songIndex) {
+        nowPlaying.setPosition(songIndex);
+    }
+
+    public void playSong() {
+        Song s = nowPlaying.getCurrent();
+        long cs = s.getId();
+        Uri trackUri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, cs);
+
+
+    }
+
 }
