@@ -30,6 +30,15 @@
             android:label="@string/title_activity_album_selection"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".EmptyActivityWithMusicPlayer"></activity>
+
+        <activity android:name=".player.PlayerActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
     </application>
 
 </manifest>
