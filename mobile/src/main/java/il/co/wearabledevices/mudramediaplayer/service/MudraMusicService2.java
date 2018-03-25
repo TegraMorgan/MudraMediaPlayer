@@ -44,6 +44,9 @@ public class MudraMusicService2 extends MediaBrowserServiceCompat implements Med
         @Override
         public void onPlay() {
             super.onPlay();
+            if (!successfullyRetrievedAudioFocus()) {
+                return;
+            }
         }
 
         @Override
@@ -59,6 +62,15 @@ public class MudraMusicService2 extends MediaBrowserServiceCompat implements Med
 
     public MudraMusicService2() {
         super();
+    }
+
+    private boolean successfullyRetrievedAudioFocus() {
+        AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+
+        int result = audioManager.requestAudioFocus(this,
+                AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+
+        return result == AudioManager.AUDIOFOCUS_GAIN;
     }
 
     @Nullable
