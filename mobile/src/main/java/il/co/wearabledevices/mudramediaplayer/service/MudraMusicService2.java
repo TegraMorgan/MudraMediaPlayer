@@ -270,7 +270,7 @@ public class MudraMusicService2 extends MediaBrowserServiceCompat implements Med
         mMediaSessionCompat.setCallback(mMediaSessionCallback);
         mMediaSessionCompat.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
 
-        // This section is for pre lolipop - irrelevant for us
+        // This section is for pre lollipop - irrelevant for us
         /*
         Intent mediaButtonIntent = new Intent(Intent.ACTION_MEDIA_BUTTON);
         mediaButtonIntent.setClass(this, MediaButtonReceiver.class);
