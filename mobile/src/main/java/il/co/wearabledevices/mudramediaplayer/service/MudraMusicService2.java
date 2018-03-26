@@ -20,6 +20,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaBrowserServiceCompat;
+import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaButtonReceiver;
 import android.support.v4.media.session.MediaSessionCompat;
@@ -134,6 +135,11 @@ public class MudraMusicService2 extends MediaBrowserServiceCompat implements Med
         }
 
         @Override
+        public void onAddQueueItem(MediaDescriptionCompat description) {
+            super.onAddQueueItem(description);
+        }
+
+        @Override
         public void onPlayFromMediaId(String mediaId, Bundle extras) {
             super.onPlayFromMediaId(mediaId, extras);
             try {
@@ -244,9 +250,22 @@ public class MudraMusicService2 extends MediaBrowserServiceCompat implements Med
         return null;
     }
 
-    //Not important for general audio service, required for class
+    /**
+     * Here we return the tree structure in form of MediaItems
+     *
+     * @param parentId should be our application name
+     * @param result
+     */
     @Override
     public void onLoadChildren(@NonNull String parentId, @NonNull Result<List<MediaBrowserCompat.MediaItem>> result) {
+
+
+        if (!parentId.equals(R.string.app_name)) {
+            result.sendResult(new ArrayList<>());
+        }
+        /* Test if Library is ready */
+
+
         result.sendResult(null);
     }
 
