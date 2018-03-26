@@ -1,11 +1,7 @@
 package il.co.wearabledevices.mudramediaplayer;
 
 import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.media.MediaBrowserCompat;
@@ -22,9 +18,7 @@ import java.util.Comparator;
 
 import il.co.wearabledevices.mudramediaplayer.model.Album;
 import il.co.wearabledevices.mudramediaplayer.model.MediaLibrary;
-import il.co.wearabledevices.mudramediaplayer.model.Playlist;
-import il.co.wearabledevices.mudramediaplayer.service.MudraMusicService;
-import il.co.wearabledevices.mudramediaplayer.service.MudraMusicService.MusicBinder;
+import il.co.wearabledevices.mudramediaplayer.service.MudraMusicService2;
 
 public class AlbumSelectionActivity extends AppCompatActivity implements AlbumAdapter.ListItemClickListener {
     private static final String TAG = AlbumSelectionActivity.class.getSimpleName();
@@ -32,15 +26,12 @@ public class AlbumSelectionActivity extends AppCompatActivity implements AlbumAd
     private AlbumAdapter mAdapter;
     private RecyclerView recyclerViewAlbums;
     private MediaLibrary mLibrary;
-    private MudraMusicService musicSrv;
-    private Intent playIntent;
-    private boolean musicBound;
 
     private int mCurrentState;
     private MediaBrowserCompat mMediaBrowserCompat;
     private MediaControllerCompat mMediaControllerCompat;
 
-    private MediaControllerCompat.Callback mMediaControllerCompatCallback = new MediaControllerCompat.Callback() {
+    private MediaControllerCompat.Callback mControllerCallback = new MediaControllerCompat.Callback() {
 
         @Override
         public void onPlaybackStateChanged(PlaybackStateCompat state) {
@@ -69,13 +60,8 @@ public class AlbumSelectionActivity extends AppCompatActivity implements AlbumAd
             super.onConnected();
             try {
                 mMediaControllerCompat = new MediaControllerCompat(AlbumSelectionActivity.this, mMediaBrowserCompat.getSessionToken());
-                mMediaControllerCompat.registerCallback(mMediaControllerCompatCallback);
-
+                mMediaControllerCompat.registerCallback(mControllerCallback);
                 MediaControllerCompat.setMediaController(AlbumSelectionActivity.this, mMediaControllerCompat);
-
-                //setSupportMediaController(mMediaControllerCompat);
-                //getSupportMediaController().getTransportControls().playFromMediaId(String.valueOf(R.raw.warner_tautz_off_broadway), null);
-
             } catch (RemoteException e) {
 
             }
@@ -83,30 +69,10 @@ public class AlbumSelectionActivity extends AppCompatActivity implements AlbumAd
     };
 
 
-    private ServiceConnection musicConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            MusicBinder binder = (MusicBinder) service;
-            // get the service pointer
-            musicSrv = binder.getService();
-            //mark as bounded
-            musicBound = true;
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            musicBound = false;
-        }
-    };
-
     @Override
     protected void onStart() {
         super.onStart();
-        if (playIntent == null) {
-            playIntent = new Intent(this, MudraMusicService.class);
-            bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
-            startService(playIntent);
-        }
+
     }
 
     @SuppressWarnings("Convert2Diamond")
@@ -121,12 +87,20 @@ public class AlbumSelectionActivity extends AppCompatActivity implements AlbumAd
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(view -> {
             //TODO floating button action
-            stopService(playIntent);
-            musicSrv = null;
+            switch (mCurrentState) {
+                case PlaybackStateCompat.STATE_PLAYING:
+
+                    break;
+                default:
+                    break;
+            }
+
             System.exit(0);
             //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG).setAction("Action", null).show();
         });
 
+        mMediaBrowserCompat = new MediaBrowserCompat(this, new ComponentName(this, MudraMusicService2.class), mMediaBrowserCompatConnectionCallback, getIntent().getExtras());
+        mMediaBrowserCompat.connect();
         /* This is an example how to use MediaLibrary class */
 
         /* mLibrary - Global variable of MediaLibrary class */
@@ -154,12 +128,12 @@ public class AlbumSelectionActivity extends AppCompatActivity implements AlbumAd
     @Override
     protected void onDestroy() {
         Log.v(TAG, "OnDestroy launched");
-        stopService(playIntent);
-        unbindService(musicConnection);
-        musicSrv = null;
 
-        if (getSupportMediaController().getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING) {
-            getSupportMediaController().getTransportControls().pause();
+        MediaControllerCompat controllerCompat = MediaControllerCompat.getMediaController(AlbumSelectionActivity.this);
+        PlaybackStateCompat stateCompat = controllerCompat.getPlaybackState();
+        if (stateCompat.getState() == PlaybackStateCompat.STATE_PLAYING) {
+            MediaControllerCompat.TransportControls controls = MediaControllerCompat.getMediaController(AlbumSelectionActivity.this).getTransportControls();
+            controls.pause();
         }
 
         mMediaBrowserCompat.disconnect();
@@ -170,7 +144,39 @@ public class AlbumSelectionActivity extends AppCompatActivity implements AlbumAd
     @Override
     public void onListItemClick(int cii) {
         Album sel = mAlbums.get(cii);
+        MediaControllerCompat controllerCompat = MediaControllerCompat.getMediaController(AlbumSelectionActivity.this);
+        PlaybackStateCompat stateCompat = controllerCompat.getPlaybackState();
+        if (stateCompat != null) {
+            MediaControllerCompat.TransportControls controls = MediaControllerCompat.getMediaController(AlbumSelectionActivity.this).getTransportControls();
+            switch (stateCompat.getState()) {
+                case PlaybackStateCompat.STATE_PLAYING:
+                case PlaybackStateCompat.STATE_BUFFERING:
+                    controls.pause();
+                    break;
+                case PlaybackStateCompat.STATE_NONE:
+                case PlaybackStateCompat.STATE_PAUSED:
+                case PlaybackStateCompat.STATE_STOPPED:
+                    controls.playFromMediaId(sel.getaName(), null);
+                    break;
+                default:
+                    Log.d(TAG, "Unhandled click");
+            }
+        }
+        // old method
+        /*
         musicSrv.setList(new Playlist(sel));
         musicSrv.playSong();
+        */
+    }
+
+    /* deprecated function */
+    private MediaControllerCompat.TransportControls getSupportMediaController() {
+        MediaControllerCompat.TransportControls res = null;
+        MediaControllerCompat controllerCompat = MediaControllerCompat.getMediaController(AlbumSelectionActivity.this);
+        PlaybackStateCompat stateCompat = controllerCompat.getPlaybackState();
+        if (stateCompat != null) {
+            res = MediaControllerCompat.getMediaController(AlbumSelectionActivity.this).getTransportControls();
+        }
+        return res;
     }
 }

@@ -1,11 +1,10 @@
 package il.co.wearabledevices.mudramediaplayer;
 
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.IBinder;
+import android.os.RemoteException;
+import android.support.v4.media.MediaBrowserCompat;
+import android.support.v4.media.session.MediaControllerCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v7.app.AppCompatActivity;
 
 import il.co.wearabledevices.mudramediaplayer.model.Playlist;
@@ -17,34 +16,50 @@ import il.co.wearabledevices.mudramediaplayer.service.MudraMusicService;
 
 public class EmptyActivityWithMusicPlayer extends AppCompatActivity {
 
-
     private MudraMusicService musicSrv;
-    private Intent playIntent;
-    private boolean musicBound;
-    private ServiceConnection musicConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            MudraMusicService.MusicBinder binder = (MudraMusicService.MusicBinder) service;
-            // get the service pointer
-            musicSrv = binder.getService();
-            //mark as bounded
-            musicBound = true;
-        }
+    private int mCurrentState;
+    private MediaControllerCompat.Callback mControllerCallback = new MediaControllerCompat.Callback() {
 
         @Override
-        public void onServiceDisconnected(ComponentName name) {
-            musicBound = false;
+        public void onPlaybackStateChanged(PlaybackStateCompat state) {
+            super.onPlaybackStateChanged(state);
+            if (state == null) {
+                return;
+            }
+
+            switch (state.getState()) {
+                case PlaybackStateCompat.STATE_PLAYING: {
+                    mCurrentState = PlaybackStateCompat.STATE_PLAYING;
+                    break;
+                }
+                case PlaybackStateCompat.STATE_PAUSED: {
+                    mCurrentState = PlaybackStateCompat.STATE_PAUSED;
+                    break;
+                }
+            }
+        }
+    };
+    private MediaBrowserCompat mMediaBrowserCompat;
+    private MediaControllerCompat mMediaControllerCompat;
+    private MediaBrowserCompat.ConnectionCallback mMediaBrowserCompatConnectionCallback = new MediaBrowserCompat.ConnectionCallback() {
+
+        @Override
+        public void onConnected() {
+            super.onConnected();
+            try {
+                mMediaControllerCompat = new MediaControllerCompat(EmptyActivityWithMusicPlayer.this, mMediaBrowserCompat.getSessionToken());
+                mMediaControllerCompat.registerCallback(mControllerCallback);
+                MediaControllerCompat.setMediaController(EmptyActivityWithMusicPlayer.this, mMediaControllerCompat);
+            } catch (RemoteException e) {
+
+            }
         }
     };
 
     @Override
     protected void onStart() {
         super.onStart();
-        if (playIntent == null) {
-            playIntent = new Intent(this, MudraMusicService.class);
-            bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
-            startService(playIntent);
-        }
+
     }
 
 
@@ -57,22 +72,17 @@ public class EmptyActivityWithMusicPlayer extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        stopService(playIntent); // Do this only if you want to stop the music when you exit the activity
-        unbindService(musicConnection);
-        musicSrv = null;
 
         super.onDestroy();
     }
 
     protected void StopPlayback() {
-        stopService(playIntent);
-        musicSrv = null;
+
     }
 
     protected void StartPlayback() {
         /* Change toPlay according to your need */
         Playlist toPlay = new Playlist();
-        musicSrv.setList(toPlay);
-        musicSrv.playSong();
+
     }
 }

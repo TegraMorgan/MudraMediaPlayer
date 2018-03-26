@@ -144,6 +144,7 @@ public class MudraMusicService2 extends MediaBrowserServiceCompat implements Med
         public void onPlayFromMediaId(String mediaId, Bundle extras) {
             super.onPlayFromMediaId(mediaId, extras);
             try {
+
                 AssetFileDescriptor afd = getResources().openRawResourceFd(Integer.valueOf(mediaId));
                 if (afd == null) {
                     return;
