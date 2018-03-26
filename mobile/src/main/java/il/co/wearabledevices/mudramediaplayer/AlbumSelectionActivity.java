@@ -24,6 +24,7 @@ import il.co.wearabledevices.mudramediaplayer.service.MudraMusicService.MusicBin
 
 public class AlbumSelectionActivity extends AppCompatActivity implements AlbumAdapter.ListItemClickListener {
     private static final String TAG = AlbumSelectionActivity.class.getSimpleName();
+    ArrayList<Album> mAlbums;
     private AlbumAdapter mAdapter;
     private RecyclerView recyclerViewAlbums;
     private MediaLibrary mLibrary;
@@ -80,7 +81,7 @@ public class AlbumSelectionActivity extends AppCompatActivity implements AlbumAd
         /* Initialize new media library with default root path (music) */
         mLibrary = new MediaLibrary(this);
         /* get the albums from the media library */
-        ArrayList<Album> mAlbums = mLibrary.getmAlbums();
+        mAlbums = (ArrayList<Album>) mLibrary.getAlbums();
         /* sort the albums by album name */
         mAlbums.sort(Comparator.comparing(Album::getaName));
 
@@ -110,7 +111,7 @@ public class AlbumSelectionActivity extends AppCompatActivity implements AlbumAd
 
     @Override
     public void onListItemClick(int cii) {
-        Album sel = mLibrary.getmAlbums().get(cii);
+        Album sel = mAlbums.get(cii);
         musicSrv.setList(new Playlist(sel));
         musicSrv.playSong();
     }

@@ -5,52 +5,36 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
-import android.support.v4.media.MediaMetadataCompat;
+import android.util.ArrayMap;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.Collection;
 
 /**
  * Created by Tegra on 21/03/2018.
  */
 
 public class MediaLibrary {
+    private static final int ACCEPTABLE_LENGTH = 25;
     private static final String TAG = "Media Library";
-    private final ConcurrentMap<String, Song> mMusicListById;
-    private ConcurrentMap<String, List<MediaMetadataCompat>> mAlbums;
+    private final ArrayMap<String, Song> mMusicListById;
+    private ArrayMap<String, Album> mAlbumListByName;
     private volatile State mCurrentState = State.NON_INITIALIZED;
 
     public MediaLibrary(Context context, String rtPath) {
 
-        mAlbums = new ConcurrentHashMap<>();
-        mMusicListById = new ConcurrentHashMap<>();
-        getSongList(context, rtPath);
+        mAlbumListByName = new ArrayMap<>();
+        mMusicListById = new ArrayMap<>();
+        buildMediaLibrary(context, rtPath);
     }
 
     public MediaLibrary(Context context) {
         this(context, "/music/");
     }
 
-    public Iterable<String> getAlbums() {
-        if (mCurrentState != State.INITIALIZED) {
-            return Collections.emptyList();
-        }
-        return mAlbums.keySet();
-    }
-
-    public List<MediaMetadataCompat> getMusicsByAlbum(String albumName) {
-        if (mCurrentState != State.INITIALIZED || !mAlbums.containsKey(albumName)) {
-            return Collections.emptyList();
-        }
-        return mAlbums.get(albumName);
-    }
-
-    public void getSongList(Context con, String rootPath) {
+    private void buildMediaLibrary(Context con, String rootPath) {
         //retrieve song info
-
+        mCurrentState = State.INITIALIZING;
         ContentResolver resolver = con.getContentResolver();
         Uri musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         Cursor cursor = resolver.query(musicUri, null, null, null, null);
@@ -81,10 +65,19 @@ public class MediaLibrary {
                     if (thisTitle.compareTo("<unknown>") == 0) {
                         thisTitle = "Unknown song";
                     }
+                    thisTitle = thisTitle.trim();
+                    if (thisTitle.length() > ACCEPTABLE_LENGTH)
+                        thisTitle = thisTitle.substring(0, ACCEPTABLE_LENGTH - 1);
+
                     thisArtist = cursor.getString(artistColumn);
                     if (thisArtist.compareTo("<unknown>") == 0) {
                         thisArtist = "Unknown artist";
                     }
+                    thisArtist = thisArtist.trim();
+                    if (thisArtist.length() > ACCEPTABLE_LENGTH)
+                        thisArtist = thisArtist.substring(0, ACCEPTABLE_LENGTH - 1);
+
+
                     thisDur = (int) cursor.getLong(durationColumn) / 1000;
                     thisAlbum = cursor.getString(albumColumn);
                     if (thisAlbum == null || thisAlbum.isEmpty())
@@ -92,9 +85,13 @@ public class MediaLibrary {
                     if (thisAlbum.compareTo("<unknown>") == 0) {
                         thisAlbum = "Unknown album";
                     }
+                    thisAlbum = thisAlbum.trim();
+                    if (thisAlbum.length() > ACCEPTABLE_LENGTH)
+                        thisAlbum = thisAlbum.substring(0, ACCEPTABLE_LENGTH - 1);
 
                     thisSong = new Song(thisID, thisTitle, thisArtist, thisAlbum, thisDur);
-                    addAlbumIf(mAlbums, new Album(thisAlbum, thisArtist), thisSong);
+                    mMusicListById.put(String.valueOf(thisSong.getId()), thisSong);
+                    addAlbumIf(mAlbumListByName, new Album(thisAlbum, thisArtist), thisSong);
                 /*
                 Log.v(TAG, "Song title : " + thisTitle);
                 Log.v(TAG, "Artist : " + thisArtist);
@@ -104,28 +101,34 @@ public class MediaLibrary {
             } while (cursor.moveToNext());
         }
         if (cursor != null) {
+            //If the cursor was not null - we finished
             cursor.close();
-        }
-    }
-
-    private void addAlbumIf(ArrayList<Album> an, Album ta, Song ts) {
-        int ind = an.indexOf(ta);
-        if (ind == -1) {
-            ta.getaSongs().add(ts);
-            an.add(ta);
+            mCurrentState = State.INITIALIZED;
         } else {
-            an.get(ind).getaSongs().add(ts);
+            //If the cursor is null - something was wrong
+            mCurrentState = State.NON_INITIALIZED;
         }
     }
 
-    public String parseDirectoryToAlbum(String path) {
+    private void addAlbumIf(ArrayMap<String, Album> allAlbums, Album currentAlbum, Song song) {
+
+        String can = currentAlbum.getaName();
+        if (allAlbums.containsKey(can)) {
+            allAlbums.get(can).getaSongs().add(song);
+        } else {
+            allAlbums.put(can, new Album(can, currentAlbum.getaArtist()));
+            allAlbums.get(can).getaSongs().add(song);
+        }
+    }
+
+    private String parseDirectoryToAlbum(String path) {
         String res;
         String[] a = path.split("/");
         res = a[a.length - 1];
         return res;
     }
 
-    public String parseFileToSongName(String fName) {
+    private String parseFileToSongName(String fName) {
         StringBuilder res = new StringBuilder();
         String[] a = fName.split(".");
         for (int i = 0; i < a.length - 1; i++) {
@@ -134,31 +137,33 @@ public class MediaLibrary {
         return res.toString();
     }
 
-    private synchronized void buildListsByAlbum() {
-        ConcurrentMap<String, List<MediaMetadataCompat>> newMusicListByGenre = new ConcurrentHashMap<>();
-
-        for (Song m : mMusicListById.values()) {
-            String genre = m.metadata.getString(MediaMetadataCompat.METADATA_KEY_GENRE);
-            List<MediaMetadataCompat> list = newMusicListByGenre.get(genre);
-            if (list == null) {
-                list = new ArrayList<>();
-                newMusicListByGenre.put(genre, list);
-            }
-            list.add(m.metadata);
-        }
-        mAlbums = newMusicListByGenre;
-    }
 
     /**
      * @return Array of Album names as strings
      */
     public String[] getAlbumNames() {
-        if (mAlbums.size() == 0) return null;
-        String[] result = new String[mAlbums.size()];
-        for (int i = 0; i < mAlbums.size(); i++) {
-            result[i] = mAlbums.get(i).getaName();
+        if (mAlbumListByName.size() == 0) return null;
+        String[] result = new String[mAlbumListByName.size()];
+        for (int i = 0; i < mAlbumListByName.size(); i++) {
+            result[i] = mAlbumListByName.keyAt(i);
         }
         return result;
+    }
+
+    public Album getAlbum(String albumName) {
+        if (mCurrentState != State.INITIALIZED || !mAlbumListByName.containsKey(albumName)) {
+            return null;
+        }
+        return mAlbumListByName.get(albumName);
+    }
+
+    public Collection<Album> getAlbums() {
+        Collection<Album> res = new ArrayList<>();
+        for (Album al : mAlbumListByName.values()) {
+            res.add(al);
+        }
+
+        return res;
     }
 
     enum State {

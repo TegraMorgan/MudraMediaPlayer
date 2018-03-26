@@ -21,7 +21,6 @@ import il.co.wearabledevices.mudramediaplayer.model.Song;
 /**
  * Media Player Service
  * Created by tegra on 14/03/18.
- *
  */
 
 public class MudraMusicService extends android.app.Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
@@ -74,7 +73,13 @@ public class MudraMusicService extends android.app.Service implements MediaPlaye
 
     @Override
     public void onCompletion(MediaPlayer mediaPlayer) {
-
+        if (nowPlaying != null && nowPlaying.position < nowPlaying.songs.size() - 1) {
+            //Play next song
+            nowPlaying.skipNext();
+            player.start();
+        } else {
+            //End of list - do nothing
+        }
     }
 
     @Override

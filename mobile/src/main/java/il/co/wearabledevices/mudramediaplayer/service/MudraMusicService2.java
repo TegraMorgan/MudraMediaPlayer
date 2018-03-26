@@ -27,6 +27,7 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v7.app.NotificationCompat;
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -347,8 +348,29 @@ public class MudraMusicService2 extends MediaBrowserServiceCompat implements Med
 
     @Override
     public void onCompletion(MediaPlayer mp) {
+        setMediaPlaybackState(PlaybackStateCompat.STATE_PAUSED);
         if (mMediaPlayer != null) {
-            mMediaPlayer.release();
+            if (nowPlaying != null && nowPlaying.position < nowPlaying.songs.size() - 1) {
+                setMediaPlaybackState(PlaybackStateCompat.STATE_SKIPPING_TO_NEXT);
+                //Play next song
+                nowPlaying.skipNext();
+                Song s = nowPlaying.getCurrent();
+                long cs = s.getId();
+                Uri trackUri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, cs);
+                try {
+                    mMediaPlayer.setDataSource(getApplicationContext(), trackUri);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Log.e("MUSIC SERVICE", "Error setting data source");
+                }
+                mMediaPlayer.prepareAsync();
+                setMediaPlaybackState(PlaybackStateCompat.STATE_PLAYING);
+            } else {
+                //End of list - release player
+                mMediaPlayer.release();
+                setMediaPlaybackState(PlaybackStateCompat.STATE_STOPPED);
+                showPausedNotification();
+            }
         }
     }
 
