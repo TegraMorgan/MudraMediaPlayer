@@ -166,6 +166,12 @@ public class MediaLibrary {
         return res;
     }
 
+    public ArrayList<Album> getmAlbums() {
+        ArrayList<Album> res = new ArrayList<>();
+
+        return res;
+    }
+
     enum State {
         NON_INITIALIZED, INITIALIZING, INITIALIZED
     }

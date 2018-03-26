@@ -157,6 +157,7 @@ public class MudraMusicService2 extends MediaBrowserServiceCompat implements Med
                 } catch (IllegalStateException e) {
                     mMediaPlayer.release();
                     initMediaPlayer();
+                    mMediaPlayer.setDataSource(getApplicationContext(), trackUri);
                 }
                 initMediaSessionMetadata();
 
