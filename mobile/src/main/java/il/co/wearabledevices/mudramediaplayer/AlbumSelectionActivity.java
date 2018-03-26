@@ -6,7 +6,11 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.RemoteException;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.media.MediaBrowserCompat;
+import android.support.v4.media.session.MediaControllerCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -31,6 +35,54 @@ public class AlbumSelectionActivity extends AppCompatActivity implements AlbumAd
     private MudraMusicService musicSrv;
     private Intent playIntent;
     private boolean musicBound;
+
+    private int mCurrentState;
+    private MediaBrowserCompat mMediaBrowserCompat;
+    private MediaControllerCompat mMediaControllerCompat;
+
+    private MediaControllerCompat.Callback mMediaControllerCompatCallback = new MediaControllerCompat.Callback() {
+
+        @Override
+        public void onPlaybackStateChanged(PlaybackStateCompat state) {
+            super.onPlaybackStateChanged(state);
+            if (state == null) {
+                return;
+            }
+
+            switch (state.getState()) {
+                case PlaybackStateCompat.STATE_PLAYING: {
+                    mCurrentState = PlaybackStateCompat.STATE_PLAYING;
+                    break;
+                }
+                case PlaybackStateCompat.STATE_PAUSED: {
+                    mCurrentState = PlaybackStateCompat.STATE_PAUSED;
+                    break;
+                }
+            }
+        }
+    };
+
+    private MediaBrowserCompat.ConnectionCallback mMediaBrowserCompatConnectionCallback = new MediaBrowserCompat.ConnectionCallback() {
+
+        @Override
+        public void onConnected() {
+            super.onConnected();
+            try {
+                mMediaControllerCompat = new MediaControllerCompat(AlbumSelectionActivity.this, mMediaBrowserCompat.getSessionToken());
+                mMediaControllerCompat.registerCallback(mMediaControllerCompatCallback);
+
+                MediaControllerCompat.setMediaController(AlbumSelectionActivity.this, mMediaControllerCompat);
+
+                //setSupportMediaController(mMediaControllerCompat);
+                //getSupportMediaController().getTransportControls().playFromMediaId(String.valueOf(R.raw.warner_tautz_off_broadway), null);
+
+            } catch (RemoteException e) {
+
+            }
+        }
+    };
+
+
     private ServiceConnection musicConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -105,6 +157,12 @@ public class AlbumSelectionActivity extends AppCompatActivity implements AlbumAd
         stopService(playIntent);
         unbindService(musicConnection);
         musicSrv = null;
+
+        if (getSupportMediaController().getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING) {
+            getSupportMediaController().getTransportControls().pause();
+        }
+
+        mMediaBrowserCompat.disconnect();
 
         super.onDestroy();
     }
