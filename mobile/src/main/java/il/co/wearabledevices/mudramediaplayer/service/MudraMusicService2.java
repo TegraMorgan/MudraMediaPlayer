@@ -6,7 +6,6 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.res.AssetFileDescriptor;
 import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -34,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import il.co.wearabledevices.mudramediaplayer.R;
+import il.co.wearabledevices.mudramediaplayer.model.Album;
 import il.co.wearabledevices.mudramediaplayer.model.Playlist;
 import il.co.wearabledevices.mudramediaplayer.model.Song;
 
@@ -143,23 +143,21 @@ public class MudraMusicService2 extends MediaBrowserServiceCompat implements Med
         @Override
         public void onPlayFromMediaId(String mediaId, Bundle extras) {
             super.onPlayFromMediaId(mediaId, extras);
+            Album album = (Album) extras.getSerializable("album");
+            Song song;
             try {
-
-                AssetFileDescriptor afd = getResources().openRawResourceFd(Integer.valueOf(mediaId));
-                if (afd == null) {
-                    return;
-                }
-
+                setMediaPlaybackState(PlaybackStateCompat.STATE_CONNECTING);
+                nowPlaying = new Playlist(album);
+                song = nowPlaying.getCurrent();
+                long songId = song.getId();
+                Uri trackUri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, songId);
                 try {
-                    mMediaPlayer.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+                    mMediaPlayer.setDataSource(getApplicationContext(), trackUri);
 
                 } catch (IllegalStateException e) {
                     mMediaPlayer.release();
                     initMediaPlayer();
-                    mMediaPlayer.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
                 }
-
-                afd.close();
                 initMediaSessionMetadata();
 
             } catch (IOException e) {
@@ -168,6 +166,7 @@ public class MudraMusicService2 extends MediaBrowserServiceCompat implements Med
 
             try {
                 mMediaPlayer.prepare();
+                setMediaPlaybackState(PlaybackStateCompat.STATE_PLAYING);
             } catch (IOException e) {
             }
 

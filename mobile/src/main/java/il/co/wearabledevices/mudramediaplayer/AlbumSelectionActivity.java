@@ -146,6 +146,8 @@ public class AlbumSelectionActivity extends AppCompatActivity implements AlbumAd
         Album sel = mAlbums.get(cii);
         MediaControllerCompat controllerCompat = MediaControllerCompat.getMediaController(AlbumSelectionActivity.this);
         PlaybackStateCompat stateCompat = controllerCompat.getPlaybackState();
+        Bundle a = new Bundle();
+        a.putSerializable("album", sel);
         if (stateCompat != null) {
             MediaControllerCompat.TransportControls controls = MediaControllerCompat.getMediaController(AlbumSelectionActivity.this).getTransportControls();
             switch (stateCompat.getState()) {
