@@ -5,8 +5,13 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.support.v4.media.MediaMetadataCompat;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Created by Tegra on 21/03/2018.
@@ -14,19 +19,36 @@ import java.util.ArrayList;
 
 public class MediaLibrary {
     private static final String TAG = "Media Library";
-
-    private ArrayList<Album> mAlbums;
+    private final ConcurrentMap<String, Song> mMusicListById;
+    private ConcurrentMap<String, List<MediaMetadataCompat>> mAlbums;
+    private volatile State mCurrentState = State.NON_INITIALIZED;
 
     public MediaLibrary(Context context, String rtPath) {
+
+        mAlbums = new ConcurrentHashMap<>();
+        mMusicListById = new ConcurrentHashMap<>();
         getSongList(context, rtPath);
     }
 
     public MediaLibrary(Context context) {
-        getSongList(context, "/music/");
+        this(context, "/music/");
+    }
+
+    public Iterable<String> getAlbums() {
+        if (mCurrentState != State.INITIALIZED) {
+            return Collections.emptyList();
+        }
+        return mAlbums.keySet();
+    }
+
+    public List<MediaMetadataCompat> getMusicsByAlbum(String albumName) {
+        if (mCurrentState != State.INITIALIZED || !mAlbums.containsKey(albumName)) {
+            return Collections.emptyList();
+        }
+        return mAlbums.get(albumName);
     }
 
     public void getSongList(Context con, String rootPath) {
-        mAlbums = new ArrayList<>();
         //retrieve song info
 
         ContentResolver resolver = con.getContentResolver();
@@ -112,10 +134,20 @@ public class MediaLibrary {
         return res.toString();
     }
 
-    public ArrayList<Album> getmAlbums() {
-        return mAlbums;
-    }
+    private synchronized void buildListsByAlbum() {
+        ConcurrentMap<String, List<MediaMetadataCompat>> newMusicListByGenre = new ConcurrentHashMap<>();
 
+        for (Song m : mMusicListById.values()) {
+            String genre = m.metadata.getString(MediaMetadataCompat.METADATA_KEY_GENRE);
+            List<MediaMetadataCompat> list = newMusicListByGenre.get(genre);
+            if (list == null) {
+                list = new ArrayList<>();
+                newMusicListByGenre.put(genre, list);
+            }
+            list.add(m.metadata);
+        }
+        mAlbums = newMusicListByGenre;
+    }
 
     /**
      * @return Array of Album names as strings
@@ -127,5 +159,9 @@ public class MediaLibrary {
             result[i] = mAlbums.get(i).getaName();
         }
         return result;
+    }
+
+    enum State {
+        NON_INITIALIZED, INITIALIZING, INITIALIZED
     }
 }

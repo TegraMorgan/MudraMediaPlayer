@@ -1,23 +1,54 @@
 package il.co.wearabledevices.mudramediaplayer.model;
 
+import android.support.v4.media.MediaMetadataCompat;
+import android.text.TextUtils;
+
 /**
  * Created by Tegra on 12/03/2018.
  * Model for the song file
  */
 
 public class Song {
+    public final String trackId;
+    public MediaMetadataCompat metadata;
     private long id;
     private String title;
     private String artist;
     private String album;
     private int duration;
 
+    public Song(String trackId, MediaMetadataCompat metadata) {
+        this.metadata = metadata;
+        this.trackId = trackId;
+    }
+
     public Song(long songID, String songTitle, String songArtist, String songAlbum, int songDur) {
+        /* this constructor will be deleted in the end */
         id = songID;
         title = songTitle;
         artist = songArtist;
         album = songAlbum;
         duration = songDur;
+        trackId = String.valueOf(songID);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || o.getClass() != Song.class) {
+            return false;
+        }
+
+        Song that = (Song) o;
+
+        return TextUtils.equals(trackId, that.trackId);
+    }
+
+    @Override
+    public int hashCode() {
+        return trackId.hashCode();
     }
 
     public long getId() {
@@ -55,4 +86,5 @@ public class Song {
     public int getDuration() {return duration;}
 
     public void setDuration(int duration) {this.duration = duration;}
+
 }
