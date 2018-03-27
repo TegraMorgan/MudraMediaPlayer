@@ -106,8 +106,10 @@ public class AlbumSelectionActivity extends AppCompatActivity implements AlbumAd
         /* mLibrary - Global variable of MediaLibrary class */
         /* Initialize new media library with default root path (music) */
         mLibrary = new MediaLibrary(this);
+        Log.v(TAG, "Library initialized");
         /* get the albums from the media library */
         mAlbums = (ArrayList<Album>) mLibrary.getAlbums();
+        Log.v(TAG, "Got " + mAlbums.size() + " albums from media library");
         /* sort the albums by album name */
         mAlbums.sort(Comparator.comparing(Album::getaName));
 
@@ -131,7 +133,7 @@ public class AlbumSelectionActivity extends AppCompatActivity implements AlbumAd
 
         MediaControllerCompat controllerCompat = MediaControllerCompat.getMediaController(AlbumSelectionActivity.this);
         PlaybackStateCompat stateCompat = controllerCompat.getPlaybackState();
-        if (stateCompat.getState() == PlaybackStateCompat.STATE_PLAYING) {
+        if (stateCompat != null && stateCompat.getState() == PlaybackStateCompat.STATE_PLAYING) {
             MediaControllerCompat.TransportControls controls = MediaControllerCompat.getMediaController(AlbumSelectionActivity.this).getTransportControls();
             controls.pause();
         }

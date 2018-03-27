@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.ArrayMap;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -90,6 +91,7 @@ public class MediaLibrary {
                         thisAlbum = thisAlbum.substring(0, ACCEPTABLE_LENGTH - 1);
 
                     thisSong = new Song(thisID, thisTitle, thisArtist, thisAlbum, thisDur);
+                    Log.v(TAG, "Detected song " + thisTitle + " by " + thisArtist);
                     mMusicListById.put(String.valueOf(thisSong.getId()), thisSong);
                     addAlbumIf(mAlbumListByName, new Album(thisAlbum, thisArtist), thisSong);
                 /*
@@ -99,6 +101,8 @@ public class MediaLibrary {
                 */
                 }
             } while (cursor.moveToNext());
+        } else {
+            Log.v(TAG, "No cursor or no data in cursor!!!");
         }
         if (cursor != null) {
             //If the cursor was not null - we finished
