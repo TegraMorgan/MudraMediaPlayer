@@ -34,6 +34,7 @@ import java.util.List;
 
 import il.co.wearabledevices.mudramediaplayer.R;
 import il.co.wearabledevices.mudramediaplayer.model.Album;
+import il.co.wearabledevices.mudramediaplayer.model.MediaLibrary;
 import il.co.wearabledevices.mudramediaplayer.model.Playlist;
 import il.co.wearabledevices.mudramediaplayer.model.Song;
 
@@ -45,6 +46,7 @@ public class MudraMusicService2 extends MediaBrowserServiceCompat implements Med
     private static final String TAG = MudraMusicService2.class.getSimpleName();
     private static final float LOW_VOLUME = 0.3f;
     private static final float FULL_VOLUME = 1.0f;
+    public MediaLibrary MusicLibrary;
     private Playlist nowPlaying;
     private MediaPlayer mMediaPlayer;
     private MediaSessionCompat mMediaSessionCompat;
@@ -310,10 +312,12 @@ public class MudraMusicService2 extends MediaBrowserServiceCompat implements Med
     @Override
     public void onCreate() {
         super.onCreate();
+        Log.v(TAG, "Media Service Creation Started");
         nowPlaying = nowPlaying = new Playlist();
         initMediaPlayer();
         initMediaSession();
         initNoisyReceiver();
+        Log.v(TAG, "Media Service Created");
     }
 
     @Override

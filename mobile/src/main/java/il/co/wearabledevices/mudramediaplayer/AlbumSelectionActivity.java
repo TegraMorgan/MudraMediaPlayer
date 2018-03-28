@@ -148,8 +148,8 @@ public class AlbumSelectionActivity extends AppCompatActivity implements AlbumAd
         Album sel = mAlbums.get(cii);
         MediaControllerCompat controllerCompat = MediaControllerCompat.getMediaController(AlbumSelectionActivity.this);
         PlaybackStateCompat stateCompat = controllerCompat.getPlaybackState();
-        Bundle a = new Bundle();
-        a.putSerializable("album", sel);
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("album", sel);
         if (stateCompat != null) {
             MediaControllerCompat.TransportControls controls = MediaControllerCompat.getMediaController(AlbumSelectionActivity.this).getTransportControls();
             switch (stateCompat.getState()) {
@@ -160,7 +160,7 @@ public class AlbumSelectionActivity extends AppCompatActivity implements AlbumAd
                 case PlaybackStateCompat.STATE_NONE:
                 case PlaybackStateCompat.STATE_PAUSED:
                 case PlaybackStateCompat.STATE_STOPPED:
-                    controls.playFromMediaId(sel.getaName(), null);
+                    controls.playFromMediaId(sel.getaName(), bundle);
                     break;
                 default:
                     Log.d(TAG, "Unhandled click");

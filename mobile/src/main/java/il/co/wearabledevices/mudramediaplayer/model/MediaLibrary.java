@@ -42,6 +42,7 @@ public class MediaLibrary {
         Uri musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         //Cursor cursor = resolver.query(musicUri, null, null, null, null);
         Cursor cursor = resolver.query(test, null, null, null, null);
+        Log.v(TAG, "Got the cursor");
         if (cursor != null && cursor.moveToFirst()) {
             //get columns
             int titleColumn = cursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
@@ -174,9 +175,7 @@ public class MediaLibrary {
     }
 
     public ArrayList<Album> getmAlbums() {
-        ArrayList<Album> res = new ArrayList<>();
-
-        return res;
+        return (ArrayList<Album>) getAlbums();
     }
 
     enum State {
