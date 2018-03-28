@@ -37,8 +37,11 @@ public class MediaLibrary {
         //retrieve song info
         mCurrentState = State.INITIALIZING;
         ContentResolver resolver = con.getContentResolver();
+        // TODO replace test with musicUri after finished working with virtual device
+        Uri test = MediaStore.Audio.Media.INTERNAL_CONTENT_URI;
         Uri musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        Cursor cursor = resolver.query(musicUri, null, null, null, null);
+        //Cursor cursor = resolver.query(musicUri, null, null, null, null);
+        Cursor cursor = resolver.query(test, null, null, null, null);
         if (cursor != null && cursor.moveToFirst()) {
             //get columns
             int titleColumn = cursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
