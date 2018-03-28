@@ -3,12 +3,14 @@ package il.co.wearabledevices.mudramediaplayer.model;
 import android.support.v4.media.MediaMetadataCompat;
 import android.text.TextUtils;
 
+import java.io.Serializable;
+
 /**
  * Created by Tegra on 12/03/2018.
  * Model for the song file
  */
 
-public class Song {
+public class Song implements Serializable {
     public final String trackId;
     public MediaMetadataCompat metadata;
     private long id;

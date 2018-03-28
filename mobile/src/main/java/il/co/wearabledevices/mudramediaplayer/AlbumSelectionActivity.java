@@ -64,9 +64,13 @@ public class AlbumSelectionActivity extends AppCompatActivity implements AlbumAd
                 MediaControllerCompat.setMediaController(AlbumSelectionActivity.this, mMediaControllerCompat);
 
                 // Sync existing MediaSession state to the UI.
+
+                /* These two methods must be overriden using wrapper class.
+                Useless without it. Example is in Google MediaBrowserCompat sample
+
                 mControllerCallback.onMetadataChanged(mMediaControllerCompat.getMetadata());
-                mControllerCallback.onPlaybackStateChanged(
-                        mMediaControllerCompat.getPlaybackState());
+                mControllerCallback.onPlaybackStateChanged(mMediaControllerCompat.getPlaybackState());
+                */
             } catch (RemoteException e) {
 
             }
@@ -111,7 +115,6 @@ public class AlbumSelectionActivity extends AppCompatActivity implements AlbumAd
         /* mLibrary - Global variable of MediaLibrary class */
         /* Initialize new media library with default root path (music) */
         mLibrary = new MediaLibrary(this);
-        Log.v(TAG, "Library initialized");
         /* get the albums from the media library */
         mAlbums = (ArrayList<Album>) mLibrary.getAlbums();
         Log.v(TAG, "Got " + mAlbums.size() + " albums from media library");

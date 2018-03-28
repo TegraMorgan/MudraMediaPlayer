@@ -148,7 +148,7 @@ public class MudraMusicService2 extends MediaBrowserServiceCompat implements Med
             Log.v(TAG, "Starting playback from service");
             Album album = (Album) extras.getSerializable("album");
             Song song;
-            Log.v(TAG, "Ectracted " + album.getaName() + " from bundle");
+            Log.v(TAG, "Extracted " + album.getaName() + " from bundle");
             try {
                 setMediaPlaybackState(PlaybackStateCompat.STATE_CONNECTING);
                 nowPlaying = new Playlist(album);
@@ -157,10 +157,12 @@ public class MudraMusicService2 extends MediaBrowserServiceCompat implements Med
                 Uri trackUri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, songId);
                 try {
                     mMediaPlayer.setDataSource(getApplicationContext(), trackUri);
-
+                    Log.v(TAG, "Data source set successfully");
                 } catch (IllegalStateException e) {
+                    Log.e(TAG, "Setting data source failed");
                     mMediaPlayer.release();
                     initMediaPlayer();
+                    Log.e(TAG, "Try again");
                     mMediaPlayer.setDataSource(getApplicationContext(), trackUri);
                 }
                 initMediaSessionMetadata();
@@ -171,7 +173,10 @@ public class MudraMusicService2 extends MediaBrowserServiceCompat implements Med
 
             try {
                 mMediaPlayer.prepare();
+                mMediaSessionCompat.setActive(true);
                 setMediaPlaybackState(PlaybackStateCompat.STATE_PLAYING);
+                showPlayingNotification();
+                mMediaPlayer.start();
             } catch (IOException e) {
             }
 
