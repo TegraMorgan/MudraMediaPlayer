@@ -145,8 +145,10 @@ public class MudraMusicService2 extends MediaBrowserServiceCompat implements Med
         @Override
         public void onPlayFromMediaId(String mediaId, Bundle extras) {
             super.onPlayFromMediaId(mediaId, extras);
+            Log.v(TAG, "Starting playback from service");
             Album album = (Album) extras.getSerializable("album");
             Song song;
+            Log.v(TAG, "Ectracted " + album.getaName() + " from bundle");
             try {
                 setMediaPlaybackState(PlaybackStateCompat.STATE_CONNECTING);
                 nowPlaying = new Playlist(album);

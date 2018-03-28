@@ -30,7 +30,11 @@ public class MediaLibrary {
     }
 
     public MediaLibrary(Context context) {
-        this(context, "/music/");
+        mAlbumListByName = new ArrayMap<>();
+        mMusicListById = new ArrayMap<>();
+        buildMediaLibrary(context, "/music/");
+
+        //this(context, "/music/");
     }
 
     private void buildMediaLibrary(Context con, String rootPath) {
@@ -41,8 +45,7 @@ public class MediaLibrary {
         Uri test = MediaStore.Audio.Media.INTERNAL_CONTENT_URI;
         Uri musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         //Cursor cursor = resolver.query(musicUri, null, null, null, null);
-        Cursor cursor = resolver.query(test, null, null, null, null);
-        Log.v(TAG, "Got the cursor");
+        Cursor cursor = resolver.query(musicUri, null, null, null, null);
         if (cursor != null && cursor.moveToFirst()) {
             //get columns
             int titleColumn = cursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
@@ -95,7 +98,6 @@ public class MediaLibrary {
                         thisAlbum = thisAlbum.substring(0, ACCEPTABLE_LENGTH - 1);
 
                     thisSong = new Song(thisID, thisTitle, thisArtist, thisAlbum, thisDur);
-                    Log.v(TAG, "Detected song " + thisTitle + " by " + thisArtist);
                     mMusicListById.put(String.valueOf(thisSong.getId()), thisSong);
                     addAlbumIf(mAlbumListByName, new Album(thisAlbum, thisArtist), thisSong);
                 /*

@@ -62,6 +62,11 @@ public class AlbumSelectionActivity extends AppCompatActivity implements AlbumAd
                 mMediaControllerCompat = new MediaControllerCompat(AlbumSelectionActivity.this, mMediaBrowserCompat.getSessionToken());
                 mMediaControllerCompat.registerCallback(mControllerCallback);
                 MediaControllerCompat.setMediaController(AlbumSelectionActivity.this, mMediaControllerCompat);
+
+                // Sync existing MediaSession state to the UI.
+                mControllerCallback.onMetadataChanged(mMediaControllerCompat.getMetadata());
+                mControllerCallback.onPlaybackStateChanged(
+                        mMediaControllerCompat.getPlaybackState());
             } catch (RemoteException e) {
 
             }
@@ -146,26 +151,29 @@ public class AlbumSelectionActivity extends AppCompatActivity implements AlbumAd
     @Override
     public void onListItemClick(int cii) {
         Album sel = mAlbums.get(cii);
-        MediaControllerCompat controllerCompat = MediaControllerCompat.getMediaController(AlbumSelectionActivity.this);
-        PlaybackStateCompat stateCompat = controllerCompat.getPlaybackState();
+        PlaybackStateCompat stateCompat = mMediaControllerCompat.getPlaybackState();
+        Log.v(TAG, "Got state : " + ((stateCompat != null) ? "true" : "false"));
         Bundle bundle = new Bundle();
         bundle.putSerializable("album", sel);
-        if (stateCompat != null) {
-            MediaControllerCompat.TransportControls controls = MediaControllerCompat.getMediaController(AlbumSelectionActivity.this).getTransportControls();
-            switch (stateCompat.getState()) {
-                case PlaybackStateCompat.STATE_PLAYING:
-                case PlaybackStateCompat.STATE_BUFFERING:
-                    controls.pause();
-                    break;
-                case PlaybackStateCompat.STATE_NONE:
-                case PlaybackStateCompat.STATE_PAUSED:
-                case PlaybackStateCompat.STATE_STOPPED:
-                    controls.playFromMediaId(sel.getaName(), bundle);
-                    break;
-                default:
-                    Log.d(TAG, "Unhandled click");
-            }
+        //if (stateCompat != null) {
+        MediaControllerCompat.TransportControls controls = MediaControllerCompat.getMediaController(AlbumSelectionActivity.this).getTransportControls();
+        Log.v(TAG, "Got controller : " + ((controls != null) ? "true" : "false"));
+        switch (mCurrentState) {
+            case PlaybackStateCompat.STATE_PLAYING:
+            case PlaybackStateCompat.STATE_BUFFERING:
+                controls.pause();
+                mCurrentState = PlaybackStateCompat.STATE_PAUSED;
+                break;
+            case PlaybackStateCompat.STATE_NONE:
+            case PlaybackStateCompat.STATE_PAUSED:
+            case PlaybackStateCompat.STATE_STOPPED:
+                controls.playFromMediaId(sel.getaName(), bundle);
+                mCurrentState = PlaybackStateCompat.STATE_PLAYING;
+                break;
+            default:
+                Log.d(TAG, "Unhandled click");
         }
+        //}
         // old method
         /*
         musicSrv.setList(new Playlist(sel));
