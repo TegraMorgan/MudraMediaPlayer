@@ -3,6 +3,8 @@ package il.co.wearabledevices.mudramediaplayer.model;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.ArrayMap;
@@ -10,6 +12,8 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collection;
+
+import il.co.wearabledevices.mudramediaplayer.R;
 
 /**
  * Created by Tegra on 21/03/2018.
@@ -178,6 +182,15 @@ public class MediaLibrary {
 
     public ArrayList<Album> getmAlbums() {
         return (ArrayList<Album>) getAlbums();
+    }
+
+    public static Bitmap getAlbumBitmap(Context context, String string) {
+        /*
+        return BitmapFactory.decodeResource(context.getResources(),
+                MusicLibrary.getAlbumRes(mediaId));
+         */
+        // TODO load album image instead
+        return BitmapFactory.decodeResource(context.getResources(), R.mipmap.android_music_player_rand);
     }
 
     enum State {
