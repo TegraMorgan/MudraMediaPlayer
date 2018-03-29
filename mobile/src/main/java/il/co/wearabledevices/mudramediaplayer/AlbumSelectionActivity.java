@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
@@ -14,35 +15,33 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
 import il.co.wearabledevices.mudramediaplayer.client.MediaBrowserHelper;
-import il.co.wearabledevices.mudramediaplayer.client.MediaSeekBar;
 import il.co.wearabledevices.mudramediaplayer.model.Album;
 import il.co.wearabledevices.mudramediaplayer.model.MediaLibrary;
-import il.co.wearabledevices.mudramediaplayer.service.MudraMusicService2;
+import il.co.wearabledevices.mudramediaplayer.service.MudraMusicService;
+
 
 public class AlbumSelectionActivity extends AppCompatActivity implements AlbumAdapter.ListItemClickListener {
     private static final String TAG = AlbumSelectionActivity.class.getSimpleName();
     ArrayList<Album> mAlbums;
     private AlbumAdapter mAdapter;
     private RecyclerView recyclerViewAlbums;
-    private MediaLibrary mLibrary;
 
     private boolean mCurrentState;
-    private MediaBrowserCompat mMediaBrowserCompat;
-    private MediaControllerCompat mMediaControllerCompat;
 
+    //TODO variables to fill music file data
+    /*
     private ImageView mAlbumArt;
     private TextView mTitleTextView;
     private TextView mArtistTextView;
     private ImageView mMediaControlsImage;
     private MediaSeekBar mSeekBarAudio;
+    */
 
     private MediaBrowserHelper mMediaBrowserHelper;
 
@@ -60,20 +59,19 @@ public class AlbumSelectionActivity extends AppCompatActivity implements AlbumAd
             //TODO floating button action
             if (mCurrentState) {
                 mMediaBrowserHelper.getTransportControls().pause();
+                Snackbar.make(view, "Music paused", Snackbar.LENGTH_LONG).setAction("Action", null).show();
             } else {
                 mMediaBrowserHelper.getTransportControls().play();
+                Snackbar.make(view, "Music restored", Snackbar.LENGTH_LONG).setAction("Action", null).show();
             }
-
-
             System.exit(0);
-            //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG).setAction("Action", null).show();
         });
 
         mMediaBrowserHelper = new MediaBrowserConnection(this);
         mMediaBrowserHelper.registerCallback(new MediaBrowserListener());
 
-        mLibrary = new MediaLibrary(this);
-        mAlbums = (ArrayList<Album>) mLibrary.getAlbums();
+        MediaLibrary.buildMediaLibrary(this, "/music");
+        mAlbums = (ArrayList<Album>) MediaLibrary.getAlbums();
         Log.v(TAG, "Got " + mAlbums.size() + " albums from media library");
         mAlbums.sort(Comparator.comparing(Album::getaName));
 
@@ -97,24 +95,9 @@ public class AlbumSelectionActivity extends AppCompatActivity implements AlbumAd
     @Override
     protected void onStop() {
         super.onStop();
-        mSeekBarAudio.disconnectController();
+        //TODO implement seek bar when needed
+        //mSeekBarAudio.disconnectController();
         mMediaBrowserHelper.onStop();
-    }
-
-    @Override
-    protected void onDestroy() {
-        Log.v(TAG, "OnDestroy launched");
-
-        MediaControllerCompat controllerCompat = MediaControllerCompat.getMediaController(AlbumSelectionActivity.this);
-        PlaybackStateCompat stateCompat = controllerCompat.getPlaybackState();
-        if (stateCompat != null && stateCompat.getState() == PlaybackStateCompat.STATE_PLAYING) {
-            MediaControllerCompat.TransportControls controls = MediaControllerCompat.getMediaController(AlbumSelectionActivity.this).getTransportControls();
-            controls.pause();
-        }
-
-        mMediaBrowserCompat.disconnect();
-
-        super.onDestroy();
     }
 
     @Override
@@ -144,12 +127,13 @@ public class AlbumSelectionActivity extends AppCompatActivity implements AlbumAd
      */
     private class MediaBrowserConnection extends MediaBrowserHelper {
         private MediaBrowserConnection(Context context) {
-            super(context, MudraMusicService2.class);
+            super(context, MudraMusicService.class);
         }
 
         @Override
         protected void onConnected(@NonNull MediaControllerCompat mediaController) {
-            mSeekBarAudio.setMediaController(mediaController);
+            //TODO seek bar connects here
+            //mSeekBarAudio.setMediaController(mediaController);
         }
 
         @Override
@@ -180,9 +164,9 @@ public class AlbumSelectionActivity extends AppCompatActivity implements AlbumAd
     private class MediaBrowserListener extends MediaControllerCompat.Callback {
         @Override
         public void onPlaybackStateChanged(PlaybackStateCompat playbackState) {
-            mCurrentState = playbackState != null &&
-                    playbackState.getState() == PlaybackStateCompat.STATE_PLAYING;
-            mMediaControlsImage.setPressed(mCurrentState);
+            mCurrentState = (playbackState) != null && (playbackState.getState() == PlaybackStateCompat.STATE_PLAYING);
+            //TODO play/pause icon on main activity changes here
+            //mMediaControlsImage.setPressed(mCurrentState);
         }
 
         @Override
@@ -190,6 +174,8 @@ public class AlbumSelectionActivity extends AppCompatActivity implements AlbumAd
             if (mediaMetadata == null) {
                 return;
             }
+            //TODO When song changes update the song data here
+            /*
             mTitleTextView.setText(
                     mediaMetadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE));
             mArtistTextView.setText(
@@ -197,6 +183,7 @@ public class AlbumSelectionActivity extends AppCompatActivity implements AlbumAd
             mAlbumArt.setImageBitmap(MediaLibrary.getAlbumBitmap(
                     AlbumSelectionActivity.this,
                     mediaMetadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID)));
+                    */
         }
 
         @Override

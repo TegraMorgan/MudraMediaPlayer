@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.support.v4.media.MediaMetadataCompat;
 import android.util.ArrayMap;
 import android.util.Log;
 
@@ -22,26 +23,11 @@ import il.co.wearabledevices.mudramediaplayer.R;
 public class MediaLibrary {
     private static final int ACCEPTABLE_LENGTH = 25;
     private static final String TAG = "Media Library";
-    private final ArrayMap<String, Song> mMusicListById;
-    private ArrayMap<String, Album> mAlbumListByName;
-    private volatile State mCurrentState = State.NON_INITIALIZED;
+    private static final ArrayMap<String, Song> mMusicListById = new ArrayMap<>();
+    private static final ArrayMap<String, Album> mAlbumListByName = new ArrayMap<>();
+    private static volatile State mCurrentState = State.NON_INITIALIZED;
 
-    public MediaLibrary(Context context, String rtPath) {
-
-        mAlbumListByName = new ArrayMap<>();
-        mMusicListById = new ArrayMap<>();
-        buildMediaLibrary(context, rtPath);
-    }
-
-    public MediaLibrary(Context context) {
-        mAlbumListByName = new ArrayMap<>();
-        mMusicListById = new ArrayMap<>();
-        buildMediaLibrary(context, "/music/");
-
-        //this(context, "/music/");
-    }
-
-    private void buildMediaLibrary(Context con, String rootPath) {
+    public static void buildMediaLibrary(Context con, String rootPath) {
         //retrieve song info
         mCurrentState = State.INITIALIZING;
         ContentResolver resolver = con.getContentResolver();
@@ -124,38 +110,10 @@ public class MediaLibrary {
         }
     }
 
-    private void addAlbumIf(ArrayMap<String, Album> allAlbums, Album currentAlbum, Song song) {
-
-        String can = currentAlbum.getaName();
-        if (allAlbums.containsKey(can)) {
-            allAlbums.get(can).getaSongs().add(song);
-        } else {
-            allAlbums.put(can, new Album(can, currentAlbum.getaArtist()));
-            allAlbums.get(can).getaSongs().add(song);
-        }
-    }
-
-    private String parseDirectoryToAlbum(String path) {
-        String res;
-        String[] a = path.split("/");
-        res = a[a.length - 1];
-        return res;
-    }
-
-    private String parseFileToSongName(String fName) {
-        StringBuilder res = new StringBuilder();
-        String[] a = fName.split(".");
-        for (int i = 0; i < a.length - 1; i++) {
-            res.append(a[i]);
-        }
-        return res.toString();
-    }
-
-
     /**
      * @return Array of Album names as strings
      */
-    public String[] getAlbumNames() {
+    public static String[] getAlbumNames() {
         if (mAlbumListByName.size() == 0) return null;
         String[] result = new String[mAlbumListByName.size()];
         for (int i = 0; i < mAlbumListByName.size(); i++) {
@@ -164,14 +122,14 @@ public class MediaLibrary {
         return result;
     }
 
-    public Album getAlbum(String albumName) {
+    public static Album getAlbum(String albumName) {
         if (mCurrentState != State.INITIALIZED || !mAlbumListByName.containsKey(albumName)) {
             return null;
         }
         return mAlbumListByName.get(albumName);
     }
 
-    public Collection<Album> getAlbums() {
+    public static Collection<Album> getAlbums() {
         Collection<Album> res = new ArrayList<>();
         for (Album al : mAlbumListByName.values()) {
             res.add(al);
@@ -180,7 +138,7 @@ public class MediaLibrary {
         return res;
     }
 
-    public ArrayList<Album> getmAlbums() {
+    public static ArrayList<Album> getmAlbums() {
         return (ArrayList<Album>) getAlbums();
     }
 
@@ -193,7 +151,55 @@ public class MediaLibrary {
         return BitmapFactory.decodeResource(context.getResources(), R.mipmap.android_music_player_rand);
     }
 
+    public static MediaMetadataCompat getMetadata(Context context, String mediaId) {
+        Song song = mMusicListById.get(mediaId);
+        Bitmap albumArt = getAlbumBitmap(context, mediaId);
+        // Since MediaMetadataCompat is immutable, we need to create a copy to set the album art.
+        // We don't set it initially on all items so that they don't take unnecessary memory.
+        MediaMetadataCompat.Builder builder = new MediaMetadataCompat.Builder();
+        builder.putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, song.getIdstr());
+        builder.putString(MediaMetadataCompat.METADATA_KEY_ALBUM, song.getAlbum());
+        builder.putString(MediaMetadataCompat.METADATA_KEY_ARTIST, song.getArtist());
+        //builder.putString(MediaMetadataCompat.METADATA_KEY_GENRE,song.getGenre()); //For future use
+        builder.putString(MediaMetadataCompat.METADATA_KEY_TITLE, song.getTitle());
+        builder.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, song.getDuration());
+        builder.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, albumArt);
+        return builder.build();
+    }
+
+    public static long getMusicId(String mediaId) {
+        return mMusicListById.containsKey(mediaId) ? mMusicListById.get(mediaId).getId() : null;
+    }
+
+    private static void addAlbumIf(ArrayMap<String, Album> allAlbums, Album currentAlbum, Song song) {
+
+        String can = currentAlbum.getaName();
+        if (allAlbums.containsKey(can)) {
+            allAlbums.get(can).getaSongs().add(song);
+        } else {
+            allAlbums.put(can, new Album(can, currentAlbum.getaArtist()));
+            allAlbums.get(can).getaSongs().add(song);
+        }
+    }
+
+    private static String parseDirectoryToAlbum(String path) {
+        String res;
+        String[] a = path.split("/");
+        res = a[a.length - 1];
+        return res;
+    }
+
+    private static String parseFileToSongName(String fName) {
+        StringBuilder res = new StringBuilder();
+        String[] a = fName.split(".");
+        for (int i = 0; i < a.length - 1; i++) {
+            res.append(a[i]);
+        }
+        return res.toString();
+    }
+
     enum State {
         NON_INITIALIZED, INITIALIZING, INITIALIZED
     }
+
 }

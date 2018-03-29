@@ -57,6 +57,10 @@ public class Song implements Serializable {
         return id;
     }
 
+    public String getIdstr() {
+        return String.valueOf(id);
+    }
+
     public void setId(long id) {
         this.id = id;
     }

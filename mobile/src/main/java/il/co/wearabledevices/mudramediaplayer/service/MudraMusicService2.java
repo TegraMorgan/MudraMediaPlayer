@@ -320,6 +320,8 @@ public class MudraMusicService2 extends MediaBrowserServiceCompat implements Med
     public void onCreate() {
         super.onCreate();
         Log.v(TAG, "Media Service Creation Started");
+
+
         nowPlaying = nowPlaying = new Playlist();
         initMediaPlayer();
         initMediaSession();
