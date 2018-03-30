@@ -119,6 +119,7 @@ public class MudraMediaService3 extends MediaBrowserServiceCompat {
 
         @Override
         public void onPlay() {
+            Log.v(TAG, "Starting onPlay");
             if (!isReadyToPlay()) {
                 // Nothing to play.
                 return;
@@ -129,12 +130,17 @@ public class MudraMediaService3 extends MediaBrowserServiceCompat {
             }
 
             mPlayback.playFromMedia(mPreparedMedia, getApplicationContext());
-            Log.d(TAG, "onPlayFromMediaId: MediaSession active");
+            Log.d(TAG, "onPlayFromMedia: MediaSession active");
         }
 
         @Override
         public void onPause() {
             mPlayback.pause();
+        }
+
+        @Override
+        public void onPlayFromMediaId(String mediaId, Bundle extras) {
+            super.onPlayFromMediaId(mediaId, extras);
         }
 
         @Override

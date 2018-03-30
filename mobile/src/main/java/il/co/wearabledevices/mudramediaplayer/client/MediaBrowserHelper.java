@@ -183,7 +183,7 @@ public class MediaBrowserHelper {
     }
 
     // Receives callbacks from the MediaBrowser when it has successfully connected to the
-    // MediaBrowserService (MudraMusicService2).
+    // MediaBrowserService (MudraMediaService3).
     private class MediaBrowserConnectionCallback extends MediaBrowserCompat.ConnectionCallback {
 
         // Happens as a result of onStart().

@@ -39,7 +39,7 @@ import android.util.Log;
 import il.co.wearabledevices.mudramediaplayer.AlbumSelectionActivity;
 import il.co.wearabledevices.mudramediaplayer.R;
 import il.co.wearabledevices.mudramediaplayer.model.MediaLibrary;
-import il.co.wearabledevices.mudramediaplayer.service.MudraMusicService;
+import il.co.wearabledevices.mudramediaplayer.service.MudraMediaService3;
 
 
 /**
@@ -54,7 +54,7 @@ public class MediaNotificationManager {
     private static final String CHANNEL_ID = "com.example.android.mudramusicplayer.channel";
     private static final int REQUEST_CODE = 501;
 
-    private final MudraMusicService mService;
+    private final MudraMediaService3 mService;
 
     private final NotificationCompat.Action mPlayAction;
     private final NotificationCompat.Action mPauseAction;
@@ -62,7 +62,7 @@ public class MediaNotificationManager {
     private final NotificationCompat.Action mPrevAction;
     private final NotificationManager mNotificationManager;
 
-    public MediaNotificationManager(MudraMusicService service) {
+    public MediaNotificationManager(MudraMediaService3 service) {
         mService = service;
 
         mNotificationManager =

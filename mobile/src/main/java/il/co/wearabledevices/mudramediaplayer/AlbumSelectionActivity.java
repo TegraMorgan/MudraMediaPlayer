@@ -140,7 +140,7 @@ public class AlbumSelectionActivity extends AppCompatActivity implements AlbumAd
         protected void onChildrenLoaded(@NonNull String parentId,
                                         @NonNull List<MediaBrowserCompat.MediaItem> children) {
             super.onChildrenLoaded(parentId, children);
-
+            /*
             final MediaControllerCompat mediaController = getMediaController();
 
             // Queue up all media items for this simple sample.
@@ -150,6 +150,7 @@ public class AlbumSelectionActivity extends AppCompatActivity implements AlbumAd
 
             // Call prepare now so pressing play just works.
             mediaController.getTransportControls().prepare();
+            */
         }
     }
 

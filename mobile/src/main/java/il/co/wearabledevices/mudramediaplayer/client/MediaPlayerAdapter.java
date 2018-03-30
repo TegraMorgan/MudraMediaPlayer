@@ -25,6 +25,7 @@ import android.os.SystemClock;
 import android.provider.MediaStore;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.util.Log;
 
 import il.co.wearabledevices.mudramediaplayer.model.MediaLibrary;
 
@@ -34,6 +35,7 @@ import il.co.wearabledevices.mudramediaplayer.model.MediaLibrary;
  */
 public final class MediaPlayerAdapter extends PlayerAdapter {
 
+    private static final String TAG = MediaPlayerAdapter.class.getSimpleName();
     private final Context mContext;
     private MediaPlayer mMediaPlayer;
     private String mFilename;
@@ -97,6 +99,7 @@ public final class MediaPlayerAdapter extends PlayerAdapter {
      */
     @Override
     public void playFromMedia(MediaMetadataCompat metadata, Context context) {
+        Log.v(TAG, "PlayFromMedia fired");
         mCurrentMedia = metadata;
         final String mediaId = metadata.getDescription().getMediaId();
         playUri(MediaLibrary.getMusicId(mediaId), context);
@@ -130,7 +133,6 @@ public final class MediaPlayerAdapter extends PlayerAdapter {
 
         try {
             final Uri trackUri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, sId);
-            AssetFileDescriptor assetFileDescriptor = mContext.getAssets().openFd(mFilename);
             mMediaPlayer.setDataSource(context, trackUri);
         } catch (Exception e) {
             throw new RuntimeException("Failed to open file: " + mFilename, e);

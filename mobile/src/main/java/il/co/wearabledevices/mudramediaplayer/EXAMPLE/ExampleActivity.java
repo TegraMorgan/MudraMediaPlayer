@@ -34,7 +34,7 @@ import java.util.List;
 import il.co.wearabledevices.mudramediaplayer.R;
 import il.co.wearabledevices.mudramediaplayer.client.MediaBrowserHelper;
 import il.co.wearabledevices.mudramediaplayer.model.MediaLibrary;
-import il.co.wearabledevices.mudramediaplayer.service.MudraMusicService2;
+import il.co.wearabledevices.mudramediaplayer.service.MudraMediaService3;
 
 /**
  * This is an example activity that shows how to use MediaBrowserHelper
@@ -126,7 +126,7 @@ public class ExampleActivity extends AppCompatActivity {
      */
     private class MediaBrowserConnection extends MediaBrowserHelper {
         private MediaBrowserConnection(Context context) {
-            super(context, MudraMusicService2.class);
+            super(context, MudraMediaService3.class);
         }
 
         @Override
