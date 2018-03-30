@@ -105,6 +105,10 @@ public class AlbumSelectionActivity extends AppCompatActivity implements AlbumAd
         Album sel = mAlbums.get(cii);
         Bundle bundle = new Bundle();
         bundle.putSerializable("album", sel);
+        MediaControllerCompat cont = mMediaBrowserHelper.getMediaController();
+        // FIXME Tegra is here
+        cont.addQueueItem();
+        //TODO maybe remove this?
         mMediaBrowserHelper.getTransportControls().playFromMediaId(sel.getaName(), bundle);
     }
 

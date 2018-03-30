@@ -1,11 +1,8 @@
 package il.co.wearabledevices.mudramediaplayer.service;
 
 import android.app.Notification;
-import android.content.ContentUris;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.media.MediaBrowserCompat;
@@ -16,7 +13,6 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +20,7 @@ import il.co.wearabledevices.mudramediaplayer.client.MediaPlayerAdapter;
 import il.co.wearabledevices.mudramediaplayer.client.PlaybackInfoListener;
 import il.co.wearabledevices.mudramediaplayer.client.PlayerAdapter;
 import il.co.wearabledevices.mudramediaplayer.model.MediaLibrary;
-import il.co.wearabledevices.mudramediaplayer.model.Song;
+import il.co.wearabledevices.mudramediaplayer.model.Playlist;
 import il.co.wearabledevices.mudramediaplayer.notifications.MediaNotificationManager;
 
 public class MudraMediaService3 extends MediaBrowserServiceCompat {
@@ -35,6 +31,7 @@ public class MudraMediaService3 extends MediaBrowserServiceCompat {
     private MediaNotificationManager mMediaNotificationManager;
     private MediaSessionCallback mCallback;
     private boolean mServiceInStartedState;
+    private Playlist nowPlaying;
 
     @Override
     public void onCreate() {
@@ -141,21 +138,6 @@ public class MudraMediaService3 extends MediaBrowserServiceCompat {
         @Override
         public void onPause() {
             mPlayback.pause();
-        }
-
-        @Override
-        public void onPlayFromMediaId(String mediaId, Bundle extras) {
-            super.onPlayFromMediaId(mediaId, extras);
-            Song s = nowPlaying.getCurrent();
-            long cs = s.getId();
-            Uri trackUri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, cs);
-            try {
-                player.setDataSource(getApplicationContext(), trackUri);
-            } catch (IOException e) {
-                e.printStackTrace();
-                Log.e("MUSIC SERVICE", "Error setting data source");
-            }
-            player.prepareAsync();
         }
 
         @Override
