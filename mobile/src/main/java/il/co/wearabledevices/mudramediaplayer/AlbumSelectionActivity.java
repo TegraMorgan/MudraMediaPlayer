@@ -23,6 +23,7 @@ import java.util.List;
 import il.co.wearabledevices.mudramediaplayer.client.MediaBrowserHelper;
 import il.co.wearabledevices.mudramediaplayer.model.Album;
 import il.co.wearabledevices.mudramediaplayer.model.MediaLibrary;
+import il.co.wearabledevices.mudramediaplayer.model.Song;
 import il.co.wearabledevices.mudramediaplayer.service.MudraMusicService;
 
 
@@ -70,7 +71,7 @@ public class AlbumSelectionActivity extends AppCompatActivity implements AlbumAd
         mMediaBrowserHelper = new MediaBrowserConnection(this);
         mMediaBrowserHelper.registerCallback(new MediaBrowserListener());
 
-        MediaLibrary.buildMediaLibrary(this, "/music");
+
         mAlbums = (ArrayList<Album>) MediaLibrary.getAlbums();
         Log.v(TAG, "Got " + mAlbums.size() + " albums from media library");
         mAlbums.sort(Comparator.comparing(Album::getaName));
@@ -103,13 +104,16 @@ public class AlbumSelectionActivity extends AppCompatActivity implements AlbumAd
     @Override
     public void onListItemClick(int cii) {
         Album sel = mAlbums.get(cii);
-        Bundle bundle = new Bundle();
-        bundle.putSerializable("album", sel);
-        MediaControllerCompat cont = mMediaBrowserHelper.getMediaController();
         // FIXME Tegra is here
-        cont.addQueueItem();
-        //TODO maybe remove this?
-        mMediaBrowserHelper.getTransportControls().playFromMediaId(sel.getaName(), bundle);
+        //Need to convert Song to MediaDescriptionCompat
+        List<Song> albumSongs = sel.getaSongs();
+        MediaControllerCompat cont = mMediaBrowserHelper.getMediaController();
+        for (Song s : albumSongs) {
+            cont.addQueueItem(s.getMetadata().getDescription());
+        }
+        //TODO Tegra - put these two on a separate thread perhaps?
+        mMediaBrowserHelper.getTransportControls().prepare();
+        mMediaBrowserHelper.getTransportControls().play();
     }
 
     /* deprecated function */

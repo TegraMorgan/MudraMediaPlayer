@@ -14,8 +14,6 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import il.co.wearabledevices.mudramediaplayer.R;
-
 /**
  * Created by Tegra on 21/03/2018.
  */
@@ -27,14 +25,15 @@ public class MediaLibrary {
     private static final ArrayMap<String, Album> mAlbumListByName = new ArrayMap<>();
     private static volatile State mCurrentState = State.NON_INITIALIZED;
 
+    public static void buildMediaLibrary(Context con) {
+        buildMediaLibrary(con, "/music/");
+    }
+
     public static void buildMediaLibrary(Context con, String rootPath) {
         //retrieve song info
         mCurrentState = State.INITIALIZING;
         ContentResolver resolver = con.getContentResolver();
-        // TODO replace test with musicUri after finished working with virtual device
-        Uri test = MediaStore.Audio.Media.INTERNAL_CONTENT_URI;
         Uri musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        //Cursor cursor = resolver.query(musicUri, null, null, null, null);
         Cursor cursor = resolver.query(musicUri, null, null, null, null);
         if (cursor != null && cursor.moveToFirst()) {
             //get columns
@@ -50,7 +49,7 @@ public class MediaLibrary {
             String thisTitle;
             String thisArtist;
             String thisAlbum;
-            int thisDur;
+            long thisDur;
             Song thisSong;
             String pathLowerCase;
             do {
@@ -76,7 +75,7 @@ public class MediaLibrary {
                         thisArtist = thisArtist.substring(0, ACCEPTABLE_LENGTH - 1);
 
 
-                    thisDur = (int) cursor.getLong(durationColumn) / 1000;
+                    thisDur = (int) cursor.getLong(durationColumn);
                     thisAlbum = cursor.getString(albumColumn);
                     if (thisAlbum == null || thisAlbum.isEmpty())
                         thisAlbum = parseDirectoryToAlbum(cursor.getString(pathColumn));
@@ -87,7 +86,7 @@ public class MediaLibrary {
                     if (thisAlbum.length() > ACCEPTABLE_LENGTH)
                         thisAlbum = thisAlbum.substring(0, ACCEPTABLE_LENGTH - 1);
 
-                    thisSong = new Song(thisID, thisTitle, thisArtist, thisAlbum, thisDur);
+                    thisSong = new Song(thisID, thisTitle, thisArtist, thisAlbum, thisDur, cursor.getString(fileNameColumn));
                     mMusicListById.put(String.valueOf(thisSong.getId()), thisSong);
                     addAlbumIf(mAlbumListByName, new Album(thisAlbum, thisArtist), thisSong);
                 /*
@@ -142,27 +141,40 @@ public class MediaLibrary {
         return (ArrayList<Album>) getAlbums();
     }
 
-    public static Bitmap getAlbumBitmap(Context context, String string) {
-        /*
+    public static Bitmap getAlbumBitmap(Context context, String mediaId) {
         return BitmapFactory.decodeResource(context.getResources(),
-                MusicLibrary.getAlbumRes(mediaId));
-         */
-        // TODO load album image instead
-        return BitmapFactory.decodeResource(context.getResources(), R.mipmap.android_music_player_rand);
+                getAlbumRes(mediaId));
+    }
+
+    private static int getAlbumRes(String mediaId) {
+        int res = 0;
+        if (mAlbumListByName.containsKey(mediaId)) {
+            Album a = mAlbumListByName.get(mediaId);
+            res = a.getaSongs().get(0).getAlbumRes();
+        }
+        return res;
     }
 
     public static MediaMetadataCompat getMetadata(Context context, String mediaId) {
-        Song song = mMusicListById.get(mediaId);
+        MediaMetadataCompat meta = mMusicListById.get(mediaId).getMetadata();
         Bitmap albumArt = getAlbumBitmap(context, mediaId);
         // Since MediaMetadataCompat is immutable, we need to create a copy to set the album art.
         // We don't set it initially on all items so that they don't take unnecessary memory.
         MediaMetadataCompat.Builder builder = new MediaMetadataCompat.Builder();
-        builder.putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, song.getIdstr());
-        builder.putString(MediaMetadataCompat.METADATA_KEY_ALBUM, song.getAlbum());
-        builder.putString(MediaMetadataCompat.METADATA_KEY_ARTIST, song.getArtist());
-        //builder.putString(MediaMetadataCompat.METADATA_KEY_GENRE,song.getGenre()); //For future use
-        builder.putString(MediaMetadataCompat.METADATA_KEY_TITLE, song.getTitle());
-        builder.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, song.getDuration());
+        for (String key :
+                new String[]{
+                        MediaMetadataCompat.METADATA_KEY_MEDIA_ID,
+                        MediaMetadataCompat.METADATA_KEY_ALBUM,
+                        MediaMetadataCompat.METADATA_KEY_ARTIST,
+                        MediaMetadataCompat.METADATA_KEY_GENRE,
+                        MediaMetadataCompat.METADATA_KEY_TITLE
+                }) {
+            builder.putString(key, meta.getString(key));
+        }
+
+        builder.putLong(
+                MediaMetadataCompat.METADATA_KEY_DURATION,
+                meta.getLong(MediaMetadataCompat.METADATA_KEY_DURATION));
         builder.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, albumArt);
         return builder.build();
     }

@@ -20,7 +20,6 @@ import il.co.wearabledevices.mudramediaplayer.client.MediaPlayerAdapter;
 import il.co.wearabledevices.mudramediaplayer.client.PlaybackInfoListener;
 import il.co.wearabledevices.mudramediaplayer.client.PlayerAdapter;
 import il.co.wearabledevices.mudramediaplayer.model.MediaLibrary;
-import il.co.wearabledevices.mudramediaplayer.model.Playlist;
 import il.co.wearabledevices.mudramediaplayer.notifications.MediaNotificationManager;
 
 public class MudraMediaService3 extends MediaBrowserServiceCompat {
@@ -31,7 +30,6 @@ public class MudraMediaService3 extends MediaBrowserServiceCompat {
     private MediaNotificationManager mMediaNotificationManager;
     private MediaSessionCallback mCallback;
     private boolean mServiceInStartedState;
-    private Playlist nowPlaying;
 
     @Override
     public void onCreate() {
