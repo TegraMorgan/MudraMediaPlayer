@@ -25,8 +25,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //TODO Tegra Launch this on separate thread in the future
-        MediaLibrary.buildMediaLibrary(this);
         setContentView(R.layout.activity_main);
         mBrowseAlbums = findViewById(R.id.bt_sel_albm);
         mBrowseArtists = findViewById(R.id.bt_sel_artist);
@@ -48,6 +46,8 @@ public class MainActivity extends AppCompatActivity {
             Log.v(TAG, "No permission");
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_MEDIA_ACCESS);
         }
+        //TODO Tegra Launch this on separate thread in the future
+        MediaLibrary.buildMediaLibrary(this);
 
     }
 
