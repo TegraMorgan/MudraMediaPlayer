@@ -68,10 +68,8 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.GenresViewHo
 
         void bind(int listIndex) {
             Album curr = albums.get(listIndex);
-            String name = curr.getaName().trim();
-            String art = curr.getaArtist().trim();
-            if (name.length() > ACCEPTABLE_LENGTH) name = name.substring(0, ACCEPTABLE_LENGTH - 1);
-            if (art.length() > ACCEPTABLE_LENGTH) art = art.substring(0, ACCEPTABLE_LENGTH - 1);
+            String name = curr.getaName();
+            String art = curr.getaArtist();
             listItemAlbum.setText(name + " - ");
             listItemArtist.setText(art);
         }

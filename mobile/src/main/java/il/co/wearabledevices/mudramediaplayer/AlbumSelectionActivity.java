@@ -1,12 +1,15 @@
 package il.co.wearabledevices.mudramediaplayer;
 
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.IBinder;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
+import android.support.v4.media.MediaBrowserCompat;
+import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.session.MediaControllerCompat;
+import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -15,46 +18,33 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 
+import il.co.wearabledevices.mudramediaplayer.client.MediaBrowserHelper;
 import il.co.wearabledevices.mudramediaplayer.model.Album;
 import il.co.wearabledevices.mudramediaplayer.model.MediaLibrary;
-import il.co.wearabledevices.mudramediaplayer.model.Playlist;
-import il.co.wearabledevices.mudramediaplayer.service.MudraMusicService;
-import il.co.wearabledevices.mudramediaplayer.service.MudraMusicService.MusicBinder;
+import il.co.wearabledevices.mudramediaplayer.model.Song;
+import il.co.wearabledevices.mudramediaplayer.service.MudraMediaService3;
+
 
 public class AlbumSelectionActivity extends AppCompatActivity implements AlbumAdapter.ListItemClickListener {
     private static final String TAG = AlbumSelectionActivity.class.getSimpleName();
+    ArrayList<Album> mAlbums;
     private AlbumAdapter mAdapter;
     private RecyclerView recyclerViewAlbums;
-    private MediaLibrary mLibrary;
-    private MudraMusicService musicSrv;
-    private Intent playIntent;
-    private boolean musicBound;
-    private ServiceConnection musicConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            MusicBinder binder = (MusicBinder) service;
-            // get the service pointer
-            musicSrv = binder.getService();
-            //mark as bounded
-            musicBound = true;
-        }
 
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            musicBound = false;
-        }
-    };
+    private boolean mCurrentState;
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        if (playIntent == null) {
-            playIntent = new Intent(this, MudraMusicService.class);
-            bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
-            startService(playIntent);
-        }
-    }
+    //TODO variables to fill music file data
+    /*
+    private ImageView mAlbumArt;
+    private TextView mTitleTextView;
+    private TextView mArtistTextView;
+    private ImageView mMediaControlsImage;
+    private MediaSeekBar mSeekBarAudio;
+    */
+
+    private MediaBrowserHelper mMediaBrowserHelper;
 
     @SuppressWarnings("Convert2Diamond")
     @Override
@@ -68,23 +58,23 @@ public class AlbumSelectionActivity extends AppCompatActivity implements AlbumAd
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(view -> {
             //TODO floating button action
-            stopService(playIntent);
-            musicSrv = null;
+            if (mCurrentState) {
+                mMediaBrowserHelper.getTransportControls().pause();
+                Snackbar.make(view, "Music paused", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+            } else {
+                mMediaBrowserHelper.getTransportControls().play();
+                Snackbar.make(view, "Music restored", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+            }
             System.exit(0);
-            //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG).setAction("Action", null).show();
         });
 
-        /* This is an example how to use MediaLibrary class */
+        mMediaBrowserHelper = new MediaBrowserConnection(this);
+        mMediaBrowserHelper.registerCallback(new MediaBrowserListener());
 
-        /* mLibrary - Global variable of MediaLibrary class */
-        /* Initialize new media library with default root path (music) */
-        mLibrary = new MediaLibrary(this);
-        /* get the albums from the media library */
-        ArrayList<Album> mAlbums = mLibrary.getmAlbums();
-        /* sort the albums by album name */
+
+        mAlbums = (ArrayList<Album>) MediaLibrary.getAlbums();
+        Log.v(TAG, "Got " + mAlbums.size() + " albums from media library");
         mAlbums.sort(Comparator.comparing(Album::getaName));
-
-        /* end of MediaLibrary example */
 
         // set the recycler
         recyclerViewAlbums = findViewById(R.id.rv_albums);
@@ -97,21 +87,123 @@ public class AlbumSelectionActivity extends AppCompatActivity implements AlbumAd
 
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mMediaBrowserHelper.onStart();
+    }
 
     @Override
-    protected void onDestroy() {
-        Log.v(TAG, "OnDestroy launched");
-        stopService(playIntent);
-        unbindService(musicConnection);
-        musicSrv = null;
-
-        super.onDestroy();
+    protected void onStop() {
+        super.onStop();
+        //TODO implement seek bar when needed
+        //mSeekBarAudio.disconnectController();
+        mMediaBrowserHelper.onStop();
     }
 
     @Override
     public void onListItemClick(int cii) {
-        Album sel = mLibrary.getmAlbums().get(cii);
-        musicSrv.setList(new Playlist(sel));
-        musicSrv.playSong();
+        Album sel = mAlbums.get(cii);
+        // FIXME Tegra is here
+        //Need to convert Song to MediaDescriptionCompat
+        List<Song> albumSongs = sel.getaSongs();
+        MediaControllerCompat cont = mMediaBrowserHelper.getMediaController();
+        for (Song s : albumSongs) {
+            cont.addQueueItem(s.getMetadata().getDescription());
+        }
+        //TODO Tegra - put these two on a separate thread perhaps?
+        mMediaBrowserHelper.getTransportControls().prepare();
+        mMediaBrowserHelper.getTransportControls().play();
     }
+
+    /* deprecated function */
+    //TODO delete this ?
+    private MediaControllerCompat.TransportControls getSupportMediaController() {
+        MediaControllerCompat.TransportControls res = null;
+        MediaControllerCompat controllerCompat = MediaControllerCompat.getMediaController(AlbumSelectionActivity.this);
+        PlaybackStateCompat stateCompat = controllerCompat.getPlaybackState();
+        if (stateCompat != null) {
+            res = MediaControllerCompat.getMediaController(AlbumSelectionActivity.this).getTransportControls();
+        }
+        return res;
+    }
+
+
+    /**
+     * Customize the connection to our {@link android.support.v4.media.MediaBrowserServiceCompat}
+     * and implement our app specific desires.
+     */
+    private class MediaBrowserConnection extends MediaBrowserHelper {
+        private MediaBrowserConnection(Context context) {
+            super(context, MudraMediaService3.class);
+        }
+
+        @Override
+        protected void onConnected(@NonNull MediaControllerCompat mediaController) {
+            //TODO seek bar connects here
+            //mSeekBarAudio.setMediaController(mediaController);
+        }
+
+        @Override
+        protected void onChildrenLoaded(@NonNull String parentId,
+                                        @NonNull List<MediaBrowserCompat.MediaItem> children) {
+            super.onChildrenLoaded(parentId, children);
+            /*
+            final MediaControllerCompat mediaController = getMediaController();
+
+            // Queue up all media items for this simple sample.
+            for (final MediaBrowserCompat.MediaItem mediaItem : children) {
+                mediaController.addQueueItem(mediaItem.getDescription());
+            }
+
+            // Call prepare now so pressing play just works.
+            mediaController.getTransportControls().prepare();
+            */
+        }
+    }
+
+    /**
+     * Implementation of the {@link MediaControllerCompat.Callback} methods we're interested in.
+     * <p>
+     * Here would also be where one could override
+     * {@code onQueueChanged(List<MediaSessionCompat.QueueItem> queue)} to get informed when items
+     * are added or removed from the queue. We don't do this here in order to keep the UI
+     * simple.
+     */
+    private class MediaBrowserListener extends MediaControllerCompat.Callback {
+        @Override
+        public void onPlaybackStateChanged(PlaybackStateCompat playbackState) {
+            mCurrentState = (playbackState) != null && (playbackState.getState() == PlaybackStateCompat.STATE_PLAYING);
+            //TODO play/pause icon on main activity changes here
+            //mMediaControlsImage.setPressed(mCurrentState);
+        }
+
+        @Override
+        public void onMetadataChanged(MediaMetadataCompat mediaMetadata) {
+            if (mediaMetadata == null) {
+                return;
+            }
+            //TODO When song changes update the song data here
+            /*
+            mTitleTextView.setText(
+                    mediaMetadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE));
+            mArtistTextView.setText(
+                    mediaMetadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST));
+            mAlbumArt.setImageBitmap(MediaLibrary.getAlbumBitmap(
+                    AlbumSelectionActivity.this,
+                    mediaMetadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID)));
+                    */
+        }
+
+        @Override
+        public void onSessionDestroyed() {
+            super.onSessionDestroyed();
+        }
+
+        @Override
+        public void onQueueChanged(List<MediaSessionCompat.QueueItem> queue) {
+            super.onQueueChanged(queue);
+        }
+    }
+
 }
