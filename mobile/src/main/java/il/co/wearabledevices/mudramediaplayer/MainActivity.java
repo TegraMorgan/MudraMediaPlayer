@@ -45,6 +45,9 @@ public class MainActivity extends AppCompatActivity {
             // Permission is not granted
             Log.v(TAG, "No permission");
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_MEDIA_ACCESS);
+        } else {
+            //TODO Tegra Launch this on separate thread in the future
+            MediaLibrary.buildMediaLibrary(this);
         }
 
     }
