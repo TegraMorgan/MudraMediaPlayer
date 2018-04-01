@@ -12,7 +12,6 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <service android:name=".service.MudraMusicService" />
         <service android:name=".service.MudraMediaService3" />
 
         <activity

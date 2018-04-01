@@ -5,6 +5,6 @@ package il.co.wearabledevices.mudramediaplayer.service;
  * Created by tegra on 14/03/18.
  */
 
-public class MudraMusicService extends MudraMediaService3 {
+public class MudraMusicService {
 
 }

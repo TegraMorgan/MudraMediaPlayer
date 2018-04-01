@@ -24,7 +24,7 @@ import il.co.wearabledevices.mudramediaplayer.client.MediaBrowserHelper;
 import il.co.wearabledevices.mudramediaplayer.model.Album;
 import il.co.wearabledevices.mudramediaplayer.model.MediaLibrary;
 import il.co.wearabledevices.mudramediaplayer.model.Song;
-import il.co.wearabledevices.mudramediaplayer.service.MudraMusicService;
+import il.co.wearabledevices.mudramediaplayer.service.MudraMediaService3;
 
 
 public class AlbumSelectionActivity extends AppCompatActivity implements AlbumAdapter.ListItemClickListener {
@@ -135,7 +135,7 @@ public class AlbumSelectionActivity extends AppCompatActivity implements AlbumAd
      */
     private class MediaBrowserConnection extends MediaBrowserHelper {
         private MediaBrowserConnection(Context context) {
-            super(context, MudraMusicService.class);
+            super(context, MudraMediaService3.class);
         }
 
         @Override

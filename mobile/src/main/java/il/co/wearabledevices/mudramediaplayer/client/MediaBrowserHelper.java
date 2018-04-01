@@ -128,7 +128,7 @@ public class MediaBrowserHelper {
 
     /**
      * The internal state of the app needs to revert to what it looks like when it started before
-     * any connections to the {@link il.co.wearabledevices.mudramediaplayer.service.MudraMusicService} happens via the {@link MediaSessionCompat}.
+     * any connections to the {@link il.co.wearabledevices.mudramediaplayer.service.MudraMediaService3} happens via the {@link MediaSessionCompat}.
      */
     private void resetState() {
         performOnAllCallbacks(new CallbackCommand() {
@@ -245,7 +245,7 @@ public class MediaBrowserHelper {
             });
         }
 
-        // This might happen if the MudraMusicService is killed while the Activity is in the
+        // This might happen if the MudraMediaService3 is killed while the Activity is in the
         // foreground and onStart() has been called (but not onStop()).
         @Override
         public void onSessionDestroyed() {

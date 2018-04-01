@@ -21,7 +21,7 @@ import android.support.v4.media.session.PlaybackStateCompat;
 
 /**
  * Listener to provide state updates from {@link MediaPlayerAdapter} (the media player)
- * to {@link il.co.wearabledevices.mudramediaplayer.service.MudraMusicService} (the service that holds our {@link MediaSessionCompat}.
+ * to {@link il.co.wearabledevices.mudramediaplayer.service.MudraMediaService3} (the service that holds our {@link MediaSessionCompat}.
  */
 public abstract class PlaybackInfoListener {
 
