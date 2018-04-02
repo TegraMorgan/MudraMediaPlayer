@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.Toast;
 import il.co.wearabledevices.mudramediaplayer.R;
 import il.co.wearabledevices.mudramediaplayer.model.Album;
+import il.co.wearabledevices.mudramediaplayer.nowplaying.PlaybackControlsFragment;
 
 
 public class PlayerActivity extends AppCompatActivity
@@ -25,13 +26,17 @@ public class PlayerActivity extends AppCompatActivity
         setContentView(R.layout.activity_player);
 
         FragmentManager fm = getSupportFragmentManager();
-        PlayerFragment player = new PlayerFragment();
-        fm.beginTransaction().replace(R.id.player_container,player).commit();
+        //PlayerFragment player = new PlayerFragment();
 
         /*SongsFragment songs = new SongsFragment();
         fm.beginTransaction().replace(R.id.songs_list_container, songs).commit();*/
         SongsListFragment slf = new SongsListFragment();
         fm.beginTransaction().replace(R.id.songs_list_container,slf).commit();
+
+        PlaybackControlsFragment pbcf = new PlaybackControlsFragment();
+        fm.beginTransaction().replace(R.id.player_container,pbcf).commit();
+
+
 
     }
 
