@@ -1,8 +1,10 @@
 package il.co.wearabledevices.mudramediaplayer;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.media.MediaBrowserCompat;
@@ -46,6 +48,7 @@ public class AlbumSelectionActivity extends AppCompatActivity implements AlbumAd
 
     private MediaBrowserHelper mMediaBrowserHelper;
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @SuppressWarnings("Convert2Diamond")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,7 +68,7 @@ public class AlbumSelectionActivity extends AppCompatActivity implements AlbumAd
                 mMediaBrowserHelper.getTransportControls().play();
                 Snackbar.make(view, "Music restored", Snackbar.LENGTH_LONG).setAction("Action", null).show();
             }
-            System.exit(0);
+            //System.exit(0);
         });
 
         mMediaBrowserHelper = new MediaBrowserConnection(this);
