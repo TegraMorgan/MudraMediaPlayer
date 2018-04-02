@@ -1,5 +1,5 @@
 // IMudraDeviceStatuslListener.aidl
-package com.wearable.android.ble.interfaces;
+package interfaces;
 
 // Callback for receiving device status notifications
 interface IMudraDeviceStatuslListener {
