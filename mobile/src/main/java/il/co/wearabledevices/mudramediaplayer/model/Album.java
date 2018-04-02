@@ -1,12 +1,13 @@
 package il.co.wearabledevices.mudramediaplayer.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
  * Created by tegra on 14/03/18.
  */
 
-public class Album {
+public class Album implements Serializable {
     private String aName;
     private String aArtist;
     private ArrayList<Song> aSongs;
@@ -51,4 +52,5 @@ public class Album {
     public void setaSongs(ArrayList<Song> aSongs) {
         this.aSongs = aSongs;
     }
+
 }

@@ -12,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Button;
 
+import il.co.wearabledevices.mudramediaplayer.model.MediaLibrary;
 import il.co.wearabledevices.mudramediaplayer.player.PlayerActivity;
 
 public class MainActivity extends AppCompatActivity {
@@ -23,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
         mBrowseAlbums = findViewById(R.id.bt_sel_albm);
         mBrowseArtists = findViewById(R.id.bt_sel_artist);
@@ -53,6 +55,8 @@ public class MainActivity extends AppCompatActivity {
             case REQUEST_MEDIA_ACCESS: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // permission granted
+                    //TODO Tegra Launch this on separate thread in the future
+                    MediaLibrary.buildMediaLibrary(this);
                 } else {
                     //permission denied
                 }

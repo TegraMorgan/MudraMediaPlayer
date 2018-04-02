@@ -74,7 +74,7 @@ public class SongsListFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            List<Album> albums = new MediaLibrary(context).getmAlbums();
+            List<Album> albums = MediaLibrary.getmAlbums();
             recyclerView.setAdapter(new SongsRecyclerViewAdapter(albums, mListener));
         }
         return view;
