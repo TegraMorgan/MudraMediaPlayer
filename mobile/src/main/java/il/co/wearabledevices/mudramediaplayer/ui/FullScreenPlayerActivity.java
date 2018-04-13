@@ -38,15 +38,15 @@ import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import com.example.android.uamp.AlbumArtCache;
-import com.example.android.uamp.MusicService;
-import com.example.android.uamp.R;
-import com.example.android.uamp.utils.LogHelper;
-
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+
+import il.co.wearabledevices.mudramediaplayer.AlbumArtCache;
+import il.co.wearabledevices.mudramediaplayer.MusicService;
+import il.co.wearabledevices.mudramediaplayer.R;
+import il.co.wearabledevices.mudramediaplayer.utils.LogHelper;
 
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;

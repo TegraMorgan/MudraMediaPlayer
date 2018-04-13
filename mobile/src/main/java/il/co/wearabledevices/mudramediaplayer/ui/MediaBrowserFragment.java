@@ -37,19 +37,19 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.android.uamp.R;
-import com.example.android.uamp.utils.LogHelper;
-import com.example.android.uamp.utils.MediaIDHelper;
-import com.example.android.uamp.utils.NetworkHelper;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import il.co.wearabledevices.mudramediaplayer.R;
+import il.co.wearabledevices.mudramediaplayer.utils.LogHelper;
+import il.co.wearabledevices.mudramediaplayer.utils.MediaIDHelper;
+import il.co.wearabledevices.mudramediaplayer.utils.NetworkHelper;
 
 /**
  * A Fragment that lists all the various browsable queues available
  * from a {@link android.service.media.MediaBrowserService}.
  * <p/>
- * It uses a {@link MediaBrowserCompat} to connect to the {@link com.example.android.uamp.MusicService}.
+ * It uses a {@link MediaBrowserCompat} to connect to the {@link il.co.wearabledevices.mudramediaplayer.MusicService}.
  * Once connected, the fragment subscribes to get all the children.
  * All {@link MediaBrowserCompat.MediaItem}'s that can be browsed are shown in a ListView.
  */

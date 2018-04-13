@@ -32,8 +32,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.android.uamp.R;
-import com.example.android.uamp.utils.MediaIDHelper;
+import il.co.wearabledevices.mudramediaplayer.R;
+import il.co.wearabledevices.mudramediaplayer.utils.MediaIDHelper;
 
 public class MediaItemViewHolder {
 

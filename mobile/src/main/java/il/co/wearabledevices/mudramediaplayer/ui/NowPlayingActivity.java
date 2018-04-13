@@ -21,8 +21,8 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 
-import com.example.android.uamp.ui.tv.TvPlaybackActivity;
-import com.example.android.uamp.utils.LogHelper;
+import il.co.wearabledevices.mudramediaplayer.ui.tv.TvPlaybackActivity;
+import il.co.wearabledevices.mudramediaplayer.utils.LogHelper;
 
 /**
  * The activity for the Now Playing Card PendingIntent.

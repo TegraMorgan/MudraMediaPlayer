@@ -24,8 +24,8 @@ import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.text.TextUtils;
 
-import com.example.android.uamp.R;
-import com.example.android.uamp.utils.LogHelper;
+import il.co.wearabledevices.mudramediaplayer.R;
+import il.co.wearabledevices.mudramediaplayer.utils.LogHelper;
 
 /**
  * Main activity for the music player.
@@ -37,16 +37,16 @@ public class MusicPlayerActivity extends BaseActivity
         implements MediaBrowserFragment.MediaFragmentListener {
 
     public static final String EXTRA_START_FULLSCREEN =
-            "com.example.android.uamp.EXTRA_START_FULLSCREEN";
+            "il.co.wearabledevices.mudramediaplayer.EXTRA_START_FULLSCREEN";
     /**
      * Optionally used with {@link #EXTRA_START_FULLSCREEN} to carry a MediaDescription to
      * the {@link FullScreenPlayerActivity}, speeding up the screen rendering
      * while the {@link android.support.v4.media.session.MediaControllerCompat} is connecting.
      */
     public static final String EXTRA_CURRENT_MEDIA_DESCRIPTION =
-            "com.example.android.uamp.CURRENT_MEDIA_DESCRIPTION";
+            "il.co.wearabledevices.mudramediaplayer.CURRENT_MEDIA_DESCRIPTION";
     private static final String TAG = LogHelper.makeLogTag(MusicPlayerActivity.class);
-    private static final String SAVED_MEDIA_ID = "com.example.android.uamp.MEDIA_ID";
+    private static final String SAVED_MEDIA_ID = "il.co.wearabledevices.mudramediaplayer.MEDIA_ID";
     private static final String FRAGMENT_TAG = "uamp_list_container";
     private Bundle mVoiceSearchParams;
 

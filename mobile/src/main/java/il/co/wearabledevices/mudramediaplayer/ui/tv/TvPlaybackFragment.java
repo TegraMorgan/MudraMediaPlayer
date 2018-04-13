@@ -48,11 +48,11 @@ import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 
-import com.example.android.uamp.AlbumArtCache;
-import com.example.android.uamp.utils.LogHelper;
-import com.example.android.uamp.utils.QueueHelper;
-
 import java.util.List;
+
+import il.co.wearabledevices.mudramediaplayer.AlbumArtCache;
+import il.co.wearabledevices.mudramediaplayer.utils.LogHelper;
+import il.co.wearabledevices.mudramediaplayer.utils.QueueHelper;
 
 /*
  * Show details of the currently playing song, along with playback controls and the playing queue.

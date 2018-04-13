@@ -24,11 +24,11 @@ import android.support.annotation.NonNull;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 
-import com.example.android.uamp.R;
-import com.example.android.uamp.model.MusicProvider;
-import com.example.android.uamp.utils.LogHelper;
-import com.example.android.uamp.utils.MediaIDHelper;
-import com.example.android.uamp.utils.WearHelper;
+import il.co.wearabledevices.mudramediaplayer.R;
+import il.co.wearabledevices.mudramediaplayer.model.MusicProvider;
+import il.co.wearabledevices.mudramediaplayer.utils.LogHelper;
+import il.co.wearabledevices.mudramediaplayer.utils.MediaIDHelper;
+import il.co.wearabledevices.mudramediaplayer.utils.WearHelper;
 
 /**
  * Manage the interactions among the container service, the queue manager and the actual playback.
@@ -37,7 +37,7 @@ public class PlaybackManager implements Playback.Callback {
 
     private static final String TAG = LogHelper.makeLogTag(PlaybackManager.class);
     // Action to thumbs up a media item
-    private static final String CUSTOM_ACTION_THUMBS_UP = "com.example.android.uamp.THUMBS_UP";
+    private static final String CUSTOM_ACTION_THUMBS_UP = "il.co.wearabledevices.mudramediaplayer.THUMBS_UP";
 
     private MusicProvider mMusicProvider;
     private QueueManager mQueueManager;

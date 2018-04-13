@@ -24,10 +24,6 @@ import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 
-import com.example.android.uamp.R;
-import com.example.android.uamp.utils.LogHelper;
-import com.example.android.uamp.utils.MediaIDHelper;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -37,9 +33,13 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import static com.example.android.uamp.utils.MediaIDHelper.MEDIA_ID_MUSICS_BY_GENRE;
-import static com.example.android.uamp.utils.MediaIDHelper.MEDIA_ID_ROOT;
-import static com.example.android.uamp.utils.MediaIDHelper.createMediaID;
+import il.co.wearabledevices.mudramediaplayer.R;
+import il.co.wearabledevices.mudramediaplayer.utils.LogHelper;
+import il.co.wearabledevices.mudramediaplayer.utils.MediaIDHelper;
+
+import static il.co.wearabledevices.mudramediaplayer.utils.MediaIDHelper.MEDIA_ID_MUSICS_BY_GENRE;
+import static il.co.wearabledevices.mudramediaplayer.utils.MediaIDHelper.MEDIA_ID_ROOT;
+import static il.co.wearabledevices.mudramediaplayer.utils.MediaIDHelper.createMediaID;
 
 /**
  * Simple data provider for music tracks. The actual metadata source is delegated to a
@@ -301,7 +301,7 @@ public class MusicProvider {
                 .setTitle(resources.getString(R.string.browse_genres))
                 .setSubtitle(resources.getString(R.string.browse_genre_subtitle))
                 .setIconUri(Uri.parse("android.resource://" +
-                        "com.example.android.uamp/drawable/ic_by_genre"))
+                        "il.co.wearabledevices.mudramediaplayer/drawable/ic_by_genre"))
                 .build();
         return new MediaBrowserCompat.MediaItem(description,
                 MediaBrowserCompat.MediaItem.FLAG_BROWSABLE);

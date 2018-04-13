@@ -17,7 +17,7 @@ package il.co.wearabledevices.mudramediaplayer.utils;
 
 import android.util.Log;
 
-import com.example.android.uamp.BuildConfig;
+import il.co.wearabledevices.mudramediaplayer.BuildConfig;
 
 public class LogHelper {
 

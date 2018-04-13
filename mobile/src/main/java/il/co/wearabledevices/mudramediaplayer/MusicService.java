@@ -34,17 +34,6 @@
  import android.support.v4.media.session.PlaybackStateCompat;
  import android.support.v7.media.MediaRouter;
 
- import com.example.android.uamp.model.MusicProvider;
- import com.example.android.uamp.playback.CastPlayback;
- import com.example.android.uamp.playback.LocalPlayback;
- import com.example.android.uamp.playback.Playback;
- import com.example.android.uamp.playback.PlaybackManager;
- import com.example.android.uamp.playback.QueueManager;
- import com.example.android.uamp.ui.NowPlayingActivity;
- import com.example.android.uamp.utils.CarHelper;
- import com.example.android.uamp.utils.LogHelper;
- import com.example.android.uamp.utils.TvHelper;
- import com.example.android.uamp.utils.WearHelper;
  import com.google.android.gms.cast.framework.CastContext;
  import com.google.android.gms.cast.framework.CastSession;
  import com.google.android.gms.cast.framework.SessionManager;
@@ -56,8 +45,20 @@
  import java.util.ArrayList;
  import java.util.List;
 
- import static com.example.android.uamp.utils.MediaIDHelper.MEDIA_ID_EMPTY_ROOT;
- import static com.example.android.uamp.utils.MediaIDHelper.MEDIA_ID_ROOT;
+ import il.co.wearabledevices.mudramediaplayer.model.MusicProvider;
+ import il.co.wearabledevices.mudramediaplayer.playback.CastPlayback;
+ import il.co.wearabledevices.mudramediaplayer.playback.LocalPlayback;
+ import il.co.wearabledevices.mudramediaplayer.playback.Playback;
+ import il.co.wearabledevices.mudramediaplayer.playback.PlaybackManager;
+ import il.co.wearabledevices.mudramediaplayer.playback.QueueManager;
+ import il.co.wearabledevices.mudramediaplayer.ui.NowPlayingActivity;
+ import il.co.wearabledevices.mudramediaplayer.utils.CarHelper;
+ import il.co.wearabledevices.mudramediaplayer.utils.LogHelper;
+ import il.co.wearabledevices.mudramediaplayer.utils.TvHelper;
+ import il.co.wearabledevices.mudramediaplayer.utils.WearHelper;
+
+ import static il.co.wearabledevices.mudramediaplayer.utils.MediaIDHelper.MEDIA_ID_EMPTY_ROOT;
+ import static il.co.wearabledevices.mudramediaplayer.utils.MediaIDHelper.MEDIA_ID_ROOT;
 
  /**
   * This class provides a MediaBrowser through a service. It exposes the media library to a browsing
@@ -118,10 +119,10 @@
          PlaybackManager.PlaybackServiceCallback {
 
      // Extra on MediaSession that contains the Cast device name currently connected to
-     public static final String EXTRA_CONNECTED_CAST = "com.example.android.uamp.CAST_NAME";
+     public static final String EXTRA_CONNECTED_CAST = "il.co.wearabledevices.mudramediaplayer.CAST_NAME";
      // The action of the incoming Intent indicating that it contains a command
      // to be executed (see {@link #onStartCommand})
-     public static final String ACTION_CMD = "com.example.android.uamp.ACTION_CMD";
+     public static final String ACTION_CMD = "il.co.wearabledevices.mudramediaplayer.ACTION_CMD";
      // The key in the extras of the incoming Intent indicating the command that
      // should be executed (see {@link #onStartCommand})
      public static final String CMD_NAME = "CMD_NAME";

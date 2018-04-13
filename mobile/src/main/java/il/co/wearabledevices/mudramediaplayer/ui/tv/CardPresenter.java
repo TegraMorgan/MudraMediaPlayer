@@ -23,10 +23,10 @@ import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.view.ViewGroup;
 
-import com.example.android.uamp.R;
-import com.example.android.uamp.ui.MediaItemViewHolder;
-import com.example.android.uamp.utils.LogHelper;
-import com.example.android.uamp.utils.QueueHelper;
+import il.co.wearabledevices.mudramediaplayer.R;
+import il.co.wearabledevices.mudramediaplayer.ui.MediaItemViewHolder;
+import il.co.wearabledevices.mudramediaplayer.utils.LogHelper;
+import il.co.wearabledevices.mudramediaplayer.utils.QueueHelper;
 
 public class CardPresenter extends Presenter {
     private static final String TAG = LogHelper.makeLogTag(CardPresenter.class);

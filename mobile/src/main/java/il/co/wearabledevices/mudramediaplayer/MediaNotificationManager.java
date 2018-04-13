@@ -39,9 +39,9 @@ import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 
-import com.example.android.uamp.ui.MusicPlayerActivity;
-import com.example.android.uamp.utils.LogHelper;
-import com.example.android.uamp.utils.ResourceHelper;
+import il.co.wearabledevices.mudramediaplayer.ui.MusicPlayerActivity;
+import il.co.wearabledevices.mudramediaplayer.utils.LogHelper;
+import il.co.wearabledevices.mudramediaplayer.utils.ResourceHelper;
 
 /**
  * Keeps track of a notification and updates it automatically for a given
@@ -49,14 +49,14 @@ import com.example.android.uamp.utils.ResourceHelper;
  * won't be killed during playback.
  */
 public class MediaNotificationManager extends BroadcastReceiver {
-    public static final String ACTION_PAUSE = "com.example.android.uamp.pause";
-    public static final String ACTION_PLAY = "com.example.android.uamp.play";
-    public static final String ACTION_PREV = "com.example.android.uamp.prev";
-    public static final String ACTION_NEXT = "com.example.android.uamp.next";
-    public static final String ACTION_STOP = "com.example.android.uamp.stop";
-    public static final String ACTION_STOP_CASTING = "com.example.android.uamp.stop_cast";
+    public static final String ACTION_PAUSE = "il.co.wearabledevices.mudramediaplayer.pause";
+    public static final String ACTION_PLAY = "il.co.wearabledevices.mudramediaplayer.play";
+    public static final String ACTION_PREV = "il.co.wearabledevices.mudramediaplayer.prev";
+    public static final String ACTION_NEXT = "il.co.wearabledevices.mudramediaplayer.next";
+    public static final String ACTION_STOP = "il.co.wearabledevices.mudramediaplayer.stop";
+    public static final String ACTION_STOP_CASTING = "il.co.wearabledevices.mudramediaplayer.stop_cast";
     private static final String TAG = LogHelper.makeLogTag(MediaNotificationManager.class);
-    private static final String CHANNEL_ID = "com.example.android.uamp.MUSIC_CHANNEL_ID";
+    private static final String CHANNEL_ID = "il.co.wearabledevices.mudramediaplayer.MUSIC_CHANNEL_ID";
     private static final int NOTIFICATION_ID = 412;
     private static final int REQUEST_CODE = 100;
     private final MusicService mService;

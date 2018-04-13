@@ -20,10 +20,10 @@ import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.util.LruCache;
 
-import com.example.android.uamp.utils.BitmapHelper;
-import com.example.android.uamp.utils.LogHelper;
-
 import java.io.IOException;
+
+import il.co.wearabledevices.mudramediaplayer.utils.BitmapHelper;
+import il.co.wearabledevices.mudramediaplayer.utils.LogHelper;
 
 /**
  * Implements a basic cache of album arts, with async loading support.

@@ -15,7 +15,7 @@
  */
 package il.co.wearabledevices.mudramediaplayer.playback;
 
-import com.example.android.uamp.MusicService;
+import il.co.wearabledevices.mudramediaplayer.MusicService;
 
 import static android.support.v4.media.session.MediaSessionCompat.QueueItem;
 

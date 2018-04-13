@@ -21,10 +21,6 @@ import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.text.TextUtils;
 
-import com.example.android.uamp.model.MusicProvider;
-import com.example.android.uamp.model.MusicProviderSource;
-import com.example.android.uamp.utils.LogHelper;
-import com.example.android.uamp.utils.MediaIDHelper;
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaMetadata;
 import com.google.android.gms.cast.MediaStatus;
@@ -35,6 +31,11 @@ import com.google.android.gms.common.images.WebImage;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import il.co.wearabledevices.mudramediaplayer.model.MusicProvider;
+import il.co.wearabledevices.mudramediaplayer.model.MusicProviderSource;
+import il.co.wearabledevices.mudramediaplayer.utils.LogHelper;
+import il.co.wearabledevices.mudramediaplayer.utils.MediaIDHelper;
 
 import static android.support.v4.media.session.MediaSessionCompat.QueueItem;
 

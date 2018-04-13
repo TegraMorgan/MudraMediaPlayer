@@ -18,8 +18,6 @@ package il.co.wearabledevices.mudramediaplayer.model;
 
 import android.support.v4.media.MediaMetadataCompat;
 
-import com.example.android.uamp.utils.LogHelper;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,6 +29,8 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Iterator;
+
+import il.co.wearabledevices.mudramediaplayer.utils.LogHelper;
 
 /**
  * Utility class to get a list of MusicTrack's based on a server-side JSON

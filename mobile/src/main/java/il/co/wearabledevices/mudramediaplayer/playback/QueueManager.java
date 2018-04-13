@@ -23,17 +23,17 @@ import android.support.annotation.NonNull;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 
-import com.example.android.uamp.AlbumArtCache;
-import com.example.android.uamp.R;
-import com.example.android.uamp.model.MusicProvider;
-import com.example.android.uamp.utils.LogHelper;
-import com.example.android.uamp.utils.MediaIDHelper;
-import com.example.android.uamp.utils.QueueHelper;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import il.co.wearabledevices.mudramediaplayer.AlbumArtCache;
+import il.co.wearabledevices.mudramediaplayer.R;
+import il.co.wearabledevices.mudramediaplayer.model.MusicProvider;
+import il.co.wearabledevices.mudramediaplayer.utils.LogHelper;
+import il.co.wearabledevices.mudramediaplayer.utils.MediaIDHelper;
+import il.co.wearabledevices.mudramediaplayer.utils.QueueHelper;
 
 /**
  * Simple data provider for queues. Keeps track of a current queue and a current index in the

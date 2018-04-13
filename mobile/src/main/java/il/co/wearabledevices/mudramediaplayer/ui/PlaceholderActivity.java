@@ -17,7 +17,7 @@ package il.co.wearabledevices.mudramediaplayer.ui;
 
 import android.os.Bundle;
 
-import com.example.android.uamp.R;
+import il.co.wearabledevices.mudramediaplayer.R;
 
 /**
  * Placeholder activity for features that are not implemented in this sample, but

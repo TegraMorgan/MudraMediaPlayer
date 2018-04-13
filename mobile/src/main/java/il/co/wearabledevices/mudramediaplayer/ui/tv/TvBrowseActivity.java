@@ -24,9 +24,9 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 
-import com.example.android.uamp.MusicService;
-import com.example.android.uamp.R;
-import com.example.android.uamp.utils.LogHelper;
+import il.co.wearabledevices.mudramediaplayer.MusicService;
+import il.co.wearabledevices.mudramediaplayer.R;
+import il.co.wearabledevices.mudramediaplayer.utils.LogHelper;
 
 /**
  * Main activity for the Android TV user interface.
@@ -34,8 +34,8 @@ import com.example.android.uamp.utils.LogHelper;
 public class TvBrowseActivity extends FragmentActivity
         implements TvBrowseFragment.MediaFragmentListener {
 
-    public static final String SAVED_MEDIA_ID = "com.example.android.uamp.MEDIA_ID";
-    public static final String BROWSE_TITLE = "com.example.android.uamp.BROWSE_TITLE";
+    public static final String SAVED_MEDIA_ID = "il.co.wearabledevices.mudramediaplayer.MEDIA_ID";
+    public static final String BROWSE_TITLE = "il.co.wearabledevices.mudramediaplayer.BROWSE_TITLE";
     private static final String TAG = LogHelper.makeLogTag(TvBrowseActivity.class);
     private MediaBrowserCompat mMediaBrowser;
 

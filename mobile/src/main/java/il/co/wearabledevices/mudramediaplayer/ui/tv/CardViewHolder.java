@@ -34,8 +34,8 @@ import android.support.v17.leanback.widget.Presenter;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.view.View;
 
-import com.example.android.uamp.AlbumArtCache;
-import com.example.android.uamp.ui.MediaItemViewHolder;
+import il.co.wearabledevices.mudramediaplayer.AlbumArtCache;
+import il.co.wearabledevices.mudramediaplayer.ui.MediaItemViewHolder;
 
 public class CardViewHolder extends Presenter.ViewHolder {
 

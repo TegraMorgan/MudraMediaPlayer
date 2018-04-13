@@ -33,10 +33,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.android.uamp.AlbumArtCache;
-import com.example.android.uamp.MusicService;
-import com.example.android.uamp.R;
-import com.example.android.uamp.utils.LogHelper;
+import il.co.wearabledevices.mudramediaplayer.AlbumArtCache;
+import il.co.wearabledevices.mudramediaplayer.MusicService;
+import il.co.wearabledevices.mudramediaplayer.R;
+import il.co.wearabledevices.mudramediaplayer.utils.LogHelper;
 
 /**
  * A class that shows the Media Queue to the user.

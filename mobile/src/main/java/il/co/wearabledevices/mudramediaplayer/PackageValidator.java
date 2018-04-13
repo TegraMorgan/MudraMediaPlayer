@@ -22,14 +22,14 @@ import android.content.res.XmlResourceParser;
 import android.os.Process;
 import android.util.Base64;
 
-import com.example.android.uamp.utils.LogHelper;
-
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import il.co.wearabledevices.mudramediaplayer.utils.LogHelper;
 
 /**
  * Validates that the calling package is authorized to browse a

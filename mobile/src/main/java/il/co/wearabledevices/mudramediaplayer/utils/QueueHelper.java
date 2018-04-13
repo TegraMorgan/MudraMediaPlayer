@@ -23,14 +23,14 @@ import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.text.TextUtils;
 
-import com.example.android.uamp.VoiceSearchParams;
-import com.example.android.uamp.model.MusicProvider;
-
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.example.android.uamp.utils.MediaIDHelper.MEDIA_ID_MUSICS_BY_GENRE;
-import static com.example.android.uamp.utils.MediaIDHelper.MEDIA_ID_MUSICS_BY_SEARCH;
+import il.co.wearabledevices.mudramediaplayer.VoiceSearchParams;
+import il.co.wearabledevices.mudramediaplayer.model.MusicProvider;
+
+import static il.co.wearabledevices.mudramediaplayer.utils.MediaIDHelper.MEDIA_ID_MUSICS_BY_GENRE;
+import static il.co.wearabledevices.mudramediaplayer.utils.MediaIDHelper.MEDIA_ID_MUSICS_BY_SEARCH;
 
 /**
  * Utility class to help on queue related tasks.

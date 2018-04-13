@@ -28,11 +28,11 @@ import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 
-import com.example.android.uamp.MusicService;
-import com.example.android.uamp.R;
-import com.example.android.uamp.utils.LogHelper;
-import com.example.android.uamp.utils.NetworkHelper;
-import com.example.android.uamp.utils.ResourceHelper;
+import il.co.wearabledevices.mudramediaplayer.MusicService;
+import il.co.wearabledevices.mudramediaplayer.R;
+import il.co.wearabledevices.mudramediaplayer.utils.LogHelper;
+import il.co.wearabledevices.mudramediaplayer.utils.NetworkHelper;
+import il.co.wearabledevices.mudramediaplayer.utils.ResourceHelper;
 
 /**
  * Base activity for activities that need to show a playback control fragment when media is playing.
