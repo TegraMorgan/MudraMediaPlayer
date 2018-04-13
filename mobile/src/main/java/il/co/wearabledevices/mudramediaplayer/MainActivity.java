@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
         mBrowseArtists = findViewById(R.id.bt_sel_artist);
         mBrowseAlbums.setOnClickListener((v) -> {
             Context mainContext = MainActivity.this;
-            Class destinationActivity = AlbumSelectionActivity.class;
+            Class destinationActivity = MainActivity.class;
             Intent albumSelection = new Intent(mainContext, destinationActivity);
             startActivity(albumSelection);
         });

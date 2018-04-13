@@ -11,6 +11,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Toast;
+
 import il.co.wearabledevices.mudramediaplayer.R;
 import il.co.wearabledevices.mudramediaplayer.model.Album;
 import il.co.wearabledevices.mudramediaplayer.nowplaying.PlaybackControlsFragment;
@@ -23,7 +24,7 @@ public class PlayerActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_player);
+        setContentView(R.layout.activity_player_basel);
 
         FragmentManager fm = getSupportFragmentManager();
         //PlayerFragment player = new PlayerFragment();

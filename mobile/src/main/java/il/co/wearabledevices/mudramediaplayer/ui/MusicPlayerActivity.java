@@ -47,7 +47,7 @@ public class MusicPlayerActivity extends BaseActivity
             "il.co.wearabledevices.mudramediaplayer.CURRENT_MEDIA_DESCRIPTION";
     private static final String TAG = LogHelper.makeLogTag(MusicPlayerActivity.class);
     private static final String SAVED_MEDIA_ID = "il.co.wearabledevices.mudramediaplayer.MEDIA_ID";
-    private static final String FRAGMENT_TAG = "uamp_list_container";
+    private static final String FRAGMENT_TAG = "mmp_list_container";
     private Bundle mVoiceSearchParams;
 
     @Override
@@ -111,7 +111,7 @@ public class MusicPlayerActivity extends BaseActivity
                     .setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP |
                             Intent.FLAG_ACTIVITY_CLEAR_TOP)
                     .putExtra(EXTRA_CURRENT_MEDIA_DESCRIPTION,
-                            intent.getParcelableExtra(EXTRA_CURRENT_MEDIA_DESCRIPTION));
+                            (Bundle) intent.getParcelableExtra(EXTRA_CURRENT_MEDIA_DESCRIPTION));
             startActivity(fullScreenIntent);
         }
     }
