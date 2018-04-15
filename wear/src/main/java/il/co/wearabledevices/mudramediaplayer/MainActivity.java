@@ -4,6 +4,9 @@ import android.os.Bundle;
 import android.support.wearable.activity.WearableActivity;
 import android.widget.TextView;
 
+//import il.co.wearabledevices.mudramediaplayer.R;
+//import il.co.wearabledevices.mudramediaplayer.utils.LogHelper;
+
 public class MainActivity extends WearableActivity {
 
     private TextView mTextView;

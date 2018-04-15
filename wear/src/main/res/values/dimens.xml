@@ -12,4 +12,28 @@
     inner_frame_layout_padding (below variable) on round screens.
     -->
     <dimen name="inner_frame_layout_padding">5dp</dimen>
+    <!-- error infobar -->
+    <dimen name="error_horizontal_padding">4dp</dimen>
+    <dimen name="error_vertical_padding">2dp</dimen>
+
+    <!-- playback controls -->
+    <dimen name="playback_controls_albumart_horizontal_margin">2dp</dimen>
+    <dimen name="playback_controls_albumart_size">32dp</dimen>
+    <dimen name="playback_controls_padding">2dp</dimen>
+
+    <!-- navigation drawer -->
+    <dimen name="drawer_item_icon_margin_end">16dp</dimen>
+    <dimen name="drawer_item_height">24dp</dimen>
+    <dimen name="drawer_item_horizontal_padding">4dp</dimen>
+
+    <!-- media browser listview -->
+    <dimen name="media_item_height">48dp</dimen>
+    <dimen name="media_item_icon_margin_start">8dp</dimen>
+    <dimen name="media_item_text_margin_start">36dp</dimen>
+    <!-- Margins for the ShowcaseView button -->
+    <dimen name="button_margin">20dp</dimen>
+
+    <!-- Margins for full screen activity-->
+    <dimen name="text_view_margin">2dp</dimen>
+    <dimen name="end_text_margin">2dp</dimen>
 </resources>
