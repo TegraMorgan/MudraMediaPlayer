@@ -21,7 +21,7 @@
 
     <fragment
         android:id="@+id/main_browse_fragment"
-        android:name="com.example.android.uamp.ui.tv.TvBrowseFragment"
+        android:name="il.co.wearabledevices.mudramediaplayer.ui.tv.TvBrowseFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".MusicPlayerActivity"
