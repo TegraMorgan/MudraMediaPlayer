@@ -22,7 +22,7 @@
         <item name="alertDialogTheme">@style/Theme.AppCompat.Dialog.Alert</item>
     </style>
 
-    <style name="WearTheme" parent="MMPAppTheme">
+    <style name="MyWearTheme" parent="MMPAppTheme">
         <!-- colorPrimaryDark is currently used on Android Wear for:
              - Card background on media browse
              - Card background on 4-way media controls
