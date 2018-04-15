@@ -14,8 +14,8 @@
 
 package interfaces;
 
-import com.wearable.android.ble.interfaces.IMudraDataListener;
-import com.wearable.android.ble.interfaces.IMudraDeviceStatuslListener;
+import interfaces.IMudraDataListener;
+import interfaces.IMudraDeviceStatuslListener;
 
 
 /**
