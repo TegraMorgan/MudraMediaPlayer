@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MudraMediaPlayer</string>
+    <string name="app_name">Mudra Wear Music Player</string>
     <!--
     This string is used for square devices and overridden by hello_world in
     values-round/strings.xml for round devices.
@@ -44,8 +44,8 @@
     <string name="nav_header_username">Username</string>
 
     <!-- Notificaiton Channel -->
-    <string name="notification_channel">MMP_Channel_ID</string>
-    <string name="notification_channel_description">Channel ID for MMP</string>
+    <string name="notification_channel">MWMP_Channel_ID</string>
+    <string name="notification_channel_description">Channel ID for MWMP</string>
     <string name="browse_albums">Browse Albums</string>
     <string name="browse_artists">Browse Artists</string>
 
