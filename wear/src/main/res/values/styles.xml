@@ -15,7 +15,7 @@
   -->
 <resources>
 
-    <style name="MMPAppTheme" parent="@android:style/Theme.Black">
+    <style name="MMPAppTheme" parent="@android:style/ThemeOverlay.Material.Dark">
         <item name="colorPrimary">#28abe3</item>
         <item name="colorPrimaryDark">#004264</item>
         <item name="colorAccent">#006496</item>
@@ -28,5 +28,9 @@
              - Card background on 4-way media controls
          -->
         <item name="colorPrimaryDark">#004264</item>
+        <item name="android:colorBackground">@android:color/black</item>
+        <item name="android:colorPrimary">@android:color/legacy_primary</item>
+        <item name="android:colorForeground">@android:color/bright_foreground_dark</item>
     </style>
+
 </resources>
