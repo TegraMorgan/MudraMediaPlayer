@@ -21,8 +21,8 @@
         <item name="colorAccent">#FFA0A0ff</item>
         <item name="alertDialogTheme">@style/Theme.AppCompat.Dialog.Alert</item>
         <item name="android:navigationBarColor">@android:color/darker_gray</item>
-        <item name="android:colorForeground">@android:color/foreground_material_dark</item>
-        <item name="android:colorBackground">@android:color/background_material_dark</item>
+        <item name="android:colorForeground">#fff</item>
+        <item name="android:colorBackground">#333</item>
     </style>
 
 
