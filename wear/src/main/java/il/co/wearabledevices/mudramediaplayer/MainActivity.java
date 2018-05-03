@@ -1,23 +1,31 @@
 package il.co.wearabledevices.mudramediaplayer;
 
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
-
+import android.support.annotation.NonNull;
+import android.support.v13.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.wearable.activity.WearableActivity;
+import android.util.Log;
 import android.view.View;
-
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.Collection;
+
+import il.co.wearabledevices.mudramediaplayer.model.MediaLibrary;
 import il.co.wearabledevices.mudramediaplayer.ui.AlbumsFragment;
 import il.co.wearabledevices.mudramediaplayer.ui.SongsFragment;
 import il.co.wearabledevices.mudramediaplayer.ui.dummy.AlbumsDummyContent;
 import il.co.wearabledevices.mudramediaplayer.ui.dummy.SongsDummyContent;
 
-
 public class MainActivity extends WearableActivity implements AlbumsFragment.OnAlbumsListFragmentInteractionListener
         ,SongsFragment.OnSongsListFragmentInteractionListener{
 
+    private static final String TAG = MainActivity.class.getSimpleName();
+    private static final int REQUEST_MEDIA_ACCESS = 4769;
     private TextView mTextView;
     static boolean isPlaying = false;
     @Override
@@ -25,10 +33,23 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mTextView = (TextView) findViewById(R.id.text);
+        mTextView = findViewById(R.id.text);
 
         // Enables Always-on
         setAmbientEnabled();
+
+        /* Tegra - check permission and prepare media library */
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Permission is not granted
+            Log.v(TAG, "No permission");
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_MEDIA_ACCESS);
+        } else {
+            //TODO Tegra Launch this on separate thread in the future
+            MediaLibrary.buildMediaLibrary(this);
+        }
+        Collection albumsOnDevice = MediaLibrary.getAlbums();
+        /* End Tegra */
 
         android.app.FragmentManager fm = getFragmentManager();
         //PlayerFragment player = new PlayerFragment();
@@ -39,7 +60,23 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         fm.beginTransaction().replace(R.id.songs_list_container,slf).commit();
     }
 
-
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_MEDIA_ACCESS: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // permission granted
+                    //TODO Tegra Launch this on separate thread in the future
+                    MediaLibrary.buildMediaLibrary(this);
+                } else {
+                    //permission denied
+                    // Basel?
+                }
+                return;
+            }
+        }
+        return;
+    }
 
     @Override
     public void onAlbumsListFragmentInteraction(AlbumsDummyContent.AlbumsDummyItem item) {
