@@ -41,10 +41,12 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         /* Tegra - check permission and prepare media library */
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
-            // Permission is not granted
+            // We still don't have permission
             Log.v(TAG, "No permission");
+            // We request permission
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_MEDIA_ACCESS);
         } else {
+            // We already have permission
             //TODO Tegra Launch this on separate thread in the future
             MediaLibrary.buildMediaLibrary(this);
         }
@@ -72,10 +74,8 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
                     //permission denied
                     // Basel?
                 }
-                return;
             }
         }
-        return;
     }
 
     @Override
