@@ -7,12 +7,17 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.wear.widget.WearableLinearLayoutManager;
 import android.support.wear.widget.WearableRecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+
 import il.co.wearabledevices.mudramediaplayer.R;
-import il.co.wearabledevices.mudramediaplayer.ui.dummy.AlbumsDummyContent;
+import il.co.wearabledevices.mudramediaplayer.model.Album;
+import il.co.wearabledevices.mudramediaplayer.model.MediaLibrary;
 
 /**
  * A fragment representing a list of Items.
@@ -21,19 +26,26 @@ import il.co.wearabledevices.mudramediaplayer.ui.dummy.AlbumsDummyContent;
  * interface.
  */
 public class AlbumsFragment extends Fragment {
-
+    private static final String TAG = AlbumsFragment.class.getSimpleName();
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
     private static final String LIST_TYPE = "albums";
     // TODO: Customize parameters
     private int mColumnCount = 1;
     private OnAlbumsListFragmentInteractionListener mListener;
+    ArrayList<Album> mAlbums;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
     public AlbumsFragment() {
+        // request all albums
+        mAlbums = (ArrayList<Album>) MediaLibrary.getAlbums();
+        Log.v(TAG, "Got " + mAlbums.size() + " albums from media library");
+        // sort by album name
+        mAlbums.sort(Comparator.comparing(Album::getaName));
+
     }
 
     // TODO: Customize parameter initialization
@@ -77,7 +89,7 @@ public class AlbumsFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(new AlbumsAdapter(AlbumsDummyContent.ITEMS, mListener));
+            recyclerView.setAdapter(new AlbumsAdapter(mAlbums, mListener));
         }
         return view;
     }
@@ -112,7 +124,7 @@ public class AlbumsFragment extends Fragment {
      */
     public interface OnAlbumsListFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onAlbumsListFragmentInteraction(AlbumsDummyContent.AlbumsDummyItem item);
+        void onAlbumsListFragmentInteraction(Album item);
     }
 //    public interface OnSongsListFragmentInteractionListener {
 //        // TODO: Update argument type and name

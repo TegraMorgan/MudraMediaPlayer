@@ -12,6 +12,8 @@ public class constants {
     public static final int DATA_TYPE_ACCNORM = 4;
     public static final int DATA_TYPE_UIACTION = 5;
 
+    public static final String SERIALIZE_ALBUM = "serialize_album";
+
     public static final int BACK =0;
     public static final int SELECT =1;
     public static final int SCROLL_DN_RIGHT =2;

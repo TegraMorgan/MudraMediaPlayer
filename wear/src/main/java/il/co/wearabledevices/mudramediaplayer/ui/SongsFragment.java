@@ -12,7 +12,10 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import il.co.wearabledevices.mudramediaplayer.R;
+import il.co.wearabledevices.mudramediaplayer.model.Album;
 import il.co.wearabledevices.mudramediaplayer.ui.dummy.SongsDummyContent;
+
+import static il.co.wearabledevices.mudramediaplayer.constants.SERIALIZE_ALBUM;
 
 
 /**
@@ -23,9 +26,11 @@ import il.co.wearabledevices.mudramediaplayer.ui.dummy.SongsDummyContent;
  */
 public class SongsFragment extends Fragment {
 
+    private static final String TAG = SongsFragment.class.getSimpleName();
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
     private static final String LIST_TYPE = "songs";
+    private Album album;
     // TODO: Customize parameters
     private int mColumnCount = 1;
     private OnSongsListFragmentInteractionListener mListener;
@@ -50,9 +55,10 @@ public class SongsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        Bundle bdl = getArguments();
         if (getArguments() != null) {
-            mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
+            mColumnCount = bdl.getInt(ARG_COLUMN_COUNT);
+            album = (Album) bdl.getSerializable(SERIALIZE_ALBUM);
         }
 
     }

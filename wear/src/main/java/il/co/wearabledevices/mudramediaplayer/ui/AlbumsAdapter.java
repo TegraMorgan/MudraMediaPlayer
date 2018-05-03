@@ -7,11 +7,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-
-
-import java.util.List;
+import java.util.Collection;
 
 import il.co.wearabledevices.mudramediaplayer.R;
+import il.co.wearabledevices.mudramediaplayer.model.Album;
 import il.co.wearabledevices.mudramediaplayer.ui.dummy.AlbumsDummyContent;
 
 /**
@@ -21,15 +20,15 @@ import il.co.wearabledevices.mudramediaplayer.ui.dummy.AlbumsDummyContent;
  */
 public class AlbumsAdapter extends WearableRecyclerView.Adapter<AlbumsAdapter.ViewHolder> {
 
-    private final List<AlbumsDummyContent.AlbumsDummyItem> mValues;
+    private final Album[] mValues;
     private final AlbumsFragment.OnAlbumsListFragmentInteractionListener mListener;
 
 
-    public AlbumsAdapter(List<AlbumsDummyContent.AlbumsDummyItem> items,
+    public AlbumsAdapter(Collection<Album> items,
                          AlbumsFragment.OnAlbumsListFragmentInteractionListener listener) {
         //this.setEdgeItemsCenteringEnabled(true);
 
-        mValues = items;
+        mValues = (Album[]) items.toArray();
         mListener = listener;
 
     }
@@ -43,9 +42,9 @@ public class AlbumsAdapter extends WearableRecyclerView.Adapter<AlbumsAdapter.Vi
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        holder.mItem = mValues.get(position);
-        holder.mIdView.setText(mValues.get(position).id);
-        holder.mContentView.setText(mValues.get(position).content);
+        holder.mItem = mValues[position];
+        holder.mIdView.setText(mValues[position].getaName());
+        holder.mContentView.setText(mValues[position].getaName());
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -61,20 +60,20 @@ public class AlbumsAdapter extends WearableRecyclerView.Adapter<AlbumsAdapter.Vi
 
     @Override
     public int getItemCount() {
-        return mValues.size();
+        return mValues.length;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         public final View mView;
         public final TextView mIdView;
         public final TextView mContentView;
-        public AlbumsDummyContent.AlbumsDummyItem mItem;
+        public Album mItem;
 
         public ViewHolder(View view) {
             super(view);
             mView = view;
-            mIdView = (TextView) view.findViewById(R.id.album_id);
-            mContentView = (TextView) view.findViewById(R.id.album_content);
+            mIdView = view.findViewById(R.id.album_id);
+            mContentView = view.findViewById(R.id.album_content);
         }
 
         @Override
