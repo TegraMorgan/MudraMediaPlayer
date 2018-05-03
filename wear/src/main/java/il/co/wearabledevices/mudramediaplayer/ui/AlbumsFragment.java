@@ -11,7 +11,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-
 import il.co.wearabledevices.mudramediaplayer.R;
 import il.co.wearabledevices.mudramediaplayer.ui.dummy.AlbumsDummyContent;
 
@@ -67,7 +66,7 @@ public class AlbumsFragment extends Fragment {
             WearableRecyclerView recyclerView = (WearableRecyclerView) view;
             recyclerView.setEdgeItemsCenteringEnabled(true);
             recyclerView.setCircularScrollingGestureEnabled(true);
-            //ecyclerView.setBezelFraction(0.1f);
+            //recyclerView.setBezelFraction(0.1f);
             //recyclerView.setScrollDegreesPerScreen(30);
 
             if (mColumnCount <= 1) {
