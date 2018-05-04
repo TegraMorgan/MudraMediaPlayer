@@ -15,11 +15,13 @@ import android.widget.Toast;
 
 import java.util.Collection;
 
+import il.co.wearabledevices.mudramediaplayer.model.Album;
 import il.co.wearabledevices.mudramediaplayer.model.MediaLibrary;
 import il.co.wearabledevices.mudramediaplayer.ui.AlbumsFragment;
 import il.co.wearabledevices.mudramediaplayer.ui.SongsFragment;
-import il.co.wearabledevices.mudramediaplayer.ui.dummy.AlbumsDummyContent;
 import il.co.wearabledevices.mudramediaplayer.ui.dummy.SongsDummyContent;
+
+import static il.co.wearabledevices.mudramediaplayer.constants.SERIALIZE_ALBUM;
 
 public class MainActivity extends WearableActivity implements AlbumsFragment.OnAlbumsListFragmentInteractionListener
         ,SongsFragment.OnSongsListFragmentInteractionListener{
@@ -79,10 +81,14 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     }
 
     @Override
-    public void onAlbumsListFragmentInteraction(AlbumsDummyContent.AlbumsDummyItem item) {
+    public void onAlbumsListFragmentInteraction(Album item) {
         android.app.FragmentManager fm = getFragmentManager();
         SongsFragment slf = new SongsFragment();
-
+        // Create Bundle to be sent to Song List Fragment
+        Bundle bdl = new Bundle();
+        // put album object in it
+        bdl.putSerializable(SERIALIZE_ALBUM, item);
+        slf.setArguments(bdl);
         fm.beginTransaction().replace(R.id.songs_list_container,slf).addToBackStack(null).commit();
     }
 
