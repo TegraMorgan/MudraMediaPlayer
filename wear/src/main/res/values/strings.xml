@@ -48,5 +48,7 @@
     <string name="notification_channel_description">Channel ID for MWMP</string>
     <string name="browse_albums">Browse Albums</string>
     <string name="browse_artists">Browse Artists</string>
+    <string name="PermissionExlanation">Wee need your permission to read your media files to be able to play music</string>
+    <string name="btOk">OK</string>
 
 </resources>
