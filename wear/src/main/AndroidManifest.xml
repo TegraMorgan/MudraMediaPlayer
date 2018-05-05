@@ -121,7 +121,7 @@
 
         <activity
             android:name=".PermissionRequestActivity"
-            android:theme="@style/Theme.AppCompat.NoActionBar" />
+            android:theme="@style/MyWearTheme" />
     </application>
 
 </manifest>

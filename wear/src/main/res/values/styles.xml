@@ -15,7 +15,7 @@
   -->
 <resources>
 
-    <style name="MMPAppTheme" parent="@style/Theme.AppCompat">
+    <style name="MMPAppTheme" parent="@style/Theme.AppCompat.NoActionBar">
         <item name="colorPrimary">#28abe3</item>
         <item name="colorPrimaryDark">#004264</item>
         <item name="colorAccent">#006496</item>
