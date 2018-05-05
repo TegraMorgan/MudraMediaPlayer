@@ -28,7 +28,7 @@ public class AlbumsAdapter extends WearableRecyclerView.Adapter<AlbumsAdapter.Vi
                          AlbumsFragment.OnAlbumsListFragmentInteractionListener listener) {
         //this.setEdgeItemsCenteringEnabled(true);
 
-        mValues = (Album[]) items.toArray();
+        mValues = items.toArray(new Album[items.size()]);
         mListener = listener;
 
     }

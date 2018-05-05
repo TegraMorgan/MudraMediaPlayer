@@ -119,7 +119,9 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".PermissionRequestActivity"></activity>
+        <activity
+            android:name=".PermissionRequestActivity"
+            android:theme="@style/Base.Theme.AppCompat" />
     </application>
 
 </manifest>
