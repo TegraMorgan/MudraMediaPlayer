@@ -15,7 +15,7 @@
   -->
 <resources>
 
-    <style name="MMPAppTheme" parent="@android:style/ThemeOverlay.Material.Dark">
+    <style name="MMPAppTheme" parent="Base.Theme.AppCompat">
         <item name="colorPrimary">#28abe3</item>
         <item name="colorPrimaryDark">#004264</item>
         <item name="colorAccent">#006496</item>
