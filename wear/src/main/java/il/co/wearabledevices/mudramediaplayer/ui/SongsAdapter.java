@@ -11,15 +11,16 @@ import android.widget.TextView;
 import java.util.List;
 
 import il.co.wearabledevices.mudramediaplayer.R;
+import il.co.wearabledevices.mudramediaplayer.model.Song;
 import il.co.wearabledevices.mudramediaplayer.ui.dummy.SongsDummyContent;
 
 public class SongsAdapter extends WearableRecyclerView.Adapter<SongsAdapter.SongsViewHolder> {
 
-    private final List<SongsDummyContent.SongsDummyItem> mValues;
+    private final List<Song> mValues;
     private final SongsFragment.OnSongsListFragmentInteractionListener mListener;
 
 
-    public SongsAdapter(List<SongsDummyContent.SongsDummyItem> items,
+    public SongsAdapter(List<Song> items,
                         SongsFragment.OnSongsListFragmentInteractionListener listener) {
         //this.setEdgeItemsCenteringEnabled(true);
 
@@ -38,8 +39,8 @@ public class SongsAdapter extends WearableRecyclerView.Adapter<SongsAdapter.Song
     @Override
     public void onBindViewHolder(final SongsViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
-        holder.mIdView.setText(mValues.get(position).id);
-        holder.mContentView.setText(mValues.get(position).content);
+        holder.mIdView.setText(mValues.get(position).getFileName());
+        holder.mContentView.setText(mValues.get(position).getFileName());
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -62,7 +63,7 @@ public class SongsAdapter extends WearableRecyclerView.Adapter<SongsAdapter.Song
         public final View mView;
         public final TextView mIdView;
         public final TextView mContentView;
-        public SongsDummyContent.SongsDummyItem mItem;
+        public Song mItem;
 
         public SongsViewHolder(View view) {
             super(view);

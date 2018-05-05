@@ -11,8 +11,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.ArrayList;
+
 import il.co.wearabledevices.mudramediaplayer.R;
 import il.co.wearabledevices.mudramediaplayer.model.Album;
+import il.co.wearabledevices.mudramediaplayer.model.Song;
 import il.co.wearabledevices.mudramediaplayer.ui.dummy.SongsDummyContent;
 
 import static il.co.wearabledevices.mudramediaplayer.constants.SERIALIZE_ALBUM;
@@ -34,6 +37,8 @@ public class SongsFragment extends Fragment {
     // TODO: Customize parameters
     private int mColumnCount = 1;
     private OnSongsListFragmentInteractionListener mListener;
+    ArrayList<Song> mSongs;
+
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -59,6 +64,7 @@ public class SongsFragment extends Fragment {
         if (getArguments() != null) {
             mColumnCount = bdl.getInt(ARG_COLUMN_COUNT);
             album = (Album) bdl.getSerializable(SERIALIZE_ALBUM);
+            mSongs = album.getaSongs();
         }
 
     }
@@ -85,7 +91,7 @@ public class SongsFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(new SongsAdapter(SongsDummyContent.ITEMS, mListener));
+            recyclerView.setAdapter(new SongsAdapter(mSongs, mListener));
         }
         return view;
     }
@@ -121,7 +127,7 @@ public class SongsFragment extends Fragment {
 
     public interface OnSongsListFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onSongsListFragmentInteraction(SongsDummyContent.SongsDummyItem item);
+        void onSongsListFragmentInteraction(Song item);
     }
 
 

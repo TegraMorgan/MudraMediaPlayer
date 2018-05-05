@@ -16,6 +16,7 @@ import java.util.Collection;
 
 import il.co.wearabledevices.mudramediaplayer.model.Album;
 import il.co.wearabledevices.mudramediaplayer.model.MediaLibrary;
+import il.co.wearabledevices.mudramediaplayer.model.Song;
 import il.co.wearabledevices.mudramediaplayer.ui.AlbumsFragment;
 import il.co.wearabledevices.mudramediaplayer.ui.SongsFragment;
 import il.co.wearabledevices.mudramediaplayer.ui.dummy.SongsDummyContent;
@@ -81,8 +82,8 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     }
 
     @Override
-    public void onSongsListFragmentInteraction(SongsDummyContent.SongsDummyItem item) {
-        Toast.makeText(this,item.content,Toast.LENGTH_LONG).show();
+    public void onSongsListFragmentInteraction(Song item) {
+        Toast.makeText(this,item.getFileName(),Toast.LENGTH_LONG).show();
 
     }
 
