@@ -9,6 +9,9 @@ import android.support.v4.content.ContextCompat;
 import android.support.wearable.activity.WearableActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.GridLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,13 +33,14 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
 
     private TextView mTextView;
     static boolean isPlaying = false;
+    TextView albums_text;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         mTextView = findViewById(R.id.text);
-
+        albums_text = findViewById(R.id.player_albums);
         // Enables Always-on
         setAmbientEnabled();
 
@@ -71,6 +75,9 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
 
     @Override
     public void onAlbumsListFragmentInteraction(Album item) {
+        //Show the player buttons upon album selection
+        showPlayerButtons();
+
         android.app.FragmentManager fm = getFragmentManager();
         SongsFragment slf = new SongsFragment();
         // Create Bundle to be sent to Song List Fragment
@@ -88,7 +95,43 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     }
 
     public void play_music(View view) {
-        view.setBackground(getDrawable(isPlaying? R.drawable.pause_icon:R.drawable.play_icon));
-        isPlaying = !isPlaying;
+//        view.setBackground(getDrawable(isPlaying? R.drawable.play_icon:R.drawable.pause_icon));
+//        isPlaying = !isPlaying;
+
+        showAlbumsScreen();
+
+    }
+
+    public void showPlayerButtons() {
+        GridLayout gl = findViewById(R.id.above);
+        gl.removeView(albums_text);
+        ImageView player_prev = findViewById(R.id.player_prev);
+        ImageView player_play = findViewById(R.id.play_pause);
+        ImageView player_next = findViewById(R.id.player_next);
+        player_prev.setVisibility(View.VISIBLE);
+        player_next.setVisibility(View.VISIBLE);
+        player_play.setVisibility(View.VISIBLE);
+    }
+
+    public void showAlbumsScreen(){
+        GridLayout gl = findViewById(R.id.above);
+        gl.addView(albums_text);
+        ImageView player_prev = findViewById(R.id.player_prev);
+        ImageView player_play = findViewById(R.id.play_pause);
+        ImageView player_next = findViewById(R.id.player_next);
+        player_prev.setVisibility(View.INVISIBLE);
+        player_next.setVisibility(View.INVISIBLE);
+        player_play.setVisibility(View.INVISIBLE);
+
+    }
+
+    @Override
+    public void onBackPressed() {
+        SongsFragment test = (SongsFragment) getFragmentManager().findFragmentByTag(SongsFragment.class.getSimpleName());
+        if (test != null && test.isVisible()) {
+            //show Albums page header
+            showAlbumsScreen();
+        }
+        super.onBackPressed();
     }
 }
