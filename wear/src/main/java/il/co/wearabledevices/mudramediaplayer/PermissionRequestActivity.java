@@ -1,6 +1,7 @@
 package il.co.wearabledevices.mudramediaplayer;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -31,7 +32,7 @@ public class PermissionRequestActivity extends AppCompatActivity {
             case REQUEST_MEDIA_ACCESS: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // permission granted
-                    //TODO Close the activity
+                    Intent a = getIntent();
                     MediaLibrary.buildMediaLibrary(this);
                     // Not sure if this will work
                     PermissionRequestActivity.this.finish();

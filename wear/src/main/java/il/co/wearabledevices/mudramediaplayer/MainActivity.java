@@ -9,20 +9,16 @@ import android.support.v4.content.ContextCompat;
 import android.support.wearable.activity.WearableActivity;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.util.Collection;
 
 import il.co.wearabledevices.mudramediaplayer.model.Album;
 import il.co.wearabledevices.mudramediaplayer.model.MediaLibrary;
 import il.co.wearabledevices.mudramediaplayer.model.Song;
 import il.co.wearabledevices.mudramediaplayer.ui.AlbumsFragment;
 import il.co.wearabledevices.mudramediaplayer.ui.SongsFragment;
-import il.co.wearabledevices.mudramediaplayer.ui.dummy.SongsDummyContent;
 
 import static il.co.wearabledevices.mudramediaplayer.constants.SERIALIZE_ALBUM;
 
@@ -44,7 +40,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         // Enables Always-on
         setAmbientEnabled();
 
-        /* Tegra - check permission and prepare media library */
+        /* Check permission and prepare media library */
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
             // We don't have permission
@@ -59,17 +55,15 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
             // We already have permission
             //TODO Tegra Launch this on separate thread in the future
             MediaLibrary.buildMediaLibrary(this);
+            android.app.FragmentManager fm = getFragmentManager();
+            AlbumsFragment slf = new AlbumsFragment();
+            fm.beginTransaction().replace(R.id.songs_list_container, slf).commit();
         }
-        Collection albumsOnDevice = MediaLibrary.getAlbums();
         /* End Tegra */
 
-        android.app.FragmentManager fm = getFragmentManager();
         //PlayerFragment player = new PlayerFragment();
-
         /*SongsFragment songs = new SongsFragment();
         fm.beginTransaction().replace(R.id.songs_list_container, songs).commit();*/
-        AlbumsFragment slf = new AlbumsFragment();
-        fm.beginTransaction().replace(R.id.songs_list_container,slf).commit();
     }
 
 
