@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.media.session.MediaControllerCompat;
 import android.support.wearable.activity.WearableActivity;
 import android.util.Log;
 import android.view.View;
@@ -87,11 +88,25 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         bdl.putSerializable(SERIALIZE_ALBUM, item);
         slf.setArguments(bdl);
         fm.beginTransaction().replace(R.id.songs_list_container, slf).addToBackStack(null).commit();
+
+        // First we need to all the album to queue
+
+
+        //Start playing the first song
+        Song firstSong = item.getaSongs().get(0);
+        MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls()
+                .skipToQueueItem(firstSong.getId());
+        /*
+        MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls()
+                .playFromMediaId(firstSong.getIdstr(), null);
+        */
     }
 
     @Override
     public void onSongsListFragmentInteraction(Song item) {
         Toast.makeText(this, item.getFileName(), Toast.LENGTH_LONG).show();
+        MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls()
+                .skipToQueueItem(item.getId());
 
     }
 
