@@ -50,5 +50,6 @@
     <string name="browse_artists">Browse Artists</string>
     <string name="PermissionExplanation">We need your permission to read your media files to be able to play music</string>
     <string name="btOk">OK</string>
+    <string name="albums">Albums</string>
 
 </resources>
