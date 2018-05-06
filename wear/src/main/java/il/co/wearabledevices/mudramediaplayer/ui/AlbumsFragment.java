@@ -30,10 +30,10 @@ public class AlbumsFragment extends Fragment {
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
     private static final String LIST_TYPE = "albums";
+    ArrayList<Album> mAlbums;
     // TODO: Customize parameters
     private int mColumnCount = 1;
     private OnAlbumsListFragmentInteractionListener mListener;
-    ArrayList<Album> mAlbums;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
