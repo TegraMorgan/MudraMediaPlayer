@@ -210,6 +210,10 @@ public class MediaLibrary {
         return res.toString();
     }
 
+    public static boolean isInitialized() {
+        return mCurrentState == State.INITIALIZED;
+    }
+
     enum State {
         NON_INITIALIZED, INITIALIZING, INITIALIZED
     }

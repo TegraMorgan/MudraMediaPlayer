@@ -23,13 +23,14 @@ import il.co.wearabledevices.mudramediaplayer.ui.SongsFragment;
 import static il.co.wearabledevices.mudramediaplayer.constants.SERIALIZE_ALBUM;
 
 public class MainActivity extends WearableActivity implements AlbumsFragment.OnAlbumsListFragmentInteractionListener
-        ,SongsFragment.OnSongsListFragmentInteractionListener{
+        , SongsFragment.OnSongsListFragmentInteractionListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-
-    private TextView mTextView;
     static boolean isPlaying = false;
     TextView albums_text;
+    private TextView mTextView;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,32 +41,38 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         // Enables Always-on
         setAmbientEnabled();
 
-        /* Check permission and prepare media library */
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            // We don't have permission
-            Log.v(TAG, "No permission");
-            // We want to request permission
-            // navigate to another activity and request permission there
+        /* Tegra - Permissions and fragment initialization were moved to onResume */
 
-            Intent NavToReqPerms = new Intent(MainActivity.this, PermissionRequestActivity.class);
-            startActivity(NavToReqPerms);
-
-        } else {
-            // We already have permission
-            //TODO Tegra Launch this on separate thread in the future
-            MediaLibrary.buildMediaLibrary(this);
-            android.app.FragmentManager fm = getFragmentManager();
-            AlbumsFragment slf = new AlbumsFragment();
-            fm.beginTransaction().replace(R.id.songs_list_container, slf).commit();
-        }
-        /* End Tegra */
 
         //PlayerFragment player = new PlayerFragment();
         /*SongsFragment songs = new SongsFragment();
         fm.beginTransaction().replace(R.id.songs_list_container, songs).commit();*/
     }
 
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Check for permission
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            // We don't have permission
+            Log.v(TAG, "No permission");
+            // We want to request permission
+            // navigate to another activity and request permission there
+            Intent NavToReqPerms = new Intent(MainActivity.this, PermissionRequestActivity.class);
+            startActivity(NavToReqPerms);
+        } else {
+            // We already have permission
+            //TODO Tegra Launch this on separate thread in the future
+            if (!MediaLibrary.isInitialized()) {
+                MediaLibrary.buildMediaLibrary(this);
+            }
+            android.app.FragmentManager fm = getFragmentManager();
+            AlbumsFragment slf = new AlbumsFragment();
+            fm.beginTransaction().replace(R.id.songs_list_container, slf).commit();
+        }
+    }
 
     @Override
     public void onAlbumsListFragmentInteraction(Album item) {
@@ -79,12 +86,12 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         // put album object in it
         bdl.putSerializable(SERIALIZE_ALBUM, item);
         slf.setArguments(bdl);
-        fm.beginTransaction().replace(R.id.songs_list_container,slf).addToBackStack(null).commit();
+        fm.beginTransaction().replace(R.id.songs_list_container, slf).addToBackStack(null).commit();
     }
 
     @Override
     public void onSongsListFragmentInteraction(Song item) {
-        Toast.makeText(this,item.getFileName(),Toast.LENGTH_LONG).show();
+        Toast.makeText(this, item.getFileName(), Toast.LENGTH_LONG).show();
 
     }
 
@@ -107,7 +114,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         player_play.setVisibility(View.VISIBLE);
     }
 
-    public void showAlbumsScreen(){
+    public void showAlbumsScreen() {
         GridLayout gl = findViewById(R.id.above);
         gl.addView(albums_text);
         ImageView player_prev = findViewById(R.id.player_prev);
