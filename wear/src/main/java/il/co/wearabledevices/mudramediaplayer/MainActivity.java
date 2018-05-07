@@ -30,6 +30,7 @@ import il.co.wearabledevices.mudramediaplayer.ui.MediaBrowserProvider;
 import il.co.wearabledevices.mudramediaplayer.ui.SongsFragment;
 import il.co.wearabledevices.mudramediaplayer.utils.LogHelper;
 
+import static il.co.wearabledevices.mudramediaplayer.constants.ENQUEUE_ALBUM;
 import static il.co.wearabledevices.mudramediaplayer.constants.SERIALIZE_ALBUM;
 
 public class MainActivity extends WearableActivity implements AlbumsFragment.OnAlbumsListFragmentInteractionListener
@@ -109,10 +110,9 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     @Override
     protected void onStart() {
         super.onStart();
-        /*
-        Uncomment this when the MediaBrowser can be connected
+
         mMediaBrowser.connect();
-        */
+
     }
 
     @Override
@@ -173,12 +173,11 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         slf.setArguments(bdl);
         fm.beginTransaction().replace(R.id.songs_list_container, slf).addToBackStack(null).commit();
 
-        /*
-        Uncomment this when the music service is ready
+
         // Enqueue all the album and play it
         MediaControllerCompat.TransportControls mediaController = MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls();
         mediaController.sendCustomAction(ENQUEUE_ALBUM, bdl);
-        */
+
     }
 
     @Override

@@ -38,7 +38,6 @@
  import com.google.android.gms.cast.framework.CastSession;
  import com.google.android.gms.cast.framework.SessionManager;
  import com.google.android.gms.cast.framework.SessionManagerListener;
- import com.google.android.gms.common.ConnectionResult;
  import com.google.android.gms.common.GoogleApiAvailability;
 
  import java.lang.ref.WeakReference;
@@ -54,7 +53,6 @@
  import il.co.wearabledevices.mudramediaplayer.ui.NowPlayingActivity;
  import il.co.wearabledevices.mudramediaplayer.utils.CarHelper;
  import il.co.wearabledevices.mudramediaplayer.utils.LogHelper;
- import il.co.wearabledevices.mudramediaplayer.utils.TvHelper;
  import il.co.wearabledevices.mudramediaplayer.utils.WearHelper;
 
  import static il.co.wearabledevices.mudramediaplayer.utils.MediaIDHelper.MEDIA_ID_EMPTY_ROOT;
@@ -227,12 +225,14 @@
          int playServicesAvailable =
                  GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(this);
 
+         /* Tegra - Delete this
          if (!TvHelper.isTvUiMode(this) && playServicesAvailable == ConnectionResult.SUCCESS) {
              mCastSessionManager = CastContext.getSharedInstance(this).getSessionManager();
              mCastSessionManagerListener = new CastSessionManagerListener();
              mCastSessionManager.addSessionManagerListener(mCastSessionManagerListener,
                      CastSession.class);
          }
+         */
 
          mMediaRouter = MediaRouter.getInstance(getApplicationContext());
 
