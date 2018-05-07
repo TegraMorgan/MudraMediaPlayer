@@ -30,7 +30,6 @@ import il.co.wearabledevices.mudramediaplayer.ui.MediaBrowserProvider;
 import il.co.wearabledevices.mudramediaplayer.ui.SongsFragment;
 import il.co.wearabledevices.mudramediaplayer.utils.LogHelper;
 
-import static il.co.wearabledevices.mudramediaplayer.constants.ENQUEUE_ALBUM;
 import static il.co.wearabledevices.mudramediaplayer.constants.SERIALIZE_ALBUM;
 
 public class MainActivity extends WearableActivity implements AlbumsFragment.OnAlbumsListFragmentInteractionListener
@@ -110,8 +109,10 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     @Override
     protected void onStart() {
         super.onStart();
-
+        /*
+        Uncomment this when the MediaBrowser can be connected
         mMediaBrowser.connect();
+        */
     }
 
     @Override
@@ -157,11 +158,12 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         }
     }
 
+    /* MUDRA CONTENT */
+
     @Override
     public void onAlbumsListFragmentInteraction(Album item) {
         //Show the player buttons upon album selection
         showPlayerButtons();
-        MediaControllerCompat.TransportControls mediaController = MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls();
         android.app.FragmentManager fm = getFragmentManager();
         SongsFragment slf = new SongsFragment();
         // Create Bundle to be sent to Song List Fragment
@@ -171,9 +173,12 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         slf.setArguments(bdl);
         fm.beginTransaction().replace(R.id.songs_list_container, slf).addToBackStack(null).commit();
 
+        /*
+        Uncomment this when the music service is ready
         // Enqueue all the album and play it
+        MediaControllerCompat.TransportControls mediaController = MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls();
         mediaController.sendCustomAction(ENQUEUE_ALBUM, bdl);
-
+        */
     }
 
     @Override
@@ -181,15 +186,12 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         Toast.makeText(this, item.getFileName(), Toast.LENGTH_LONG).show();
         MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls()
                 .skipToQueueItem(item.getId());
-
     }
 
     public void play_music(View view) {
-//        view.setBackground(getDrawable(isPlaying? R.drawable.play_icon:R.drawable.pause_icon));
-//        isPlaying = !isPlaying;
-
+        //view.setBackground(getDrawable(isPlaying? R.drawable.play_icon:R.drawable.pause_icon));
+        //isPlaying = !isPlaying;
         showAlbumsScreen();
-
     }
 
     public void showPlayerButtons() {
@@ -212,7 +214,6 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         player_prev.setVisibility(View.INVISIBLE);
         player_next.setVisibility(View.INVISIBLE);
         player_play.setVisibility(View.INVISIBLE);
-
     }
 
     @Override
