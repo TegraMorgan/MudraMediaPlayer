@@ -14,10 +14,11 @@ public class constants {
 
     public static final String SERIALIZE_ALBUM = "serialize_album";
     public static final int REQUEST_MEDIA_ACCESS = 4769;
+    public static final String ENQUEUE_ALBUM = "play_album";
 
-    public static final int BACK =0;
-    public static final int SELECT =1;
-    public static final int SCROLL_DN_RIGHT =2;
-    public static final int SCROLL_UP_LEFT =3;
+    public static final int BACK = 0;
+    public static final int SELECT = 1;
+    public static final int SCROLL_DN_RIGHT = 2;
+    public static final int SCROLL_UP_LEFT = 3;
 
 }

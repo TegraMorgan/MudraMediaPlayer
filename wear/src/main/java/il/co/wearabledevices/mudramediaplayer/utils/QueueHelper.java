@@ -24,10 +24,13 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import il.co.wearabledevices.mudramediaplayer.VoiceSearchParams;
+import il.co.wearabledevices.mudramediaplayer.model.Album;
 import il.co.wearabledevices.mudramediaplayer.model.MusicProvider;
+import il.co.wearabledevices.mudramediaplayer.model.Song;
 
 import static il.co.wearabledevices.mudramediaplayer.utils.MediaIDHelper.MEDIA_ID_MUSICS_BY_GENRE;
 import static il.co.wearabledevices.mudramediaplayer.utils.MediaIDHelper.MEDIA_ID_MUSICS_BY_SEARCH;
@@ -70,6 +73,11 @@ public class QueueHelper {
         }
 
         return convertToQueue(tracks, hierarchy[0], hierarchy[1]);
+    }
+
+    public static List<MediaSessionCompat.QueueItem> getPlayingQueue(Album album) {
+        LogHelper.d(TAG, "Creating playing queue for album ", album.getaName());
+        return convertAlbumToQueue(album.getaSongs());
     }
 
     public static List<MediaSessionCompat.QueueItem> getPlayingQueueFromSearch(String query,
@@ -154,6 +162,30 @@ public class QueueHelper {
                     track.getDescription().getMediaId(), categories);
 
             MediaMetadataCompat trackCopy = new MediaMetadataCompat.Builder(track)
+                    .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, hierarchyAwareMediaID)
+                    .build();
+
+            // We don't expect queues to change after created, so we use the item index as the
+            // queueId. Any other number unique in the queue would work.
+            MediaSessionCompat.QueueItem item = new MediaSessionCompat.QueueItem(
+                    trackCopy.getDescription(), count++);
+            queue.add(item);
+        }
+        return queue;
+
+    }
+
+    private static List<MediaSessionCompat.QueueItem> convertAlbumToQueue(
+            Collection<Song> tracks) {
+        List<MediaSessionCompat.QueueItem> queue = new ArrayList<>();
+        int count = 0;
+        for (Song track : tracks) {
+
+            // We create a hierarchy-aware mediaID, so we know what the queue is about by looking
+            // at the QueueItem media IDs.
+            String hierarchyAwareMediaID = MediaIDHelper.createMediaID(track.getMetadata().getDescription().getMediaId());
+
+            MediaMetadataCompat trackCopy = new MediaMetadataCompat.Builder(track.getMetadata())
                     .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, hierarchyAwareMediaID)
                     .build();
 

@@ -30,6 +30,7 @@ import java.util.List;
 
 import il.co.wearabledevices.mudramediaplayer.AlbumArtCache;
 import il.co.wearabledevices.mudramediaplayer.R;
+import il.co.wearabledevices.mudramediaplayer.model.Album;
 import il.co.wearabledevices.mudramediaplayer.model.MusicProvider;
 import il.co.wearabledevices.mudramediaplayer.utils.LogHelper;
 import il.co.wearabledevices.mudramediaplayer.utils.MediaIDHelper;
@@ -145,6 +146,21 @@ public class QueueManager {
             setCurrentQueue(queueTitle,
                     QueueHelper.getPlayingQueue(mediaId, mMusicProvider), mediaId);
         }
+        updateMetadata();
+    }
+
+    public void setQueueFromAlbum(Album album) {
+        LogHelper.d(TAG, "setQueueFromAlbum", album.getaName());
+
+        // The mediaId used here is not the unique musicId. This one comes from the
+        // MediaBrowser, and is actually a "hierarchy-aware mediaID": a concatenation of
+        // the hierarchy in MediaBrowser and the actual unique musicID. This is necessary
+        // so we can build the correct playing queue, based on where the track was
+        // selected from.
+
+        String queueTitle = album.getaArtist() + " - " + album.getaName();
+        String firstSongId = album.getaSongs().get(0).getIdstr();
+        setCurrentQueue(queueTitle, QueueHelper.getPlayingQueue(album), firstSongId);
         updateMetadata();
     }
 

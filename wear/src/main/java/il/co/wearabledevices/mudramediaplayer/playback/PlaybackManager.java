@@ -25,10 +25,14 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 
 import il.co.wearabledevices.mudramediaplayer.R;
+import il.co.wearabledevices.mudramediaplayer.model.Album;
 import il.co.wearabledevices.mudramediaplayer.model.MusicProvider;
 import il.co.wearabledevices.mudramediaplayer.utils.LogHelper;
 import il.co.wearabledevices.mudramediaplayer.utils.MediaIDHelper;
 import il.co.wearabledevices.mudramediaplayer.utils.WearHelper;
+
+import static il.co.wearabledevices.mudramediaplayer.constants.ENQUEUE_ALBUM;
+import static il.co.wearabledevices.mudramediaplayer.constants.SERIALIZE_ALBUM;
 
 /**
  * Manage the interactions among the container service, the queue manager and the actual playback.
@@ -351,7 +355,15 @@ public class PlaybackManager implements Playback.Callback {
                 // custom action will change to reflect the new favorite state.
                 updatePlaybackState(null);
             } else {
-                LogHelper.e(TAG, "Unsupported action: ", action);
+                if (ENQUEUE_ALBUM.equals(action)) {
+                    Album album = (Album) extras.getSerializable(SERIALIZE_ALBUM);
+                    LogHelper.d(TAG, "Play album :", album.getaName());
+                    mQueueManager.setQueueFromAlbum(album);
+                    handlePlayRequest();
+                    mQueueManager.updateMetadata();
+                } else {
+                    LogHelper.e(TAG, "Unsupported action: ", action);
+                }
             }
         }
 
