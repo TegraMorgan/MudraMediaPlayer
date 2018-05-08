@@ -175,8 +175,10 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
 
 
         // Enqueue all the album and play it
+        Bundle bndl = new Bundle();
+        bdl.putSerializable(SERIALIZE_ALBUM, item);
         MediaControllerCompat.TransportControls mediaController = MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls();
-        mediaController.sendCustomAction(ENQUEUE_ALBUM, bdl);
+        mediaController.sendCustomAction(ENQUEUE_ALBUM, bndl);
 
     }
 

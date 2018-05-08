@@ -19,7 +19,7 @@ import java.util.Collection;
  */
 
 public class MediaLibrary {
-    private static final int ACCEPTABLE_LENGTH = 25;
+    private static final int ACCEPTABLE_LENGTH = 8;
     private static final String TAG = "Media Library";
     private static final ArrayMap<String, Song> mMusicListById = new ArrayMap<>();
     private static final ArrayMap<String, Album> mAlbumListByName = new ArrayMap<>();
