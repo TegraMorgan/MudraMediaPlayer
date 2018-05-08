@@ -78,16 +78,16 @@ public class SongsFragment extends Fragment {
         if (view instanceof WearableRecyclerView) {
             Context context = view.getContext();
             WearableRecyclerView recyclerView = (WearableRecyclerView) view;
-            recyclerView.setEdgeItemsCenteringEnabled(true);
-            recyclerView.setCircularScrollingGestureEnabled(true);
+            //recyclerView.setEdgeItemsCenteringEnabled(true);
+            //recyclerView.setCircularScrollingGestureEnabled(true);
             //ecyclerView.setBezelFraction(0.1f);
             //recyclerView.setScrollDegreesPerScreen(30);
 
             if (mColumnCount <= 1) {
-                CustomScrollingLayoutCallback customScrollingLayoutCallback =
-                        new CustomScrollingLayoutCallback();
+//                CustomScrollingLayoutCallback customScrollingLayoutCallback =
+//                        new CustomScrollingLayoutCallback();
                 recyclerView.setLayoutManager(
-                        new WearableLinearLayoutManager(context, customScrollingLayoutCallback));
+                        new WearableLinearLayoutManager(context));
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
