@@ -95,7 +95,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         setContentView(R.layout.activity_main);
 
         mTextView = findViewById(R.id.text);
-        albums_text = findViewById(R.id.player_albums);
+        //albums_text = findViewById(R.id.player_albums);
         // Enables Always-on
         setAmbientEnabled();
 
@@ -163,7 +163,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     @Override
     public void onAlbumsListFragmentInteraction(Album item) {
         //Show the player buttons upon album selection
-        showPlayerButtons();
+        //showPlayerButtons();
         android.app.FragmentManager fm = getFragmentManager();
         SongsFragment slf = new SongsFragment();
         // Create Bundle to be sent to Song List Fragment
@@ -188,9 +188,9 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     }
 
     public void play_music(View view) {
-        //view.setBackground(getDrawable(isPlaying? R.drawable.play_icon:R.drawable.pause_icon));
-        //isPlaying = !isPlaying;
-        showAlbumsScreen();
+        view.setBackground(getDrawable(isPlaying? R.drawable.play_icon:R.drawable.pause_icon));
+        isPlaying = !isPlaying;
+        //showAlbumsScreen();
     }
 
     public void showPlayerButtons() {
@@ -215,15 +215,15 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         player_play.setVisibility(View.INVISIBLE);
     }
 
-    @Override
-    public void onBackPressed() {
-        SongsFragment test = (SongsFragment) getFragmentManager().findFragmentByTag(SongsFragment.class.getSimpleName());
-        if (test != null && test.isVisible()) {
-            //show Albums page header
-            showAlbumsScreen();
-        }
-        super.onBackPressed();
-    }
+//    @Override
+//    public void onBackPressed() {
+//        SongsFragment test = (SongsFragment) getFragmentManager().findFragmentByTag(SongsFragment.class.getSimpleName());
+//        if (test != null && test.isVisible()) {
+//            //show Albums page header
+//            showAlbumsScreen();
+//        }
+//        super.onBackPressed();
+//    }
 
     protected void onMediaControllerConnected() {
 
