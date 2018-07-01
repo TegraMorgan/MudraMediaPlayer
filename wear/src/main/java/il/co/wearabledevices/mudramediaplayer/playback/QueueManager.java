@@ -150,7 +150,7 @@ public class QueueManager {
     }
 
     public void setQueueFromAlbum(Album album) {
-        LogHelper.d(TAG, "setQueueFromAlbum", album.getaName());
+        LogHelper.v(TAG, "setQueueFromAlbum", album.getaName());
 
         // The mediaId used here is not the unique musicId. This one comes from the
         // MediaBrowser, and is actually a "hierarchy-aware mediaID": a concatenation of

@@ -8,6 +8,7 @@ import java.util.ArrayList;
  */
 
 public class Album implements Serializable {
+    private static final long serialVersionUID = 1L;
     private String aName;
     private String aArtist;
     private ArrayList<Song> aSongs;

@@ -13,6 +13,9 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.concurrent.TimeUnit;
+
+import il.co.wearabledevices.mudramediaplayer.BuildConfig;
 
 /**
  * Created by Tegra on 21/03/2018.
@@ -24,6 +27,10 @@ public class MediaLibrary {
     private static final ArrayMap<String, Song> mMusicListById = new ArrayMap<>();
     private static final ArrayMap<String, Album> mAlbumListByName = new ArrayMap<>();
     private static volatile State mCurrentState = State.NON_INITIALIZED;
+    // Metadata
+    public static final ArrayMap<String, MediaMetadataCompat> metadata = new ArrayMap<>();
+    private static final String EMPTY_GENRE = "";
+    private static final String EMPTY_ART_FILENAME = "music_metal_molder_icon";
 
     public static void buildMediaLibrary(Context con) {
         buildMediaLibrary(con, "/music/");
@@ -52,6 +59,7 @@ public class MediaLibrary {
             long thisDur;
             Song thisSong;
             String pathLowerCase;
+            MediaMetadataCompat thisMetadata;
             do {
                 pathLowerCase = cursor.getString(pathColumn).toLowerCase();
                 if (pathLowerCase.contains(rootPath)) {
@@ -86,8 +94,10 @@ public class MediaLibrary {
                     if (thisAlbum.length() > ACCEPTABLE_LENGTH)
                         thisAlbum = thisAlbum.substring(0, ACCEPTABLE_LENGTH - 1);
 
-                    thisSong = new Song(thisID, thisTitle, thisArtist, thisAlbum, thisDur, cursor.getString(fileNameColumn));
+                    thisSong = new Song(thisID, thisTitle, thisArtist, thisAlbum, thisDur, cursor.getString(fileNameColumn), cursor.getString(pathColumn));
                     mMusicListById.put(String.valueOf(thisSong.getId()), thisSong);
+                    thisMetadata = createMediaMetadataCompat(String.valueOf(thisID), thisTitle, thisArtist, thisAlbum, EMPTY_GENRE, thisDur, TimeUnit.SECONDS, EMPTY_ART_FILENAME);
+                    metadata.put(String.valueOf(thisSong.getId()), thisMetadata);
                     addAlbumIf(mAlbumListByName, new Album(thisAlbum, thisArtist), thisSong);
                 /*
                 Log.v(TAG, "Song title : " + thisTitle);
@@ -126,6 +136,10 @@ public class MediaLibrary {
             return null;
         }
         return mAlbumListByName.get(albumName);
+    }
+
+    public static String getSongURI(String sid) {
+        return mMusicListById.get(sid).getFullPath();
     }
 
     public static Collection<Album> getAlbums() {
@@ -216,6 +230,29 @@ public class MediaLibrary {
 
     enum State {
         NON_INITIALIZED, INITIALIZING, INITIALIZED
+    }
+
+    private static MediaMetadataCompat createMediaMetadataCompat(String mediaId, String title, String artist, String album, String genre, long duration, TimeUnit durationUnit, String albumArtResName) {
+        return new MediaMetadataCompat.Builder()
+                .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, mediaId)
+                .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, album)
+                .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, artist)
+                .putLong(MediaMetadataCompat.METADATA_KEY_DURATION,
+                        TimeUnit.MILLISECONDS.convert(duration, durationUnit))
+                .putString(MediaMetadataCompat.METADATA_KEY_GENRE, genre)
+                .putString(
+                        MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI,
+                        getAlbumArtUri(albumArtResName))
+                .putString(
+                        MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON_URI,
+                        getAlbumArtUri(albumArtResName))
+                .putString(MediaMetadataCompat.METADATA_KEY_TITLE, title)
+                .build();
+    }
+
+    private static String getAlbumArtUri(String albumArtResName) {
+        return ContentResolver.SCHEME_ANDROID_RESOURCE + "://" +
+                BuildConfig.APPLICATION_ID + "/drawable-nodpi/" + albumArtResName;
     }
 
 }

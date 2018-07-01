@@ -46,14 +46,17 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 
 import il.co.wearabledevices.mudramediaplayer.MusicService;
+import il.co.wearabledevices.mudramediaplayer.model.MediaLibrary;
 import il.co.wearabledevices.mudramediaplayer.model.MusicProvider;
 import il.co.wearabledevices.mudramediaplayer.model.MusicProviderSource;
+import il.co.wearabledevices.mudramediaplayer.model.Song;
 import il.co.wearabledevices.mudramediaplayer.utils.LogHelper;
 import il.co.wearabledevices.mudramediaplayer.utils.MediaIDHelper;
 
 import static android.support.v4.media.session.MediaSessionCompat.QueueItem;
 import static com.google.android.exoplayer2.C.CONTENT_TYPE_MUSIC;
 import static com.google.android.exoplayer2.C.USAGE_MEDIA;
+import static il.co.wearabledevices.mudramediaplayer.model.MediaLibrary.getSongURI;
 
 /**
  * A class that implements local media playback using {@link
@@ -222,12 +225,8 @@ public final class LocalPlayback implements Playback {
 
         if (mediaHasChanged || mExoPlayer == null) {
             releaseResources(false); // release everything except the player
-            MediaMetadataCompat track =
-                    mMusicProvider.getMusic(
-                            MediaIDHelper.extractMusicIDFromMediaID(
-                                    item.getDescription().getMediaId()));
 
-            String source = track.getString(MusicProviderSource.CUSTOM_METADATA_TRACK_SOURCE);
+            String source = getSongURI(MediaIDHelper.extractMusicIDFromMediaID(item.getDescription().getMediaId()));
             if (source != null) {
                 source = source.replaceAll(" ", "%20"); // Escape spaces for URLs
             }

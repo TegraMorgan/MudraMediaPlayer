@@ -357,7 +357,7 @@ public class PlaybackManager implements Playback.Callback {
             } else {
                 if (ENQUEUE_ALBUM.equals(action)) {
                     Album album = (Album) extras.getSerializable(SERIALIZE_ALBUM);
-                    LogHelper.d(TAG, "Play album :", album.getaName(), " number of songs :",album.getaSongs().size());
+                    LogHelper.v(TAG, "Play album :", album.getaName(), " number of songs :", album.getaSongs().size());
                     mQueueManager.setQueueFromAlbum(album);
                     handlePlayRequest();
                     mQueueManager.updateMetadata();

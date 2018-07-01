@@ -23,6 +23,7 @@ import android.os.AsyncTask;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
+import android.util.ArrayMap;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -50,16 +51,18 @@ public class MusicProvider {
     private static final String TAG = LogHelper.makeLogTag(MusicProvider.class);
     private final ConcurrentMap<String, MutableMediaMetadata> mMusicListById;
     private final Set<String> mFavoriteTracks;
-    private MusicProviderSource mSource;
+    private ArrayMap<String, MediaMetadataCompat> mSource;
     // Categorized caches for music track data:
     private ConcurrentMap<String, List<MediaMetadataCompat>> mMusicListByGenre;
     private volatile State mCurrentState = State.NON_INITIALIZED;
 
     public MusicProvider() {
-        this(new RemoteJSONSource());
+        //this(new RemoteJSONSource());
+        this(MediaLibrary.metadata);
     }
 
-    public MusicProvider(MusicProviderSource source) {
+    public MusicProvider(ArrayMap<String, MediaMetadataCompat> source) {
+        // Tegra - this is a test
         mSource = source;
         mMusicListByGenre = new ConcurrentHashMap<>();
         mMusicListById = new ConcurrentHashMap<>();
@@ -250,7 +253,7 @@ public class MusicProvider {
             if (mCurrentState == State.NON_INITIALIZED) {
                 mCurrentState = State.INITIALIZING;
 
-                Iterator<MediaMetadataCompat> tracks = mSource.iterator();
+                Iterator<MediaMetadataCompat> tracks = mSource.values().iterator();
                 while (tracks.hasNext()) {
                     MediaMetadataCompat item = tracks.next();
                     String musicId = item.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID);

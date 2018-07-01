@@ -15,10 +15,7 @@ import il.co.wearabledevices.mudramediaplayer.R;
  */
 
 public class Song implements Serializable {
-    private static final String EMPTY_ART_FILENAME = "music_metal_molder_icon";
     private static final int EMPTY_ART_ID = R.drawable.music_metal_molder_icon;
-    private static final String EMPTY_GENRE = "";
-    private MediaMetadataCompat metadata;
     private long id;
     private String title;
     private String artist;
@@ -26,6 +23,7 @@ public class Song implements Serializable {
     private long duration;
     private int albumRes;
     private String fileName;
+    private String fullPath;
 
     /**
      * @param songID     Resource ID
@@ -35,7 +33,7 @@ public class Song implements Serializable {
      * @param songDur    Duration in miliseconds
      * @param mFlNm      File name
      */
-    public Song(long songID, String songTitle, String songArtist, String songAlbum, long songDur, String mFlNm) {
+    public Song(long songID, String songTitle, String songArtist, String songAlbum, long songDur, String mFlNm, String flPth) {
         /* this constructor will be deleted in the end */
         id = songID;
         title = songTitle;
@@ -44,30 +42,7 @@ public class Song implements Serializable {
         duration = songDur;
         albumRes = EMPTY_ART_ID;
         fileName = mFlNm;
-        metadata = createMediaMetadataCompat(String.valueOf(songID), songTitle, songArtist, songAlbum, EMPTY_GENRE, songDur, TimeUnit.SECONDS, EMPTY_ART_FILENAME);
-    }
-
-    private static MediaMetadataCompat createMediaMetadataCompat(String mediaId, String title, String artist, String album, String genre, long duration, TimeUnit durationUnit, String albumArtResName) {
-        return new MediaMetadataCompat.Builder()
-                .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, mediaId)
-                .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, album)
-                .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, artist)
-                .putLong(MediaMetadataCompat.METADATA_KEY_DURATION,
-                        TimeUnit.MILLISECONDS.convert(duration, durationUnit))
-                .putString(MediaMetadataCompat.METADATA_KEY_GENRE, genre)
-                .putString(
-                        MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI,
-                        getAlbumArtUri(albumArtResName))
-                .putString(
-                        MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON_URI,
-                        getAlbumArtUri(albumArtResName))
-                .putString(MediaMetadataCompat.METADATA_KEY_TITLE, title)
-                .build();
-    }
-
-    private static String getAlbumArtUri(String albumArtResName) {
-        return ContentResolver.SCHEME_ANDROID_RESOURCE + "://" +
-                BuildConfig.APPLICATION_ID + "/drawable/" + albumArtResName;
+        fullPath = flPth;
     }
 
     @Override
@@ -134,12 +109,9 @@ public class Song implements Serializable {
     }
 
     public MediaMetadataCompat getMetadata() {
-        return metadata;
+        return MediaLibrary.metadata.get(String.valueOf(this.id));
     }
 
-    public void setMetadata(MediaMetadataCompat metadata) {
-        this.metadata = metadata;
-    }
 
     public int getAlbumRes() {
         return albumRes;
@@ -155,5 +127,9 @@ public class Song implements Serializable {
 
     public void setFileName(String fileName) {
         this.fileName = fileName;
+    }
+
+    public String getFullPath() {
+        return fullPath;
     }
 }
