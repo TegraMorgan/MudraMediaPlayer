@@ -195,9 +195,9 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     @Override
     public void onSongsListFragmentInteraction(SongsAdapter.SongsViewHolder item, int position) {
 
-        Toast.makeText(this, position, Toast.LENGTH_LONG).show();
+        Toast.makeText(this, String.valueOf(position), Toast.LENGTH_LONG).show();
         MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls()
-                .skipToQueueItem(item.mItem.getId());
+                .skipToQueueItem(position);
 
 
     }
