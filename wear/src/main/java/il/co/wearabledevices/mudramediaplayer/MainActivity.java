@@ -16,7 +16,10 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.wearable.activity.WearableActivity;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -37,6 +40,8 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         , SongsFragment.OnSongsListFragmentInteractionListener, MediaBrowserProvider {
 
     private static final String TAG = MainActivity.class.getSimpleName();
+    private static final int ALBUMS_LAYOUT_MARGIN = 0;
+    private static final int SONGS_LAYOUT_MARGIN = 74;
     static boolean isPlaying = false;
     private final MediaControllerCompat.Callback mMediaControllerCallback =
             new MediaControllerCompat.Callback() {
@@ -152,6 +157,8 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
             if (!MediaLibrary.isInitialized()) {
                 MediaLibrary.buildMediaLibrary(this);
             }
+            hidePlayerButtons();
+            showAlbumsScreen();
             android.app.FragmentManager fm = getFragmentManager();
             AlbumsFragment slf = new AlbumsFragment();
             fm.beginTransaction().replace(R.id.songs_list_container, slf).commit();
@@ -164,6 +171,8 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     public void onAlbumsListFragmentInteraction(Album item) {
         //Show the player buttons upon album selection
         //showPlayerButtons();
+        showPlayerButtons();
+        showSongsScreen();
         android.app.FragmentManager fm = getFragmentManager();
         SongsFragment slf = SongsFragment.newInstance(item.getaSongs().size(), item);
         // Create Bundle to be sent to Song List Fragment
@@ -206,9 +215,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         player_play.setVisibility(View.VISIBLE);
     }
 
-    public void showAlbumsScreen() {
-        GridLayout gl = findViewById(R.id.above);
-        gl.addView(albums_text);
+    public void hidePlayerButtons(){
         ImageView player_prev = findViewById(R.id.player_prev);
         ImageView player_play = findViewById(R.id.play_pause);
         ImageView player_next = findViewById(R.id.player_next);
@@ -217,6 +224,33 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         player_play.setVisibility(View.INVISIBLE);
     }
 
+    public int dpToPx(int sizeInDP){
+        int marginInDp = (int) TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP, sizeInDP, getResources()
+                        .getDisplayMetrics());
+        return marginInDp;
+    }
+    public void showAlbumsScreen() {
+        FrameLayout fl = findViewById(R.id.songs_list_container);
+        FrameLayout.LayoutParams lp=(FrameLayout.LayoutParams)fl.getLayoutParams();
+
+        setMargins(fl,lp.leftMargin,dpToPx(ALBUMS_LAYOUT_MARGIN),lp.rightMargin,lp.bottomMargin);
+    }
+
+    public void showSongsScreen() {
+        FrameLayout fl = findViewById(R.id.songs_list_container);
+        FrameLayout.LayoutParams lp=(FrameLayout.LayoutParams)fl.getLayoutParams();
+
+        setMargins(fl,lp.leftMargin,dpToPx(SONGS_LAYOUT_MARGIN),lp.rightMargin,lp.bottomMargin);
+    }
+
+    public static void setMargins (View v, int l, int t, int r, int b) {
+        if (v.getLayoutParams() instanceof ViewGroup.MarginLayoutParams) {
+            ViewGroup.MarginLayoutParams p = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
+            p.setMargins(l, t, r, b);
+            v.requestLayout();
+        }
+    }
 //    @Override
 //    public void onBackPressed() {
 //        SongsFragment test = (SongsFragment) getFragmentManager().findFragmentByTag(SongsFragment.class.getSimpleName());
