@@ -43,6 +43,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     private static final int ALBUMS_LAYOUT_MARGIN = 0;
     private static final int SONGS_LAYOUT_MARGIN = 74;
     static boolean isPlaying = false;
+    ImageView playPauseView;
     private final MediaControllerCompat.Callback mMediaControllerCallback =
             new MediaControllerCompat.Callback() {
                 @Override
@@ -98,7 +99,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        playPauseView = findViewById(R.id.play_pause);
         mTextView = findViewById(R.id.text);
         //albums_text = findViewById(R.id.player_albums);
         // Enables Always-on
@@ -173,6 +174,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         //showPlayerButtons();
         showPlayerButtons();
         showSongsScreen();
+        play_music(null);
         android.app.FragmentManager fm = getFragmentManager();
         SongsFragment slf = SongsFragment.newInstance(item.getaSongs().size(), item);
         // Create Bundle to be sent to Song List Fragment
@@ -199,14 +201,15 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     }
 
     public void play_music(View view) {
-        view.setBackground(getDrawable(isPlaying? R.drawable.play_icon:R.drawable.pause_icon));
         isPlaying = !isPlaying;
+        if(view == null)
+            view = playPauseView;
+        view.setBackground(getDrawable(isPlaying? R.drawable.pause_icon:R.drawable.play_icon));
+
         //showAlbumsScreen();
     }
 
     public void showPlayerButtons() {
-        GridLayout gl = findViewById(R.id.above);
-        gl.removeView(albums_text);
         ImageView player_prev = findViewById(R.id.player_prev);
         ImageView player_play = findViewById(R.id.play_pause);
         ImageView player_next = findViewById(R.id.player_next);
