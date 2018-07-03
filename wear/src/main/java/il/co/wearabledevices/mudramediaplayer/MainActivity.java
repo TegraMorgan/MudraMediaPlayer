@@ -173,7 +173,6 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         //showPlayerButtons();
         showPlayerButtons();
         showSongsScreen();
-        play_music(null);
         android.app.FragmentManager fm = getFragmentManager();
         SongsFragment slf = SongsFragment.newInstance(item.getaSongs().size(), item);
         // Create Bundle to be sent to Song List Fragment
@@ -203,11 +202,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     }
 
     public void play_music(View view) {
-        isPlaying = !isPlaying;
-        if (view == null)
-            view = playPauseView;
         view.setBackground(getDrawable(!isPlaying ? R.drawable.pause_icon : R.drawable.play_icon));
-
         if (isPlaying) {
             MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls()
                     .play();
@@ -215,6 +210,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
             MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls()
                     .pause();
         }
+        isPlaying = !isPlaying;
         //showAlbumsScreen();
     }
 
