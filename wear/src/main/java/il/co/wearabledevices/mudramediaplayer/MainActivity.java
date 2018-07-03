@@ -202,9 +202,9 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
 
     public void play_music(View view) {
         isPlaying = !isPlaying;
-        if(view == null)
+        if (view == null)
             view = playPauseView;
-        view.setBackground(getDrawable(isPlaying? R.drawable.pause_icon:R.drawable.play_icon));
+        view.setBackground(getDrawable(isPlaying ? R.drawable.pause_icon : R.drawable.play_icon));
 
         //showAlbumsScreen();
     }

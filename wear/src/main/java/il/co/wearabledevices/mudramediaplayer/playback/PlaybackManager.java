@@ -23,6 +23,7 @@ import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.util.Log;
 
 import il.co.wearabledevices.mudramediaplayer.R;
 import il.co.wearabledevices.mudramediaplayer.model.Album;
@@ -288,8 +289,9 @@ public class PlaybackManager implements Playback.Callback {
 
         @Override
         public void onSkipToQueueItem(long queueId) {
-            LogHelper.d(TAG, "OnSkipToQueueItem:" + queueId);
-            mQueueManager.setCurrentQueueItem(queueId);
+            LogHelper.v(TAG, "OnSkipToQueueItem:" + queueId);
+            if (!mQueueManager.setCurrentQueueItem(queueId))
+                Log.v(TAG, "Failed to find song in queue :" + String.valueOf(queueId));
             mQueueManager.updateMetadata();
         }
 

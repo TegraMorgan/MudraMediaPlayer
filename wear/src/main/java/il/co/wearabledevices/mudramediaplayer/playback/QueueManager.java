@@ -32,6 +32,7 @@ import il.co.wearabledevices.mudramediaplayer.AlbumArtCache;
 import il.co.wearabledevices.mudramediaplayer.R;
 import il.co.wearabledevices.mudramediaplayer.model.Album;
 import il.co.wearabledevices.mudramediaplayer.model.MusicProvider;
+import il.co.wearabledevices.mudramediaplayer.model.Song;
 import il.co.wearabledevices.mudramediaplayer.utils.LogHelper;
 import il.co.wearabledevices.mudramediaplayer.utils.MediaIDHelper;
 import il.co.wearabledevices.mudramediaplayer.utils.QueueHelper;
