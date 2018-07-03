@@ -17,10 +17,6 @@
         android:layout_height="match_parent"
 
 
-        android:layout_marginBottom="-47px"
-        android:layout_marginLeft="-47px"
-        android:layout_marginRight="-47px"
-        android:layout_marginTop="-47px"
         android:orientation="horizontal"
         app:boxedEdges="all">
 
@@ -30,8 +26,7 @@
             android:layout_height="61dp"
             android:layout_gravity="top"
 
-            android:layout_marginLeft="27dp"
-            android:layout_marginRight="27dp">
+            >
 
             <!--<TextView-->
             <!--android:id="@+id/player_albums"-->
@@ -54,7 +49,8 @@
                 android:layout_row="1"
                 android:background="@drawable/prev_layer"
                 android:contentDescription="prev"
-                android:visibility="visible" />
+                android:visibility="visible"
+                tools:ignore="RtlHardcoded" />
 
             <ImageView
                 android:id="@+id/play_pause"
@@ -86,9 +82,7 @@
             android:id="@+id/songs_list_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@id/above"
             android:layout_gravity="bottom"
-            android:layout_marginLeft="20dp"
             android:layout_marginTop="74dp" />
 
     </FrameLayout>
