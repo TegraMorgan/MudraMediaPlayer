@@ -11,14 +11,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 
 import il.co.wearabledevices.mudramediaplayer.R;
 import il.co.wearabledevices.mudramediaplayer.model.Album;
 import il.co.wearabledevices.mudramediaplayer.model.Song;
-import il.co.wearabledevices.mudramediaplayer.ui.dummy.SongsDummyContent;
 
 import static il.co.wearabledevices.mudramediaplayer.constants.SERIALIZE_ALBUM;
 
@@ -144,7 +142,7 @@ public class SongsFragment extends Fragment {
 
     public interface OnSongsListFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onSongsListFragmentInteraction(Song item);
+        void onSongsListFragmentInteraction(SongsAdapter.SongsViewHolder item, int position);
     }
 
 
