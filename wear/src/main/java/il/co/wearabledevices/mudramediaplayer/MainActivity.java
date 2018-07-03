@@ -208,6 +208,13 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
             view = playPauseView;
         view.setBackground(getDrawable(isPlaying ? R.drawable.pause_icon : R.drawable.play_icon));
 
+        if(!isPlaying){
+            MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls()
+                    .play();
+        }else{
+            MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls()
+                    .pause();
+        }
         //showAlbumsScreen();
     }
 
