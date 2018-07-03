@@ -165,7 +165,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         //Show the player buttons upon album selection
         //showPlayerButtons();
         android.app.FragmentManager fm = getFragmentManager();
-        SongsFragment slf = new SongsFragment();
+        SongsFragment slf = SongsFragment.newInstance(item.getaSongs().size(), item);
         // Create Bundle to be sent to Song List Fragment
         Bundle bdl = new Bundle();
         // put album object in it
@@ -175,7 +175,6 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
 
 
         // Enqueue all the album and play it
-        // FIXME - serialization fails for some reason
         Bundle bndl = new Bundle();
         bndl.putSerializable(SERIALIZE_ALBUM, item);
         MediaControllerCompat.TransportControls mediaController = MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls();

@@ -32,15 +32,15 @@ public class SongsAdapter extends WearableRecyclerView.Adapter<SongsAdapter.Song
     @Override
     public SongsViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.fragment_item_song, parent, false);
+                .inflate(R.layout.fragment_item_album, parent, false);
         return new SongsViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(final SongsViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
-        holder.mIdView.setText(mValues.get(position).getFileName());
-        holder.mContentView.setText(mValues.get(position).getFileName());
+        holder.mIdView.setText(mValues.get(position).getArtist());
+        holder.mContentView.setText(mValues.get(position).getTitle());
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -68,8 +68,8 @@ public class SongsAdapter extends WearableRecyclerView.Adapter<SongsAdapter.Song
         public SongsViewHolder(View view) {
             super(view);
             mView = view;
-            mIdView = (TextView) view.findViewById(R.id.song_id);
-            mContentView = (TextView) view.findViewById(R.id.song_content);
+            mIdView = (TextView) view.findViewById(R.id.album_id);
+            mContentView = (TextView) view.findViewById(R.id.album_content);
         }
 
         @Override

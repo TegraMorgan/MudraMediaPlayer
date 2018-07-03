@@ -16,13 +16,14 @@ import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
 import il.co.wearabledevices.mudramediaplayer.BuildConfig;
+import il.co.wearabledevices.mudramediaplayer.R;
 
 /**
  * Created by Tegra on 21/03/2018.
  */
 
 public class MediaLibrary {
-    private static final int ACCEPTABLE_LENGTH = 8;
+    private static final int ACCEPTABLE_LENGTH = 20;
     private static final String TAG = "Media Library";
     private static final ArrayMap<String, Song> mMusicListById = new ArrayMap<>();
     private static final ArrayMap<String, Album> mAlbumListByName = new ArrayMap<>();
@@ -251,8 +252,17 @@ public class MediaLibrary {
     }
 
     private static String getAlbumArtUri(String albumArtResName) {
-        return ContentResolver.SCHEME_ANDROID_RESOURCE + "://" +
-                BuildConfig.APPLICATION_ID + "/drawable-nodpi/" + albumArtResName;
+        String output;
+        if (albumArtResName.equals(EMPTY_ART_FILENAME)) {
+            output = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + BuildConfig.APPLICATION_ID + "/" + R.drawable.music_metal_molder_icon).toString();
+            return output;
+        } else {
+            output = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + BuildConfig.APPLICATION_ID + albumArtResName).toString();
+            return output;
+        }
+
+        /*return ContentResolver.SCHEME_ANDROID_RESOURCE + "://" +
+                BuildConfig.APPLICATION_ID + "/drawable-nodpi/" + albumArtResName;*/
     }
 
 }

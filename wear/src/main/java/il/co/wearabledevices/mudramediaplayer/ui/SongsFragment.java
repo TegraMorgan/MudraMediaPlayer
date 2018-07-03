@@ -7,9 +7,11 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.wear.widget.WearableLinearLayoutManager;
 import android.support.wear.widget.WearableRecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -49,9 +51,10 @@ public class SongsFragment extends Fragment {
 
     // TODO: Customize parameter initialization
     @SuppressWarnings("unused")
-    public static SongsFragment newInstance(int columnCount) {
+    public static SongsFragment newInstance(int columnCount, Album album) {
         SongsFragment fragment = new SongsFragment();
         Bundle args = new Bundle();
+        args.putSerializable(SERIALIZE_ALBUM, album);
         args.putInt(ARG_COLUMN_COUNT, columnCount);
         fragment.setArguments(args);
         return fragment;
@@ -65,6 +68,8 @@ public class SongsFragment extends Fragment {
             mColumnCount = bdl.getInt(ARG_COLUMN_COUNT);
             album = (Album) bdl.getSerializable(SERIALIZE_ALBUM);
             mSongs = album.getaSongs();
+            Log.d("Is there any songs", (mSongs.isEmpty() ? "Yes" : "No, Fuck it"));
+
         }
 
     }
@@ -73,7 +78,16 @@ public class SongsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_album_list, container, false);
+        Bundle bdl = getArguments();
+        if (getArguments() != null) {
+            mColumnCount = bdl.getInt(ARG_COLUMN_COUNT);
+            album = (Album) bdl.getSerializable(SERIALIZE_ALBUM);
+            if (mSongs.isEmpty()) {
+                mSongs = album.getaSongs();
+                Log.d("Is there any songs2", (mSongs.isEmpty() ? "Yes" : "No, Fuck it"));
+            }
 
+        }
         // Set the adapter
         if (view instanceof WearableRecyclerView) {
             Context context = view.getContext();

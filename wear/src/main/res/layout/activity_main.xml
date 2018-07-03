@@ -6,8 +6,8 @@
     android:layout_width="match_parent"
 
     android:layout_height="match_parent"
-    android:background="@drawable/mud1212"
     android:alpha="0.9"
+    android:background="@drawable/mud1212"
     android:padding="@dimen/box_inset_layout_padding"
     tools:context="il.co.wearabledevices.mudramediaplayer.MainActivity"
     tools:deviceIds="wear">
@@ -16,73 +16,80 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
 
-        android:orientation ="horizontal"
 
-
+        android:layout_marginBottom="-47px"
+        android:layout_marginLeft="-47px"
+        android:layout_marginRight="-47px"
+        android:layout_marginTop="-47px"
+        android:orientation="horizontal"
         app:boxedEdges="all">
 
         <GridLayout
             android:id="@+id/above"
             android:layout_width="match_parent"
-            android:layout_height="40dp"
+            android:layout_height="61dp"
             android:layout_gravity="top"
 
-            >
+            android:layout_marginLeft="27dp"
+            android:layout_marginRight="27dp">
 
             <!--<TextView-->
-                <!--android:id="@+id/player_albums"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="30dp"-->
-                <!--android:layout_column="2"-->
-                <!--android:layout_gravity="center"-->
-                <!--android:layout_row="1"-->
-                <!--android:text="@string/albums"-->
-                <!--android:textColor="#003B46"-->
-                <!--android:textColorHighlight="@android:color/primary_text_dark"-->
-                <!--android:textSize="25dp"-->
-                <!--android:textStyle="bold" />-->
+            <!--android:id="@+id/player_albums"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="30dp"-->
+            <!--android:layout_column="2"-->
+            <!--android:layout_gravity="center"-->
+            <!--android:layout_row="1"-->
+            <!--android:text="@string/albums"-->
+            <!--android:textColor="#003B46"-->
+            <!--android:textColorHighlight="@android:color/primary_text_dark"-->
+            <!--android:textSize="25dp"-->
+            <!--android:textStyle="bold" />-->
             <ImageView
                 android:id="@+id/player_prev"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:visibility="visible"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
                 android:layout_column="1"
+                android:layout_gravity="bottom|left"
                 android:layout_row="1"
                 android:background="@drawable/prev_layer"
-                android:contentDescription="prev" />
+                android:contentDescription="prev"
+                android:visibility="visible" />
 
             <ImageView
-                android:layout_marginTop="0dp"
-                android:visibility="visible"
                 android:id="@+id/play_pause"
-                android:layout_width="42dp"
-                android:layout_height="42dp"
-                android:layout_gravity="center"
-                android:onClick="play_music"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
                 android:layout_column="2"
+                android:layout_gravity="top|center_horizontal"
+                android:layout_marginTop="0dp"
                 android:layout_row="1"
                 android:background="@drawable/play_layer"
-                android:contentDescription="play" />
+                android:contentDescription="play"
+                android:onClick="play_music"
+                android:visibility="visible" />
 
             <ImageView
                 android:id="@+id/player_next"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:visibility="visible"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
                 android:layout_column="3"
+                android:layout_gravity="bottom"
                 android:layout_row="1"
                 android:background="@drawable/next_layer"
-                android:contentDescription="next" />
+                android:contentDescription="next"
+                android:visibility="visible" />
         </GridLayout>
 
 
         <FrameLayout
             android:id="@+id/songs_list_container"
             android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:layout_gravity="bottom"
+            android:layout_height="match_parent"
             android:layout_below="@id/above"
-            />
+            android:layout_gravity="bottom"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="74dp" />
 
     </FrameLayout>
 </android.support.wear.widget.BoxInsetLayout>
