@@ -41,14 +41,14 @@ public class SongsAdapter extends WearableRecyclerView.Adapter<SongsAdapter.Song
         holder.mItem = mValues.get(position);
         holder.mIdView.setText(mValues.get(position).getArtist());
         holder.mContentView.setText(mValues.get(position).getTitle());
-
+        holder.getAdapterPosition();
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (null != mListener) {
                     // Notify the active callbacks interface (the activity, if the
                     // fragment is attached to one) that an item has been selected.
-                    mListener.onSongsListFragmentInteraction(holder.mItem);
+                    mListener.onSongsListFragmentInteraction(holder,position);
                 }
             }
         });

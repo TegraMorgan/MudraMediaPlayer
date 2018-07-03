@@ -11,14 +11,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 
 import il.co.wearabledevices.mudramediaplayer.R;
 import il.co.wearabledevices.mudramediaplayer.model.Album;
 import il.co.wearabledevices.mudramediaplayer.model.Song;
-import il.co.wearabledevices.mudramediaplayer.ui.dummy.SongsDummyContent;
 
 import static il.co.wearabledevices.mudramediaplayer.constants.SERIALIZE_ALBUM;
 
@@ -92,10 +90,13 @@ public class SongsFragment extends Fragment {
         if (view instanceof WearableRecyclerView) {
             Context context = view.getContext();
             WearableRecyclerView recyclerView = (WearableRecyclerView) view;
+            recyclerView.setEdgeItemsCenteringEnabled(true);
+            recyclerView.setCircularScrollingGestureEnabled(true);
+            recyclerView.setBezelFraction(0.3f);
             //recyclerView.setEdgeItemsCenteringEnabled(true);
             //recyclerView.setCircularScrollingGestureEnabled(true);
             //ecyclerView.setBezelFraction(0.1f);
-            //recyclerView.setScrollDegreesPerScreen(30);
+            recyclerView.setScrollDegreesPerScreen(230);
 
             if (mColumnCount <= 1) {
 //                CustomScrollingLayoutCallback customScrollingLayoutCallback =
@@ -141,7 +142,7 @@ public class SongsFragment extends Fragment {
 
     public interface OnSongsListFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onSongsListFragmentInteraction(Song item);
+        void onSongsListFragmentInteraction(SongsAdapter.SongsViewHolder item, int position);
     }
 
 

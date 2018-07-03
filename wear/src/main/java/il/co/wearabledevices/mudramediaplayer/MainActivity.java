@@ -20,16 +20,15 @@ import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import il.co.wearabledevices.mudramediaplayer.model.Album;
 import il.co.wearabledevices.mudramediaplayer.model.MediaLibrary;
-import il.co.wearabledevices.mudramediaplayer.model.Song;
 import il.co.wearabledevices.mudramediaplayer.ui.AlbumsFragment;
 import il.co.wearabledevices.mudramediaplayer.ui.MediaBrowserProvider;
+import il.co.wearabledevices.mudramediaplayer.ui.SongsAdapter;
 import il.co.wearabledevices.mudramediaplayer.ui.SongsFragment;
 import il.co.wearabledevices.mudramediaplayer.utils.LogHelper;
 
@@ -194,10 +193,13 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     }
 
     @Override
-    public void onSongsListFragmentInteraction(Song item) {
-        Toast.makeText(this, item.getFileName(), Toast.LENGTH_LONG).show();
+    public void onSongsListFragmentInteraction(SongsAdapter.SongsViewHolder item, int position) {
+
+        Toast.makeText(this, position, Toast.LENGTH_LONG).show();
         MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls()
-                .skipToQueueItem(item.getId());
+                .skipToQueueItem(item.mItem.getId());
+
+
     }
 
     public void play_music(View view) {
