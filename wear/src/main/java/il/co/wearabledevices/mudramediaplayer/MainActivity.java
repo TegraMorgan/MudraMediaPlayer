@@ -41,7 +41,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int ALBUMS_LAYOUT_MARGIN = 0;
     private static final int SONGS_LAYOUT_MARGIN = 74;
-    static boolean isPlaying = false;
+    static boolean isPlaying = true;
     ImageView playPauseView;
     private final MediaControllerCompat.Callback mMediaControllerCallback =
             new MediaControllerCompat.Callback() {
@@ -203,7 +203,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
 
     public void play_music(View view) {
         view.setBackground(getDrawable(!isPlaying ? R.drawable.pause_icon : R.drawable.play_icon));
-        if (isPlaying) {
+        if (!isPlaying) {
             MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls()
                     .play();
         }else{
