@@ -92,10 +92,13 @@ public class SongsFragment extends Fragment {
         if (view instanceof WearableRecyclerView) {
             Context context = view.getContext();
             WearableRecyclerView recyclerView = (WearableRecyclerView) view;
+            recyclerView.setEdgeItemsCenteringEnabled(true);
+            recyclerView.setCircularScrollingGestureEnabled(true);
+            recyclerView.setBezelFraction(0.3f);
             //recyclerView.setEdgeItemsCenteringEnabled(true);
             //recyclerView.setCircularScrollingGestureEnabled(true);
             //ecyclerView.setBezelFraction(0.1f);
-            //recyclerView.setScrollDegreesPerScreen(30);
+            recyclerView.setScrollDegreesPerScreen(230);
 
             if (mColumnCount <= 1) {
 //                CustomScrollingLayoutCallback customScrollingLayoutCallback =
