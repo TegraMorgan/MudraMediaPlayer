@@ -214,6 +214,24 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         //showAlbumsScreen();
     }
 
+    public void nextSong(View view) {
+        goToNextSong();
+    }
+
+    private void goToNextSong() {
+        MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls()
+                .skipToNext();
+    }
+
+    public void prevSong(View view) {
+        goToPrevSong();
+    }
+
+    private void goToPrevSong() {
+        MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls()
+                .skipToPrevious();
+    }
+
     public void showPlayerButtons() {
         ImageView player_prev = findViewById(R.id.player_prev);
         ImageView player_play = findViewById(R.id.play_pause);
@@ -273,4 +291,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
 
         //getBrowseFragment().onConnected();
     }
+
+
+
 }
