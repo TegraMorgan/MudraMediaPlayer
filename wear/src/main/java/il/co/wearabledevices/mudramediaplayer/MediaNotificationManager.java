@@ -263,7 +263,7 @@ public class MediaNotificationManager extends BroadcastReceiver {
             // This sample assumes the iconUri will be a valid URL formatted String, but
             // it can actually be any valid Android Uri formatted String.
             // async fetch the album art icon
-            //FIXME does not work!
+            //FIXME the uri returns with no file for some reason
             String artUrl = description.getIconUri().toString();
             art = AlbumArtCache.getInstance().getBigImage(artUrl);
             if (art == null) {
