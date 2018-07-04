@@ -48,7 +48,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     private static final int ALBUMS_LAYOUT_MARGIN = 0;
     private static final int SONGS_LAYOUT_MARGIN = 74;
     static boolean isPlaying = true;
-
+    boolean isBinded=false;
     private IMudraAPI mIMudraAPI = null;
 
     private final MediaControllerCompat.Callback mMediaControllerCallback =
@@ -102,6 +102,11 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
                     }
                 }
             };
+    @Override
+    public MediaBrowserCompat getMediaBrowser() {
+        return mMediaBrowser;
+    }
+
     //private String deviceAddress = "";
 
     public static void setMargins(View v, int l, int t, int r, int b) {
@@ -111,6 +116,9 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
             v.requestLayout();
         }
     }
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -134,10 +142,8 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         intent.setComponent(new ComponentName("com.wearable.android.ble",
                 "com.wearable.android.ble.service.BluetoothLeService"));
         getApplicationContext().bindService(intent,mConnection, Context.BIND_AUTO_CREATE);
+        Log.i("cooooo","nnect");
     }
-
-
-
 
             @Override
             protected void onStart() {
@@ -151,11 +157,6 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
             protected void onStop() {
                 super.onStop();
                 mMediaBrowser.disconnect();
-            }
-
-            @Override
-            public MediaBrowserCompat getMediaBrowser() {
-                return mMediaBrowser;
             }
 
 
@@ -263,7 +264,8 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
                 case 1: Log.i ("INFO", "Device Scan Stopped"); break;
                 case 2: Log.i ("INFO", "Device Found"+ deviceAddress);
                     connectMudra(deviceAddress); break;
-                case 3: {Log.i ("INFO", "Device connected");
+                case 3: {
+                    Log.i ("INFO", "Device connected");
                     startSNCDataTransmission();
                     break;
                 }
@@ -301,6 +303,23 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     protected void onResume() {
         super.onResume();
         Log.v(TAG, "Starting on Resume");
+
+        if (!isBinded) {
+            Intent intent = new Intent();
+            intent.setAction(IMudraAPI.class.getName());
+            intent.setComponent(new ComponentName("com.wearable.android.ble", "com.wearable.android.ble.service.BluetoothLeService"));
+
+            getApplicationContext().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+            isBinded=true;
+        } else {
+            getApplicationContext().unbindService(mConnection);
+            Intent intent = new Intent();
+            intent.setAction(IMudraAPI.class.getName());
+            intent.setComponent(new ComponentName("com.wearable.android.ble", "com.wearable.android.ble.service.BluetoothLeService"));
+
+            getApplicationContext().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+        }
+
         // Check for permission
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
