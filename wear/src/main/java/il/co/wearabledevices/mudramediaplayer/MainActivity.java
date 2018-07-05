@@ -35,10 +35,12 @@ import il.co.wearabledevices.mudramediaplayer.ui.MediaBrowserProvider;
 import il.co.wearabledevices.mudramediaplayer.ui.SongsAdapter;
 import il.co.wearabledevices.mudramediaplayer.ui.SongsFragment;
 import il.co.wearabledevices.mudramediaplayer.utils.LogHelper;
-import com.wearable.android.ble.*;
+
 import com.wearable.android.ble.interfaces.IMudraAPI;
 import com.wearable.android.ble.interfaces.*;
 
+import static il.co.wearabledevices.mudramediaplayer.constants.DATA_TYPE_GESTURE;
+import static il.co.wearabledevices.mudramediaplayer.constants.DATA_TYPE_PROPORTIONAL;
 import static il.co.wearabledevices.mudramediaplayer.constants.ENQUEUE_ALBUM;
 import static il.co.wearabledevices.mudramediaplayer.constants.SERIALIZE_ALBUM;
 
@@ -51,7 +53,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     static boolean isPlaying = true;
     static boolean isBinded=false,callbackadded=false;
     private IMudraAPI mIMudraAPI = null;
-
+    private Context mainContext;
     private final MediaControllerCompat.Callback mMediaControllerCallback =
             new MediaControllerCompat.Callback() {
                 @Override
@@ -144,6 +146,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
                 "com.wearable.android.ble.service.BluetoothLeService"));
         getApplicationContext().bindService(intent,mConnection, Context.BIND_AUTO_CREATE);
         Log.i("cooooo","nnect");
+        this.mainContext = this;
     }
 
             @Override
@@ -173,13 +176,6 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
 
     /**#############################################################**********************************/
 
-//    IMudraDataListener mMudraDataCB = new IMudraDataListener.Stub() {
-//        @Override public void onMudraDataReady (int dataType, float[] data)
-//                throws RemoteException {}
-//    } ;
-//    IMudraDeviceStatuslListener mMudraDeviceStatusCB = new IMudraDeviceStatuslListener.Stub() {
-//        @Override public void onMudraStatusChanged(int statusType, String deviceAddress) throws RemoteException{};
-//    };
 
     private ServiceConnection mConnection = new ServiceConnection() { // Called when the connection with the service is established using getApplicationContext()
         public void onServiceConnected(ComponentName className, IBinder service) {
@@ -287,20 +283,42 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     IMudraDataListener mMudraDataCB = new IMudraDataListener.Stub() {
         @Override public void onMudraDataReady (int dataType, float[] d) throws RemoteException {
             switch (dataType) {
-                case 0: /*if( (d[0] > d[1])&& (d[0]>d[2])&& (d[0]>0.9))
-                            Log.i ("INFO", "gesture: Thumb");
-                        if( (d[1] > d[0])&& (d[1]>d[2])&& (d[1]>0.9))
-                            Log.i ("INFO", "gesture: Tap");
-                        if( (d[2] > d[0])&& (d[2]>d[1])&& (d[2]>0.9))
-                            Log.i ("INFO", "gesture: Index");*/
-                        Log.i("Gesture","0");
+                case DATA_TYPE_GESTURE:
+                    String gest = "";
+                    if( (d[0] > d[1])&& (d[0]>d[2])&& (d[0]>0.9)) {
+                        gest = "Thumb";
+                        Log.i ("INFO", "gesture: Thumb");
+                    }
+
+                    if( (d[1] > d[0])&& (d[1]>d[2])&& (d[1]>0.9)) {
+                        gest = "Tap";
+                        Log.i ("INFO", "gesture: Tap");
+                    }
+                    if( (d[2] > d[0])&& (d[2]>d[1])&& (d[2]>0.9)) {
+                        Log.i ("INFO", "gesture: Index");
+                        gest = "Index";
+                        //Log.i("Gesture","0");
+                    }
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(mainContext,"gesutre",Toast.LENGTH_SHORT).show();
+
+                            }
+                        });
                         break;
-                case 1:/*if ( d[0] > d[1])
+                case DATA_TYPE_PROPORTIONAL:/*if ( d[0] > d[1])
                         Log.i ("INFO", "Tap Proportional:" +d[2]);
                        if ( d[1] > d[0])
                            Log.i ("INFO", "Middle Tap Proportional:" +d[2]);*/
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(mainContext,"Proportional",Toast.LENGTH_SHORT).show();
+                        }
+                    });
                         Log.i("Gesture","1");
-                       break;
+                    break;
                 case 2:
                     Log.i("INFO", "IMU acc x: "+d[0]+ " \nacc Y: "+d[1]+ " \nacc Z: "+d[2]+ " \nQ W: "+d[3]+ " \nQ X: "+d[4]+ " \nQ Y: "+d[5]+ " \nQ Z: "+d[6]);
                     break;
