@@ -3,7 +3,8 @@ package il.co.wearabledevices.mudramediaplayer.ui;
 import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
-import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.PagerSnapHelper;
 import android.support.v7.widget.RecyclerView;
 import android.support.wear.widget.WearableLinearLayoutManager;
 import android.support.wear.widget.WearableRecyclerView;
@@ -34,6 +35,8 @@ public class AlbumsFragment extends Fragment {
     // TODO: Customize parameters
     private int mColumnCount = 1;
     private OnAlbumsListFragmentInteractionListener mListener;
+
+    private WearableRecyclerView mRecyclerView;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -90,10 +93,74 @@ public class AlbumsFragment extends Fragment {
                 recyclerView.setLayoutManager(new WearableLinearLayoutManager(context));
             }
             recyclerView.setAdapter(new AlbumsAdapter(mAlbums, mListener));
+            recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                    super.onScrollStateChanged(recyclerView, newState);
+                    if (newState == RecyclerView.SCROLL_STATE_IDLE){
+                        int position = getCurrentItem();
+                        onPageChanged(position);
+                    }
+                }
+            });
+            PagerSnapHelper snapHelper = new PagerSnapHelper();
+            snapHelper.attachToRecyclerView(recyclerView);
+            mRecyclerView = recyclerView;
         }
         return view;
     }
 
+    //This callback is called upon scrolling
+    private void onPageChanged(int position) {
+
+    }
+
+
+    public boolean hasPreview() {
+        return getCurrentItem() > 0;
+    }
+
+    public boolean hasNext() {
+        return mRecyclerView.getAdapter() != null &&
+                getCurrentItem() < (mRecyclerView.getAdapter().getItemCount()- 1);
+    }
+
+    public void preview() {
+        int position = getCurrentItem();
+        if (position > 0)
+            setCurrentItem(position -1, true);
+    }
+
+    public boolean next() {
+        RecyclerView.Adapter adapter = mRecyclerView.getAdapter();
+        if (adapter == null){
+            return false;
+        }
+
+
+        int position = getCurrentItem();
+        int count = adapter.getItemCount();
+        if (position < (count -1))
+            setCurrentItem(position + 1, true);
+        return true;
+    }
+
+    private int getCurrentItem(){
+        return ((LinearLayoutManager)mRecyclerView.getLayoutManager())
+                .findFirstVisibleItemPosition();
+    }
+
+    private void setCurrentItem(int position, boolean smooth){
+        if (smooth)
+            mRecyclerView.smoothScrollToPosition(position);
+        else
+            mRecyclerView.scrollToPosition(position);
+    }
+
+
+    public WearableRecyclerView getRecycler(){
+        return this.mRecyclerView;
+    }
 
     @Override
     public void onAttach(Context context) {

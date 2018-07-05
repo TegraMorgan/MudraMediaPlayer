@@ -411,6 +411,19 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         MediaControllerCompat.getMediaController(MainActivity.this).adjustVolume(direction, AudioManager.FLAG_VIBRATE);
     }
 
+
+    public void scrollDown(View view){
+        boolean a;
+        AlbumsFragment albumsFragment = (AlbumsFragment) getFragmentManager().findFragmentByTag(AlbumsFragment.class.getSimpleName());
+        if (albumsFragment != null && albumsFragment.isVisible()) {
+            for(int i =0; i < 6; i++){
+                a = albumsFragment.next();
+                if(!a)
+                    Toast.makeText(this,"adapter is null",Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
     public void showPlayerButtons() {
         ImageView player_prev = findViewById(R.id.player_prev);
         ImageView player_play = findViewById(R.id.play_pause);
@@ -453,6 +466,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
 
         //getBrowseFragment().onConnected();
     }
+
 
 
 }
