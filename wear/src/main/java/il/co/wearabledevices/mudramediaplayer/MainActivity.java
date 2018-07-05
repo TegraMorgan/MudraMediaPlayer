@@ -35,11 +35,12 @@ import il.co.wearabledevices.mudramediaplayer.ui.MediaBrowserProvider;
 import il.co.wearabledevices.mudramediaplayer.ui.SongsAdapter;
 import il.co.wearabledevices.mudramediaplayer.ui.SongsFragment;
 import il.co.wearabledevices.mudramediaplayer.utils.LogHelper;
+import com.wearable.android.ble.*;
+import com.wearable.android.ble.interfaces.IMudraAPI;
+import com.wearable.android.ble.interfaces.*;
 
 import static il.co.wearabledevices.mudramediaplayer.constants.ENQUEUE_ALBUM;
 import static il.co.wearabledevices.mudramediaplayer.constants.SERIALIZE_ALBUM;
-
-import interfaces.*;
 
 public class MainActivity extends WearableActivity implements AlbumsFragment.OnAlbumsListFragmentInteractionListener
         , SongsFragment.OnSongsListFragmentInteractionListener, MediaBrowserProvider {
@@ -48,7 +49,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     private static final int ALBUMS_LAYOUT_MARGIN = 0;
     private static final int SONGS_LAYOUT_MARGIN = 74;
     static boolean isPlaying = true;
-    boolean isBinded=false;
+    static boolean isBinded=false,callbackadded=false;
     private IMudraAPI mIMudraAPI = null;
 
     private final MediaControllerCompat.Callback mMediaControllerCallback =
@@ -183,9 +184,17 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     private ServiceConnection mConnection = new ServiceConnection() { // Called when the connection with the service is established using getApplicationContext()
         public void onServiceConnected(ComponentName className, IBinder service) {
             try {
-                Log.i("INFO", "bind SUCCEEDED"); // this gets an instance of the MudraAPI, which we can use to call on the service
-                mIMudraAPI = IMudraAPI.Stub.asInterface(service);
-                mIMudraAPI.initMudra(mMudraDeviceStatusCB, mMudraDataCB);
+                if (!callbackadded) {
+                    Log.i("INFO", "bind SUCCEEDED"); // this gets an instance of the MudraAPI, which we can use to call on the service
+
+                    mIMudraAPI = IMudraAPI.Stub.asInterface(service);
+                    Log.i("INFO","Stub");
+
+                    mIMudraAPI.initMudra(mMudraDeviceStatusCB, mMudraDataCB);
+                    Log.i("INFO","init");
+
+                    callbackadded=true;
+                }
             } catch (RemoteException ex) {
                 Log.e("ERROR", ex.toString());
             }
