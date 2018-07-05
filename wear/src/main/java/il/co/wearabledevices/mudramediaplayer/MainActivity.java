@@ -20,6 +20,7 @@ import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.support.wear.widget.WearableRecyclerView;
 import android.support.wearable.activity.WearableActivity;
 import android.util.Log;
 import android.util.TypedValue;
@@ -334,21 +335,22 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     }
 
     @Override
-    protected void onRestoreInstanceState(Bundle sis) {
+    protected void onRestoreInstanceState(Bundle sis) {//SavedInstanceState
         super.onRestoreInstanceState(sis);
         if (isPlaying) {
             Album al = (Album) sis.getSerializable(SERIALIZE_ALBUM);
-            long pos = sis.getLong(CURRENT_SONG_RECYCLER_POSITION);
+            int pos = sis.getInt(CURRENT_SONG_RECYCLER_POSITION);
+
             showPlayerButtons();
             showSongsScreen();
-            android.app.FragmentManager fm = getFragmentManager();
-            SongsFragment slf = SongsFragment.newInstance(sis.getInt(CURRENT_ALBUM_SIZE), al);
-            MediaControllerCompat mediaControllerCompat = MediaControllerCompat.getMediaController(MainActivity.this);
-            List<MediaSessionCompat.QueueItem> qi = mediaControllerCompat.getQueue();
-            qi.indexOf()
-            slf.getRecycler().scrollToPosition(pos);
+
+            android.app.FragmentManager fm = getFragmentManager();//fragmentManager
+            SongsFragment slf = SongsFragment.newInstance(sis.getInt(CURRENT_ALBUM_SIZE), al); //songFragment
             slf.setArguments(sis);
             fm.beginTransaction().replace(R.id.songs_list_container, slf).addToBackStack(null).commit();
+
+            WearableRecyclerView rv = slf.getRecycler();
+            rv.scrollToPosition(pos);
         }
     }
 
