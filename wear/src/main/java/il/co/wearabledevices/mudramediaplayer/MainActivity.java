@@ -287,21 +287,24 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     IMudraDataListener mMudraDataCB = new IMudraDataListener.Stub() {
         @Override public void onMudraDataReady (int dataType, float[] d) throws RemoteException {
             switch (dataType) {
-                case 0: if( (d[0] > d[1])&& (d[0]>d[2])&& (d[0]>0.9))
+                case 0: /*if( (d[0] > d[1])&& (d[0]>d[2])&& (d[0]>0.9))
                             Log.i ("INFO", "gesture: Thumb");
                         if( (d[1] > d[0])&& (d[1]>d[2])&& (d[1]>0.9))
                             Log.i ("INFO", "gesture: Tap");
                         if( (d[2] > d[0])&& (d[2]>d[1])&& (d[2]>0.9))
-                            Log.i ("INFO", "gesture: Index");
+                            Log.i ("INFO", "gesture: Index");*/
+                        Log.i("Gesture","0");
                         break;
-                case 1:if ( d[0] > d[1])
+                case 1:/*if ( d[0] > d[1])
                         Log.i ("INFO", "Tap Proportional:" +d[2]);
                        if ( d[1] > d[0])
-                           Log.i ("INFO", "Middle Tap Proportional:" +d[2]);
+                           Log.i ("INFO", "Middle Tap Proportional:" +d[2]);*/
+                        Log.i("Gesture","1");
                        break;
                 case 2:
                     Log.i("INFO", "IMU acc x: "+d[0]+ " \nacc Y: "+d[1]+ " \nacc Z: "+d[2]+ " \nQ W: "+d[3]+ " \nQ X: "+d[4]+ " \nQ Y: "+d[5]+ " \nQ Z: "+d[6]);
                     break;
+                default : Log.i("Gesture",d[0] + "gesture detected"); break;
             }
         }
     };
