@@ -359,7 +359,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         fm.beginTransaction().replace(R.id.songs_list_container, slf).addToBackStack(null).commit();
 
 
-        MediaControllerCompat.getMediaController(MainActivity.this).adjustVolume(AudioManager.ADJUST_MUTE, AudioManager.FLAG_PLAY_SOUND);
+        MediaControllerCompat.getMediaController(MainActivity.this).adjustVolume(AudioManager.ADJUST_RAISE, AudioManager.FLAG_PLAY_SOUND);
         // Enqueue all the album and play it
         Bundle bndl = new Bundle();
         bndl.putSerializable(SERIALIZE_ALBUM, item);
