@@ -21,6 +21,7 @@ import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.wear.widget.WearableRecyclerView;
+import android.support.wear.widget.WearableRecyclerView;
 import android.support.wearable.activity.WearableActivity;
 import android.util.Log;
 import android.util.TypedValue;
@@ -40,11 +41,12 @@ import il.co.wearabledevices.mudramediaplayer.ui.MediaBrowserProvider;
 import il.co.wearabledevices.mudramediaplayer.ui.SongsAdapter;
 import il.co.wearabledevices.mudramediaplayer.ui.SongsFragment;
 import il.co.wearabledevices.mudramediaplayer.utils.LogHelper;
-import il.co.wearabledevices.mudramediaplayer.utils.QueueHelper;
-import interfaces.IMudraAPI;
-import interfaces.IMudraDataListener;
-import interfaces.IMudraDeviceStatuslListener;
 
+import com.wearable.android.ble.interfaces.IMudraAPI;
+import com.wearable.android.ble.interfaces.*;
+
+import static il.co.wearabledevices.mudramediaplayer.constants.DATA_TYPE_GESTURE;
+import static il.co.wearabledevices.mudramediaplayer.constants.DATA_TYPE_PROPORTIONAL;
 import static il.co.wearabledevices.mudramediaplayer.constants.ENQUEUE_ALBUM;
 import static il.co.wearabledevices.mudramediaplayer.constants.SERIALIZE_ALBUM;
 
@@ -57,6 +59,10 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     public static final String CURRENT_SONG_RECYCLER_POSITION = "CURRENT_POSITION";
     public static final String CURRENT_ALBUM_SIZE = "CURRENT_ALBUM_SIZE";
     static boolean isPlaying = true;
+    static boolean isBinded=false,callbackadded=false;
+    private IMudraAPI mIMudraAPI = null;
+    private Context mainContext;
+
     private final MediaControllerCompat.Callback mMediaControllerCallback =
             new MediaControllerCompat.Callback() {
                 @Override
@@ -88,7 +94,10 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
                     */
                 }
             };
-    //private String deviceAddress = "";
+    ImageView playPauseView;
+    TextView albums_text;
+    private TextView mTextView;
+    private MediaBrowserCompat mMediaBrowser;
     private final MediaBrowserCompat.ConnectionCallback mConnectionCallback =
             new MediaBrowserCompat.ConnectionCallback() {
                 @Override
@@ -105,91 +114,12 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
                     }
                 }
             };
-    ImageView playPauseView;
-    TextView albums_text;
-    boolean isBinded = false;
-    IMudraDataListener mMudraDataCB = new IMudraDataListener.Stub() {
-        @Override
-        public void onMudraDataReady(int dataType, float[] d) throws RemoteException {
-            switch (dataType) {
-                case 0:
-                    if ((d[0] > d[1]) && (d[0] > d[2]) && (d[0] > 0.9))
-                        Log.i("INFO", "gesture: Thumb");
-                    if ((d[1] > d[0]) && (d[1] > d[2]) && (d[1] > 0.9))
-                        Log.i("INFO", "gesture: Tap");
-                    if ((d[2] > d[0]) && (d[2] > d[1]) && (d[2] > 0.9))
-                        Log.i("INFO", "gesture: Index");
-                    break;
-                case 1:
-                    if (d[0] > d[1])
-                        Log.i("INFO", "Tap Proportional:" + d[2]);
-                    if (d[1] > d[0])
-                        Log.i("INFO", "Middle Tap Proportional:" + d[2]);
-                    break;
-                case 2:
-                    Log.i("INFO", "IMU acc x: " + d[0] + " \nacc Y: " + d[1] + " \nacc Z: " + d[2] + " \nQ W: " + d[3] + " \nQ X: " + d[4] + " \nQ Y: " + d[5] + " \nQ Z: " + d[6]);
-                    break;
-            }
-        }
-    };
-    private IMudraAPI mIMudraAPI = null;
-    private TextView mTextView;
-    private MediaBrowserCompat mMediaBrowser;
-    IMudraDeviceStatuslListener mMudraDeviceStatusCB = new IMudraDeviceStatuslListener.Stub() {
-        @Override
-        public void onMudraStatusChanged(int statusType, String deviceAddress) throws RemoteException {
-            switch (statusType) {
-                case 0:
-                    Log.i("INFO", "Device Scan Started");
-                    break;
-                case 1:
-                    Log.i("INFO", "Device Scan Stopped");
-                    break;
-                case 2:
-                    Log.i("INFO", "Device Found" + deviceAddress);
-                    connectMudra(deviceAddress);
-                    break;
-                case 3: {
-                    Log.i("INFO", "Device connected");
-                    startSNCDataTransmission();
-                    break;
-                }
-                case 4:
-                    Log.i("INFO", "Device disconnected");
-                    break;
-            }
-        }
-    };
-    /**
-     * #############################################################
-     **********************************/
+    @Override
+    public MediaBrowserCompat getMediaBrowser() {
+        return mMediaBrowser;
+    }
 
-//    IMudraDataListener mMudraDataCB = new IMudraDataListener.Stub() {
-//        @Override public void onMudraDataReady (int dataType, float[] data)
-//                throws RemoteException {}
-//    } ;
-//    IMudraDeviceStatuslListener mMudraDeviceStatusCB = new IMudraDeviceStatuslListener.Stub() {
-//        @Override public void onMudraStatusChanged(int statusType, String deviceAddress) throws RemoteException{};
-//    };
-
-    private ServiceConnection mConnection = new ServiceConnection() { // Called when the connection with the service is established using getApplicationContext()
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            try {
-                Log.i("INFO", "bind SUCCEEDED"); // this gets an instance of the MudraAPI, which we can use to call on the service
-                mIMudraAPI = IMudraAPI.Stub.asInterface(service);
-                mIMudraAPI.initMudra(mMudraDeviceStatusCB, mMudraDataCB);
-            } catch (RemoteException ex) {
-                Log.e("ERROR", ex.toString());
-            }
-        }
-
-        // Called when the connection with the service disconnects unexpectedly
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-            Log.e("ERROR", "Mudra Service has unexpectedly disconnected");
-            mIMudraAPI = null;
-        }
-    };
+    //private String deviceAddress = "";
 
     public static void setMargins(View v, int l, int t, int r, int b) {
         if (v.getLayoutParams() instanceof ViewGroup.MarginLayoutParams) {
@@ -199,10 +129,8 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         }
     }
 
-    @Override
-    public MediaBrowserCompat getMediaBrowser() {
-        return mMediaBrowser;
-    }
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -223,11 +151,10 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         intent.setAction(IMudraAPI.class.getName());
         intent.setComponent(new ComponentName("com.wearable.android.ble",
                 "com.wearable.android.ble.service.BluetoothLeService"));
-        getApplicationContext().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
-        Log.i("cooooo", "nnect");
+        getApplicationContext().bindService(intent,mConnection, Context.BIND_AUTO_CREATE);
+        Log.i("cooooo","nnect");
+        this.mainContext = this;
     }
-
-    /* MUDRA CONTENT */
 
     @Override
     protected void onStart() {
@@ -248,7 +175,41 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         onMediaControllerConnected();
     }
 
-    public void startScan() {
+    /* MUDRA CONTENT */
+
+    /**#############################################################**********************************/
+
+
+    private ServiceConnection mConnection = new ServiceConnection() { // Called when the connection with the service is established using getApplicationContext()
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            try {
+                if (!callbackadded) {
+                    Log.i("INFO", "bind SUCCEEDED"); // this gets an instance of the MudraAPI, which we can use to call on the service
+
+                    mIMudraAPI = IMudraAPI.Stub.asInterface(service);
+                    Log.i("INFO","Stub");
+
+                    mIMudraAPI.initMudra(mMudraDeviceStatusCB, mMudraDataCB);
+                    Log.i("INFO","init");
+
+                    callbackadded=true;
+                }
+            } catch (RemoteException ex) {
+                Log.e("ERROR", ex.toString());
+            }
+        }
+        // Called when the connection with the service disconnects unexpectedly
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            Log.e("ERROR", "Mudra Service has unexpectedly disconnected");
+            mIMudraAPI = null;
+        }
+    };
+
+
+
+
+    public void startScan (){
         try {
             mIMudraAPI.mudraStartScan();
         } catch (RemoteException ex) {
@@ -256,55 +217,53 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         }
     }
 
-    public void stopScan() {
-        try {
-            mIMudraAPI.mudraStopScan();
+    public void stopScan (){
+        try { mIMudraAPI. mudraStopScan ();
         } catch (RemoteException ex) {
             Log.e("ERROR:", ex.toString());
         }
     }
 
-    public void connectMudra(String deviceAddress) {
+    public void connectMudra(String deviceAddress){
         try {
-            mIMudraAPI.connectMudraDevice(deviceAddress);
+            mIMudraAPI. connectMudraDevice(deviceAddress);
         } catch (RemoteException ex) {
             Log.e("ERROR:", ex.toString());
         }
     }
 
-    public void startSNCDataTransmission() {
+    public void startSNCDataTransmission(){
         try {
-            mIMudraAPI.startRawSNCDataTransmission();
+            mIMudraAPI.startRawSNCDataTransmission( );
         } catch (RemoteException ex) {
             Log.e("ERROR:", ex.toString());
         }
     }
 
-    ;
-
-    public void stopSNCDataTransmission() {
+    public void stopSNCDataTransmission(){
         try {
-            mIMudraAPI.stopRawSNCDataTransmission();
+            mIMudraAPI.stopRawSNCDataTransmission( );
         } catch (RemoteException ex) {
             Log.e("ERROR:", ex.toString());
         }
     }
 
-    public void disonnectMudra() {
+    public void disonnectMudra(){
         try {
-            mIMudraAPI.disconnectMudraDevice();
-        } catch (RemoteException ex) {
+            mIMudraAPI. disconnectMudraDevice();
+        } catch (RemoteException ex){
             Log.e("ERROR:", ex.toString());
         }
-    }
+    };
 
-    public void releaseMudra() {
+    public void releaseMudra(){
         try {
             mIMudraAPI.releaseMudra();
         } catch (RemoteException ex) {
             Log.e("ERROR:", ex.toString());
         }
     }
+
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -354,8 +313,72 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         }
     }
 
-    /*******************************************************************************/
+    IMudraDeviceStatuslListener mMudraDeviceStatusCB = new IMudraDeviceStatuslListener.Stub() {
+        @Override public void onMudraStatusChanged(int statusType, String deviceAddress) throws RemoteException {
+            switch (statusType) {
+                case 0: Log.i ("INFO", "Device Scan Started"); break;
+                case 1: Log.i ("INFO", "Device Scan Stopped"); break;
+                case 2: Log.i ("INFO", "Device Found"+ deviceAddress);
+                    connectMudra(deviceAddress); break;
+                case 3: {
+                    Log.i ("INFO", "Device connected");
+                    startSNCDataTransmission();
+                    break;
+                }
+                case 4: Log.i ("INFO", "Device disconnected"); break;
+            }
+        }
+    };
 
+
+    IMudraDataListener mMudraDataCB = new IMudraDataListener.Stub() {
+        @Override public void onMudraDataReady (int dataType, float[] d) throws RemoteException {
+            switch (dataType) {
+                case DATA_TYPE_GESTURE:
+                    String gest = "";
+                    if( (d[0] > d[1])&& (d[0]>d[2])&& (d[0]>0.9)) {
+                        gest = "Thumb";
+                        Log.i ("INFO", "gesture: Thumb");
+                    }
+
+                    if( (d[1] > d[0])&& (d[1]>d[2])&& (d[1]>0.9)) {
+                        gest = "Tap";
+                        Log.i ("INFO", "gesture: Tap");
+                    }
+                    if( (d[2] > d[0])&& (d[2]>d[1])&& (d[2]>0.9)) {
+                        Log.i ("INFO", "gesture: Index");
+                        gest = "Index";
+                        //Log.i("Gesture","0");
+                    }
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(mainContext,"gesutre",Toast.LENGTH_SHORT).show();
+
+                        }
+                    });
+                    break;
+                case DATA_TYPE_PROPORTIONAL:/*if ( d[0] > d[1])
+                        Log.i ("INFO", "Tap Proportional:" +d[2]);
+                       if ( d[1] > d[0])
+                           Log.i ("INFO", "Middle Tap Proportional:" +d[2]);*/
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(mainContext,"Proportional",Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    Log.i("Gesture","1");
+                    break;
+                case 2:
+                    Log.i("INFO", "IMU acc x: "+d[0]+ " \nacc Y: "+d[1]+ " \nacc Z: "+d[2]+ " \nQ W: "+d[3]+ " \nQ X: "+d[4]+ " \nQ Y: "+d[5]+ " \nQ Z: "+d[6]);
+                    break;
+                default : Log.i("Gesture",d[0] + "gesture detected"); break;
+            }
+        }
+    };
+
+    /*******************************************************************************/
 
     @Override
     protected void onResume() {

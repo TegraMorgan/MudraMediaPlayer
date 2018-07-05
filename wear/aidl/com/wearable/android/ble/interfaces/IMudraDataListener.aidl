@@ -1,5 +1,5 @@
 // IMudraDataListener.aidl
-package interfaces;
+package com.wearable.android.ble.interfaces;
 
 /**
  * Callback for receiving Mudra device data and events

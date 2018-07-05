@@ -12,10 +12,10 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-package interfaces;
+package com.wearable.android.ble.interfaces;
 
-import interfaces.IMudraDataListener;
-import interfaces.IMudraDeviceStatuslListener;
+import com.wearable.android.ble.interfaces.IMudraDataListener;
+import com.wearable.android.ble.interfaces.IMudraDeviceStatuslListener;
 
 
 /**
