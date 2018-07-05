@@ -80,13 +80,10 @@ public class AlbumsFragment extends Fragment {
             Context context = view.getContext();
             WearableRecyclerView recyclerView = (WearableRecyclerView) view;
             recyclerView.setEdgeItemsCenteringEnabled(true);
-            recyclerView.setCircularScrollingGestureEnabled(true);
+            recyclerView.setCircularScrollingGestureEnabled(false);
             recyclerView.setBezelFraction(0.5f);
-            //recyclerView.setScrollDegreesPerScreen(30);
 
             if (mColumnCount <= 1) {
-//                CustomScrollingLayoutCallback customScrollingLayoutCallback =
-//                        new CustomScrollingLayoutCallback();
                 recyclerView.setLayoutManager(
                         new WearableLinearLayoutManager(context));
             } else {

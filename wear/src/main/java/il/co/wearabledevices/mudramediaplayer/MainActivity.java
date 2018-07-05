@@ -11,6 +11,7 @@ import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
@@ -28,6 +29,8 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.List;
 
 import il.co.wearabledevices.mudramediaplayer.model.Album;
 import il.co.wearabledevices.mudramediaplayer.model.MediaLibrary;
@@ -49,6 +52,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int ALBUMS_LAYOUT_MARGIN = 0;
     private static final int SONGS_LAYOUT_MARGIN = 74;
+    public static final String CURRENT_SONG_RECYCLER_POSITION = "CURRENT_POSITION";
     static boolean isPlaying = true;
     private final MediaControllerCompat.Callback mMediaControllerCallback =
             new MediaControllerCompat.Callback() {
@@ -237,6 +241,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     private void connectToSession(MediaSessionCompat.Token token) throws RemoteException {
         MediaControllerCompat mediaController = new MediaControllerCompat(this, token);
         MediaControllerCompat.setMediaController(this, mediaController);
+
         mediaController.registerCallback(mMediaControllerCallback);
         onMediaControllerConnected();
     }
@@ -299,22 +304,26 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         }
     }
 
-    /*******************************************************************************/
-
     @Override
-    protected void onPause() {
-        super.onPause();
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
         //TODO save current queue state to bundle
         if (isPlaying) {
-            AlbumsFragment af = (AlbumsFragment) getFragmentManager().findFragmentByTag(AlbumsFragment.class.getSimpleName());
-
+            SongsFragment sf = (SongsFragment) getFragmentManager().findFragmentByTag(SongsFragment.class.getSimpleName());
+            Album item = sf.getAlbum();
+            outState.putSerializable(SERIALIZE_ALBUM, item);
+            outState.putInt(CURRENT_SONG_RECYCLER_POSITION, sf.getCurrentItem());
         }
-        /*
-        Bundle bndl = new Bundle();
-        bndl.putSerializable(SERIALIZE_ALBUM, item);
-        */
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
 
     }
+
+    /*******************************************************************************/
+
 
     @Override
     protected void onResume() {

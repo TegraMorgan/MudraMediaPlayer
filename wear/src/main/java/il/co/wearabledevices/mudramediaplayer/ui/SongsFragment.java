@@ -4,6 +4,7 @@ import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.wear.widget.WearableLinearLayoutManager;
 import android.support.wear.widget.WearableRecyclerView;
@@ -11,9 +12,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import il.co.wearabledevices.mudramediaplayer.MainActivity;
 import il.co.wearabledevices.mudramediaplayer.R;
 import il.co.wearabledevices.mudramediaplayer.model.Album;
 import il.co.wearabledevices.mudramediaplayer.model.Song;
@@ -33,18 +36,12 @@ public class SongsFragment extends Fragment {
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
     private static final String LIST_TYPE = "songs";
-
+    ArrayList<Song> mSongs;
     private WearableRecyclerView mRecyclerView;
-
     private Album album;
     // TODO: Customize parameters
     private int mColumnCount = 1;
     private OnSongsListFragmentInteractionListener mListener;
-    ArrayList<Song> mSongs;
-
-    public Album getAlbum() {
-        return album;
-    }
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -62,6 +59,10 @@ public class SongsFragment extends Fragment {
         args.putInt(ARG_COLUMN_COUNT, columnCount);
         fragment.setArguments(args);
         return fragment;
+    }
+
+    public Album getAlbum() {
+        return album;
     }
 
     @Override
@@ -97,24 +98,40 @@ public class SongsFragment extends Fragment {
             Context context = view.getContext();
             WearableRecyclerView recyclerView = (WearableRecyclerView) view;
             recyclerView.setEdgeItemsCenteringEnabled(true);
-            recyclerView.setCircularScrollingGestureEnabled(true);
+            recyclerView.setCircularScrollingGestureEnabled(false);
             recyclerView.setBezelFraction(0.3f);
-            //recyclerView.setEdgeItemsCenteringEnabled(true);
-            //recyclerView.setCircularScrollingGestureEnabled(true);
-            //ecyclerView.setBezelFraction(0.1f);
             recyclerView.setScrollDegreesPerScreen(230);
 
             if (mColumnCount <= 1) {
-//                CustomScrollingLayoutCallback customScrollingLayoutCallback =
-//                        new CustomScrollingLayoutCallback();
                 recyclerView.setLayoutManager(
                         new WearableLinearLayoutManager(context));
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
             recyclerView.setAdapter(new SongsAdapter(mSongs, mListener));
+            recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                    super.onScrollStateChanged(recyclerView, newState);
+                    if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                        int position = getCurrentItem();
+                        onSelectedSongChanged(position);
+                    }
+                }
+            });
+            mRecyclerView = recyclerView;
         }
         return view;
+    }
+
+    private void onSelectedSongChanged(int position) {
+        //TODO change song playing
+        Toast.makeText(this.getContext(), "Song # " + String.valueOf(position), Toast.LENGTH_SHORT);
+    }
+
+    public int getCurrentItem() {
+        return ((LinearLayoutManager) mRecyclerView.getLayoutManager())
+                .findFirstVisibleItemPosition();
     }
 
 
@@ -135,6 +152,11 @@ public class SongsFragment extends Fragment {
         mListener = null;
     }
 
+    public WearableRecyclerView getRecycler() {
+        return this.mRecyclerView;
+    }
+
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -150,7 +172,6 @@ public class SongsFragment extends Fragment {
         // TODO: Update argument type and name
         void onSongsListFragmentInteraction(SongsAdapter.SongsViewHolder item, int position);
     }
-
 
     private class CustomScrollingLayoutCallback extends WearableLinearLayoutManager.LayoutCallback {
 
