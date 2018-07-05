@@ -22,6 +22,7 @@
         android:layout_marginRight="-47px"
         android:layout_marginTop="-47px"
         android:orientation="horizontal"
+        android:id="@+id/main_screen"
         app:boxedEdges="all">
 
         <GridLayout

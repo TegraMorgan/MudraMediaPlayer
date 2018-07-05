@@ -334,6 +334,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         //TODO save current queue state to bundle
+        Log.v("Tegra", "Testing onSaveInstanceState");
         if (isPlaying) {
             MediaControllerCompat mediaControllerCompat = MediaControllerCompat.getMediaController(MainActivity.this);
             List<MediaSessionCompat.QueueItem> qi = mediaControllerCompat.getQueue();
@@ -422,11 +423,6 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
             AlbumsFragment slf = new AlbumsFragment();
             fm.beginTransaction().replace(R.id.songs_list_container, slf).commit();
         }
-
-        //TODO restore queue display
-        if (isPlaying) {
-
-        }
     }
 
     @Override
@@ -454,8 +450,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
 
     @Override
     public void onSongsListFragmentInteraction(SongsAdapter.SongsViewHolder item, int position) {
-        Snackbar.make(findViewById(R.id.text), String.valueOf(position), Snackbar.LENGTH_SHORT);
-        //Toast.makeText(this, String.valueOf(position), Toast.LENGTH_LONG).show();
+        Toast.makeText(this, String.valueOf(position), Toast.LENGTH_LONG).show();
         MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls().skipToQueueItem(position);
     }
 

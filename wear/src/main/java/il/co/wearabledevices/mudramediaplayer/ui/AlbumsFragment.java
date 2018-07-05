@@ -90,16 +90,18 @@ public class AlbumsFragment extends Fragment {
                 recyclerView.setLayoutManager(new WearableLinearLayoutManager(context));
             }
             recyclerView.setAdapter(new AlbumsAdapter(mAlbums, mListener));
+            /*
             recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
                 @Override
                 public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                     super.onScrollStateChanged(recyclerView, newState);
                     if (newState == RecyclerView.SCROLL_STATE_IDLE){
-//                        int position = getCurrentItem();
-//                        onPageChanged(position);
+                        int position = getCurrentItem();
+                        onPageChanged(position);
                     }
                 }
             });
+            */
             PagerSnapHelper snapHelper = new PagerSnapHelper();
             snapHelper.attachToRecyclerView(recyclerView);
             mRecyclerView = recyclerView;
