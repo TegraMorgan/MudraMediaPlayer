@@ -311,12 +311,25 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         //TODO save current queue state to bundle
         if (isPlaying) {
             MediaControllerCompat mediaControllerCompat = MediaControllerCompat.getMediaController(MainActivity.this);
-            PlaybackStateCompat playbackState = mediaControllerCompat.getPlaybackState();
+            List<MediaSessionCompat.QueueItem> qi = mediaControllerCompat.getQueue();
+            String activeSong = String.valueOf(mediaControllerCompat.getPlaybackState().getActiveQueueItemId());
+
+            Log.v("Tegra", "Looking for song - " + String.valueOf(activeSong));
+
+            int playlistPosition = 0;
+            for (MediaSessionCompat.QueueItem song : qi) {
+
+                Log.v("Tegra", "Comparing: " + song.getDescription().getMediaId() + " and " + activeSong);
+
+                if (song.getDescription().getMediaId().equals(activeSong)) {
+                    playlistPosition = (int) song.getQueueId();
+                }
+            }
             SongsFragment songsFragment = (SongsFragment) getFragmentManager().findFragmentByTag(SongsFragment.class.getSimpleName());
             Album album = songsFragment.getAlbum();
             outState.putSerializable(SERIALIZE_ALBUM, album);
             outState.putInt(CURRENT_ALBUM_SIZE, album.SongCount());
-            outState.putLong(CURRENT_SONG_RECYCLER_POSITION, playbackState.getActiveQueueItemId());
+            outState.putInt(CURRENT_SONG_RECYCLER_POSITION, playlistPosition);
         }
     }
 
@@ -330,6 +343,12 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
             showSongsScreen();
             android.app.FragmentManager fm = getFragmentManager();
             SongsFragment slf = SongsFragment.newInstance(sis.getInt(CURRENT_ALBUM_SIZE), al);
+            MediaControllerCompat mediaControllerCompat = MediaControllerCompat.getMediaController(MainActivity.this);
+            List<MediaSessionCompat.QueueItem> qi = mediaControllerCompat.getQueue();
+            qi.indexOf()
+            slf.getRecycler().scrollToPosition(pos);
+            slf.setArguments(sis);
+            fm.beginTransaction().replace(R.id.songs_list_container, slf).addToBackStack(null).commit();
         }
     }
 
@@ -399,9 +418,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         bdl.putSerializable(SERIALIZE_ALBUM, item);
         slf.setArguments(bdl);
         fm.beginTransaction().replace(R.id.songs_list_container, slf).addToBackStack(null).commit();
-
-
-        MediaControllerCompat.getMediaController(MainActivity.this).adjustVolume(AudioManager.ADJUST_RAISE, AudioManager.FLAG_PLAY_SOUND);
+        MediaControllerCompat.getMediaController(MainActivity.this).adjustVolume(AudioManager.ADJUST_RAISE, 0);
         // Enqueue all the album and play it
         Bundle bndl = new Bundle();
         bndl.putSerializable(SERIALIZE_ALBUM, item);
@@ -455,18 +472,21 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     }
 
 
-    public void scrollDown(View view){
+    public void scrollDown(View view) {
         boolean a;
         AlbumsFragment albumsFragment = (AlbumsFragment) getFragmentManager().findFragmentByTag(AlbumsFragment.class.getSimpleName());
         if (albumsFragment != null && albumsFragment.isVisible()) {
-            for(int i =0; i < 6; i++){
+            for (int i = 0; i < 6; i++) {
                 a = albumsFragment.next();
-                if(!a)
-                    Toast.makeText(this,"adapter is null",Toast.LENGTH_SHORT).show();
+                if (!a)
+                    Toast.makeText(this, "adapter is null", Toast.LENGTH_SHORT).show();
             }
         }
     }
 
+    /**
+     * Shop Play Pause Next Prev Buttons
+     */
     public void showPlayerButtons() {
         ImageView player_prev = findViewById(R.id.player_prev);
         ImageView player_play = findViewById(R.id.play_pause);
@@ -476,6 +496,9 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         player_play.setVisibility(View.VISIBLE);
     }
 
+    /**
+     * Hide Play Pause Next Prev Buttons
+     */
     public void hidePlayerButtons() {
         ImageView player_prev = findViewById(R.id.player_prev);
         ImageView player_play = findViewById(R.id.play_pause);
@@ -509,7 +532,6 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
 
         //getBrowseFragment().onConnected();
     }
-
 
 
 }
