@@ -33,12 +33,18 @@ public class SongsFragment extends Fragment {
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
     private static final String LIST_TYPE = "songs";
+
+    private WearableRecyclerView mRecyclerView;
+
     private Album album;
     // TODO: Customize parameters
     private int mColumnCount = 1;
     private OnSongsListFragmentInteractionListener mListener;
     ArrayList<Song> mSongs;
 
+    public Album getAlbum() {
+        return album;
+    }
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the

@@ -306,6 +306,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         super.onPause();
         //TODO save current queue state to bundle
         if (isPlaying) {
+            AlbumsFragment af = (AlbumsFragment) getFragmentManager().findFragmentByTag(AlbumsFragment.class.getSimpleName());
 
         }
         /*
