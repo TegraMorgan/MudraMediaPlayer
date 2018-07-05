@@ -39,6 +39,7 @@ import il.co.wearabledevices.mudramediaplayer.ui.MediaBrowserProvider;
 import il.co.wearabledevices.mudramediaplayer.ui.SongsAdapter;
 import il.co.wearabledevices.mudramediaplayer.ui.SongsFragment;
 import il.co.wearabledevices.mudramediaplayer.utils.LogHelper;
+import il.co.wearabledevices.mudramediaplayer.utils.QueueHelper;
 import interfaces.IMudraAPI;
 import interfaces.IMudraDataListener;
 import interfaces.IMudraDeviceStatuslListener;
@@ -53,6 +54,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     private static final int ALBUMS_LAYOUT_MARGIN = 0;
     private static final int SONGS_LAYOUT_MARGIN = 74;
     public static final String CURRENT_SONG_RECYCLER_POSITION = "CURRENT_POSITION";
+    public static final String CURRENT_ALBUM_SIZE = "CURRENT_ALBUM_SIZE";
     static boolean isPlaying = true;
     private final MediaControllerCompat.Callback mMediaControllerCallback =
             new MediaControllerCompat.Callback() {
@@ -241,7 +243,6 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     private void connectToSession(MediaSessionCompat.Token token) throws RemoteException {
         MediaControllerCompat mediaController = new MediaControllerCompat(this, token);
         MediaControllerCompat.setMediaController(this, mediaController);
-
         mediaController.registerCallback(mMediaControllerCallback);
         onMediaControllerConnected();
     }
@@ -309,17 +310,27 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         super.onSaveInstanceState(outState);
         //TODO save current queue state to bundle
         if (isPlaying) {
-            SongsFragment sf = (SongsFragment) getFragmentManager().findFragmentByTag(SongsFragment.class.getSimpleName());
-            Album item = sf.getAlbum();
-            outState.putSerializable(SERIALIZE_ALBUM, item);
-            outState.putInt(CURRENT_SONG_RECYCLER_POSITION, sf.getCurrentItem());
+            MediaControllerCompat mediaControllerCompat = MediaControllerCompat.getMediaController(MainActivity.this);
+            PlaybackStateCompat playbackState = mediaControllerCompat.getPlaybackState();
+            SongsFragment songsFragment = (SongsFragment) getFragmentManager().findFragmentByTag(SongsFragment.class.getSimpleName());
+            Album album = songsFragment.getAlbum();
+            outState.putSerializable(SERIALIZE_ALBUM, album);
+            outState.putInt(CURRENT_ALBUM_SIZE, album.SongCount());
+            outState.putLong(CURRENT_SONG_RECYCLER_POSITION, playbackState.getActiveQueueItemId());
         }
     }
 
     @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-
+    protected void onRestoreInstanceState(Bundle sis) {
+        super.onRestoreInstanceState(sis);
+        if (isPlaying) {
+            Album al = (Album) sis.getSerializable(SERIALIZE_ALBUM);
+            long pos = sis.getLong(CURRENT_SONG_RECYCLER_POSITION);
+            showPlayerButtons();
+            showSongsScreen();
+            android.app.FragmentManager fm = getFragmentManager();
+            SongsFragment slf = SongsFragment.newInstance(sis.getInt(CURRENT_ALBUM_SIZE), al);
+        }
     }
 
     /*******************************************************************************/

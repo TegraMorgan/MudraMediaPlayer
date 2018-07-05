@@ -54,4 +54,7 @@ public class Album implements Serializable {
         this.aSongs = aSongs;
     }
 
+    public int SongCount() {
+        return aSongs.size();
+    }
 }

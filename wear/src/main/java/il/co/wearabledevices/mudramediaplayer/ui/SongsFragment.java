@@ -127,6 +127,10 @@ public class SongsFragment extends Fragment {
     private void onSelectedSongChanged(int position) {
         //TODO change song playing
         Toast.makeText(this.getContext(), "Song # " + String.valueOf(position), Toast.LENGTH_SHORT);
+        /*
+        MediaControllerCompat mediaController = MediaControllerCompat.getMediaController(MainActivity.this);
+            mediaController.getTransportControls().skipToQueueItem();
+         */
     }
 
     public int getCurrentItem() {
