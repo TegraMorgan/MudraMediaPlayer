@@ -12,14 +12,12 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
-import android.support.wear.widget.WearableRecyclerView;
 import android.support.wearable.activity.WearableActivity;
 import android.util.Log;
 import android.util.TypedValue;
@@ -33,8 +31,6 @@ import android.widget.Toast;
 import com.wearable.android.ble.interfaces.IMudraAPI;
 import com.wearable.android.ble.interfaces.IMudraDataListener;
 import com.wearable.android.ble.interfaces.IMudraDeviceStatuslListener;
-
-import java.util.List;
 
 import il.co.wearabledevices.mudramediaplayer.model.Album;
 import il.co.wearabledevices.mudramediaplayer.model.MediaLibrary;
@@ -244,8 +240,8 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
 
         Intent intent = new Intent();
         intent.setAction(IMudraAPI.class.getName());
-        intent.setComponent(new ComponentName("com.wearable.android.ble",
-                "com.wearable.android.ble.service.BluetoothLeService"));
+        intent.setComponent(new ComponentName("com.wearable.android.ble", "com.wearable.android.ble.service.BluetoothLeService"));
+
         getApplicationContext().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
         Log.i("cooooo", "nnect");
         this.mainContext = this;
@@ -259,6 +255,13 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     protected void onStart() {
         super.onStart();
         mMediaBrowser.connect();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        //Added by Tegra. When the application stops, we want to close Mudra channel
+        releaseMudra();
     }
 
     @Override
@@ -327,55 +330,6 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
             mIMudraAPI.releaseMudra();
         } catch (RemoteException ex) {
             Log.e("ERROR:", ex.toString());
-        }
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        //TODO save current queue state to bundle
-        Log.v("Tegra", "Testing onSaveInstanceState");
-        if (isPlaying) {
-            MediaControllerCompat mediaControllerCompat = MediaControllerCompat.getMediaController(MainActivity.this);
-            List<MediaSessionCompat.QueueItem> qi = mediaControllerCompat.getQueue();
-            String activeSong = String.valueOf(mediaControllerCompat.getPlaybackState().getActiveQueueItemId());
-
-            Log.v("Tegra", "Looking for song - " + String.valueOf(activeSong));
-
-            int playlistPosition = 0;
-            for (MediaSessionCompat.QueueItem song : qi) {
-
-                Log.v("Tegra", "Comparing: " + song.getDescription().getMediaId() + " and " + activeSong);
-
-                if (song.getDescription().getMediaId().equals(activeSong)) {
-                    playlistPosition = (int) song.getQueueId();
-                }
-            }
-            SongsFragment songsFragment = (SongsFragment) getFragmentManager().findFragmentByTag(SongsFragment.class.getSimpleName());
-            Album album = songsFragment.getAlbum();
-            outState.putSerializable(SERIALIZE_ALBUM, album);
-            outState.putInt(CURRENT_ALBUM_SIZE, album.SongCount());
-            outState.putInt(CURRENT_SONG_RECYCLER_POSITION, playlistPosition);
-        }
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle sis) {//SavedInstanceState
-        super.onRestoreInstanceState(sis);
-        if (isPlaying) {
-            Album al = (Album) sis.getSerializable(SERIALIZE_ALBUM);
-            int pos = sis.getInt(CURRENT_SONG_RECYCLER_POSITION);
-
-            showPlayerButtons();
-            showSongsScreen();
-
-            android.app.FragmentManager fm = getFragmentManager();//fragmentManager
-            SongsFragment slf = SongsFragment.newInstance(sis.getInt(CURRENT_ALBUM_SIZE), al); //songFragment
-            slf.setArguments(sis);
-            fm.beginTransaction().replace(R.id.songs_list_container, slf).addToBackStack(null).commit();
-
-            WearableRecyclerView rv = slf.getRecycler();
-            rv.scrollToPosition(pos);
         }
     }
 

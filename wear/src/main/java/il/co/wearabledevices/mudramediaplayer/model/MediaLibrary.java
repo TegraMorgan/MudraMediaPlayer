@@ -32,6 +32,7 @@ public class MediaLibrary {
     public static final ArrayMap<String, MediaMetadataCompat> metadata = new ArrayMap<>();
     private static final String EMPTY_GENRE = "";
     private static final String EMPTY_ART_FILENAME = "music_metal_molder_icon";
+    private static Context mContext;
 
     public static void buildMediaLibrary(Context con) {
         buildMediaLibrary(con, "/music/");
@@ -39,6 +40,7 @@ public class MediaLibrary {
 
     public static void buildMediaLibrary(Context con, String rootPath) {
         //retrieve song info
+        mContext = con;
         mCurrentState = State.INITIALIZING;
         ContentResolver resolver = con.getContentResolver();
         Uri musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
@@ -168,6 +170,10 @@ public class MediaLibrary {
             res = a.getaSongs().get(0).getAlbumRes();
         }
         return res;
+    }
+
+    public static MediaMetadataCompat getMetadata(String mediaId) {
+        return getMetadata(mContext, mediaId);
     }
 
     public static MediaMetadataCompat getMetadata(Context context, String mediaId) {

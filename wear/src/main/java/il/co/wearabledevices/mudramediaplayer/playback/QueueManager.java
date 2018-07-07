@@ -31,6 +31,7 @@ import java.util.List;
 import il.co.wearabledevices.mudramediaplayer.AlbumArtCache;
 import il.co.wearabledevices.mudramediaplayer.R;
 import il.co.wearabledevices.mudramediaplayer.model.Album;
+import il.co.wearabledevices.mudramediaplayer.model.MediaLibrary;
 import il.co.wearabledevices.mudramediaplayer.model.MusicProvider;
 import il.co.wearabledevices.mudramediaplayer.model.Song;
 import il.co.wearabledevices.mudramediaplayer.utils.LogHelper;
@@ -203,6 +204,7 @@ public class QueueManager {
         final String musicId = MediaIDHelper.extractMusicIDFromMediaID(
                 currentMusic.getDescription().getMediaId());
         MediaMetadataCompat metadata = mMusicProvider.getMusic(musicId);
+        //MediaMetadataCompat metadata2 = MediaLibrary.getMetadata(musicId);
         if (metadata == null) {
             throw new IllegalArgumentException("Invalid musicId " + musicId);
         }

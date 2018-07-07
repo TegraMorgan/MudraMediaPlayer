@@ -73,7 +73,7 @@ public class SongsFragment extends Fragment {
             mColumnCount = bdl.getInt(ARG_COLUMN_COUNT);
             album = (Album) bdl.getSerializable(SERIALIZE_ALBUM);
             mSongs = album.getaSongs();
-            Log.d("Is there any songs", (mSongs.isEmpty() ? "Yes" : "No, Fuck it"));
+            Log.d("Is there any songs", (mSongs.isEmpty() ? "Yes" : "No"));
 
         }
 
@@ -89,7 +89,7 @@ public class SongsFragment extends Fragment {
             album = (Album) bdl.getSerializable(SERIALIZE_ALBUM);
             if (mSongs.isEmpty()) {
                 mSongs = album.getaSongs();
-                Log.d("Is there any songs2", (mSongs.isEmpty() ? "Yes" : "No, Fuck it"));
+                Log.d("Is there any songs2", (mSongs.isEmpty() ? "Yes" : "No"));
             }
 
         }
