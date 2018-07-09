@@ -53,8 +53,11 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int ALBUMS_LAYOUT_MARGIN = 0;
     private static final int SONGS_LAYOUT_MARGIN = 74;
+    /*  Unfortunately, we have been unable to get playback state
+        directly from the music service
+        so we have made our own isPlaying boolean  */
     static boolean isPlaying = false;
-    static boolean isBinded = false, callbackadded = false;
+    static boolean isMudraBinded = false, mudraCallbackAdded = false;
     private final MediaControllerCompat.Callback mMediaControllerCallback =
             new MediaControllerCompat.Callback() {
                 @Override
@@ -87,7 +90,6 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
                 }
             };
     ImageView playPauseView;
-    TextView albums_text;
     private IMudraAPI mIMudraAPI = null;
     IMudraDeviceStatuslListener mMudraDeviceStatusCB = new IMudraDeviceStatuslListener.Stub() {
         @Override
@@ -115,55 +117,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         }
     };
     private Context mainContext;
-    IMudraDataListener mMudraDataCB = new IMudraDataListener.Stub() {
-        @Override
-        public void onMudraDataReady(int dataType, float[] d) throws RemoteException {
-            switch (dataType) {
-                case DATA_TYPE_GESTURE:
-                    String gest = "";
-                    if ((d[0] > d[1]) && (d[0] > d[2]) && (d[0] > 0.9)) {
-                        gest = "Thumb";
-                        Log.i("INFO", "gesture: Thumb");
-                    }
-
-                    if ((d[1] > d[0]) && (d[1] > d[2]) && (d[1] > 0.9)) {
-                        gest = "Tap";
-                        Log.i("INFO", "gesture: Tap");
-                    }
-                    if ((d[2] > d[0]) && (d[2] > d[1]) && (d[2] > 0.9)) {
-                        Log.i("INFO", "gesture: Index");
-                        gest = "Index";
-                        //Log.i("Gesture","0");
-                    }
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(mainContext, "gesutre", Toast.LENGTH_SHORT).show();
-
-                        }
-                    });
-                    break;
-                case DATA_TYPE_PROPORTIONAL:/*if ( d[0] > d[1])
-                        Log.i ("INFO", "Tap Proportional:" +d[2]);
-                       if ( d[1] > d[0])
-                           Log.i ("INFO", "Middle Tap Proportional:" +d[2]);*/
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(mainContext, "Proportional", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                    Log.i("Gesture", "1");
-                    break;
-                case 2:
-                    Log.i("INFO", "IMU acc x: " + d[0] + " \nacc Y: " + d[1] + " \nacc Z: " + d[2] + " \nQ W: " + d[3] + " \nQ X: " + d[4] + " \nQ Y: " + d[5] + " \nQ Z: " + d[6]);
-                    break;
-                default:
-                    Log.i("Gesture", d[0] + "gesture detected");
-                    break;
-            }
-        }
-    };
+    public View a1;
     private TextView mTextView;
     private MediaBrowserCompat mMediaBrowser;
     //private String deviceAddress = "";
@@ -183,32 +137,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
                     }
                 }
             };
-    private ServiceConnection mConnection = new ServiceConnection() { // Called when the connection with the service is established using getApplicationContext()
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            try {
-                if (!callbackadded) {
-                    Log.i("INFO", "bind SUCCEEDED"); // this gets an instance of the MudraAPI, which we can use to call on the service
-
-                    mIMudraAPI = IMudraAPI.Stub.asInterface(service);
-                    Log.i("INFO", "Stub");
-
-                    mIMudraAPI.initMudra(mMudraDeviceStatusCB, mMudraDataCB);
-                    Log.i("INFO", "init");
-
-                    callbackadded = true;
-                }
-            } catch (RemoteException ex) {
-                Log.e("ERROR", ex.toString());
-            }
-        }
-
-        // Called when the connection with the service disconnects unexpectedly
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-            Log.e("ERROR", "Mudra Service has unexpectedly disconnected");
-            mIMudraAPI = null;
-        }
-    };
+    public View a2;
 
     public static void setMargins(View v, int l, int t, int r, int b) {
         if (v.getLayoutParams() instanceof ViewGroup.MarginLayoutParams) {
@@ -223,12 +152,166 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         return mMediaBrowser;
     }
 
+    public View a3;
+    IMudraDataListener mMudraDataCB = new IMudraDataListener.Stub() {
+        @Override
+        public void onMudraDataReady(int dataType, float[] data) throws RemoteException {
+            switch (dataType) {
+                case DATA_TYPE_GESTURE:
+                    String gest = "";
+                    if ((data[0] > data[1]) && (data[0] > data[2]) && (data[0] > 0.9)) {
+                        gest = "Thumb";
+                        Log.i("INFO", "gesture: Thumb");
+                        // Previous song
+                        try {
+                            runOnUiThread(() ->
+                            {
+                                MediaControllerCompat a = MediaControllerCompat.getMediaController(MainActivity.this);
+                                Log.v("Tegra", "Got media controller? : " + String.valueOf(a != null));
+                                if (a != null) {
+                                    MediaControllerCompat.TransportControls b = a.getTransportControls();
+                                    Log.v("Tegra", "Got transport controller? : " + String.valueOf(b != null));
+                                    if (b != null) {
+                                        String c = String.valueOf(a.getQueueTitle());
+                                        Log.v("Tegra", "Queue title is : " + c);
+                                        if (!c.equals("null")) {
+                                            Log.v("Tegra", "Music is playing? : " + String.valueOf(isPlaying));
+                                            prevSong();
+                                        }
+                                    }
+                                }
+                            });
+                        } catch (Exception e) {
+                            if (RemoteException.class == e.getClass()) {
+                                Log.e("Tegra", e.toString());
+                            }
+                            Log.e("Tegra", e.toString());
+                        }
+                    }
+
+                    if ((data[1] > data[0]) && (data[1] > data[2]) && (data[1] > 0.9)) {
+                        gest = "Tap";
+                        Log.i("INFO", "gesture: Tap");
+                        // Play or pause
+                        try {
+                            runOnUiThread(() ->
+                            {
+                                MediaControllerCompat a = MediaControllerCompat.getMediaController(MainActivity.this);
+                                Log.v("Tegra", "Got media controller? : " + String.valueOf(a != null));
+                                if (a != null) {
+                                    MediaControllerCompat.TransportControls b = a.getTransportControls();
+                                    Log.v("Tegra", "Got transport controller? : " + String.valueOf(b != null));
+                                    if (b != null) {
+                                        String c = String.valueOf(a.getQueueTitle());
+                                        Log.v("Tegra", "Queue title is : " + c);
+                                        if (!c.equals("null")) {
+                                            Log.v("Tegra", "Music is playing? : " + String.valueOf(isPlaying));
+                                            play_music();
+                                        }
+                                    }
+                                }
+                            });
+                        } catch (Exception e) {
+                            if (RemoteException.class == e.getClass()) {
+                                Log.e("Tegra", e.toString());
+                            }
+                            Log.e("Tegra", e.toString());
+                        }
+                    }
+                    if ((data[2] > data[0]) && (data[2] > data[1]) && (data[2] > 0.9)) {
+                        Log.i("INFO", "gesture: Index");
+                        gest = "Index";
+                        // Next song
+                        try {
+                            runOnUiThread(() ->
+                            {
+                                MediaControllerCompat a = MediaControllerCompat.getMediaController(MainActivity.this);
+                                Log.v("Tegra", "Got media controller? : " + String.valueOf(a != null));
+                                if (a != null) {
+                                    MediaControllerCompat.TransportControls b = a.getTransportControls();
+                                    Log.v("Tegra", "Got transport controller? : " + String.valueOf(b != null));
+                                    if (b != null) {
+                                        String c = String.valueOf(a.getQueueTitle());
+                                        Log.v("Tegra", "Queue title is : " + c);
+                                        if (!c.equals("null")) {
+                                            Log.v("Tegra", "Music is playing? : " + String.valueOf(isPlaying));
+                                            nextSong();
+                                        }
+                                    }
+                                }
+                            });
+                        } catch (Exception e) {
+                            if (RemoteException.class == e.getClass()) {
+                                Log.e("Tegra", e.toString());
+                            }
+                            Log.e("Tegra", e.toString());
+                        }
+                        playPauseView.postInvalidate();
+                    }
+                    //No need for this anymore
+                    //runOnUiThread(() -> Toast.makeText(mainContext, "Gesture", Toast.LENGTH_SHORT).show());
+                    break;
+                case DATA_TYPE_PROPORTIONAL:/*if ( data[0] > data[1])
+                        Log.i ("INFO", "Tap Proportional:" +data[2]);
+                       if ( data[1] > data[0])
+                           Log.i ("INFO", "Middle Tap Proportional:" +data[2]);*/
+                    runOnUiThread(() -> Toast.makeText(mainContext, "Proportional", Toast.LENGTH_SHORT).show());
+                    Log.i("Gesture", "1");
+                    break;
+                case 2:
+                    Log.i("INFO", "IMU acc x: " + data[0] + " \nacc Y: " + data[1] + " \nacc Z: " + data[2] + " \nQ W: " + data[3] + " \nQ X: " + data[4] + " \nQ Y: " + data[5] + " \nQ Z: " + data[6]);
+                    break;
+                default:
+                    Log.i("Gesture", data[0] + "gesture detected");
+                    break;
+            }
+        }
+    };
+    private ServiceConnection mMudraConnection = new ServiceConnection() { // Called when the connection with the service is established using getApplicationContext()
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            try {
+                if (!mudraCallbackAdded) {
+                    Log.i("INFO", "bind SUCCEEDED"); // this gets an instance of the MudraAPI, which we can use to call on the service
+
+                    mIMudraAPI = IMudraAPI.Stub.asInterface(service);
+                    Log.i("INFO", "Stub");
+
+                    mIMudraAPI.initMudra(mMudraDeviceStatusCB, mMudraDataCB);
+                    Log.i("INFO", "init");
+
+                    mudraCallbackAdded = true;
+                }
+            } catch (RemoteException ex) {
+                Log.e("ERROR", ex.toString());
+            }
+        }
+
+        // Called when the connection with the service disconnects unexpectedly
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            Log.e("ERROR", "Mudra Service has unexpectedly disconnected");
+            mIMudraAPI = null;
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         playPauseView = findViewById(R.id.play_pause);
         mTextView = findViewById(R.id.text);
+        /*
+        By default all ViewGroup sub-classes do not call their onDraw method, you should enable it by calling setWillNotDraw(false)
+        http://developer.android.com/reference/android/view/View.html#setWillNotDraw%28boolean%29
+         */
+
+        playPauseView.setWillNotDraw(false);
+        a1 = findViewById(R.id.test1);
+        a1.setWillNotDraw(false);
+        a2 = findViewById(R.id.main_screen);
+        a2.setWillNotDraw(false);
+        a3 = findViewById(R.id.above);
+        a3.setWillNotDraw(false);
 
         //TODO current ambient mode is draining the battery. Make a B/W ambient screen
         setAmbientEnabled(); // Enables Always-on
@@ -242,7 +325,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         intent.setAction(IMudraAPI.class.getName());
         intent.setComponent(new ComponentName("com.wearable.android.ble", "com.wearable.android.ble.service.BluetoothLeService"));
 
-        getApplicationContext().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+        getApplicationContext().bindService(intent, mMudraConnection, Context.BIND_AUTO_CREATE);
         Log.i("cooooo", "nnect");
         this.mainContext = this;
     }
@@ -340,20 +423,20 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         super.onResume();
         Log.v(TAG, "Starting on Resume");
 
-        if (!isBinded) {
+        if (!isMudraBinded) {
             Intent intent = new Intent();
             intent.setAction(IMudraAPI.class.getName());
             intent.setComponent(new ComponentName("com.wearable.android.ble", "com.wearable.android.ble.service.BluetoothLeService"));
 
-            getApplicationContext().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
-            isBinded = true;
+            getApplicationContext().bindService(intent, mMudraConnection, Context.BIND_AUTO_CREATE);
+            isMudraBinded = true;
         } else {
-            getApplicationContext().unbindService(mConnection);
+            getApplicationContext().unbindService(mMudraConnection);
             Intent intent = new Intent();
             intent.setAction(IMudraAPI.class.getName());
             intent.setComponent(new ComponentName("com.wearable.android.ble", "com.wearable.android.ble.service.BluetoothLeService"));
 
-            getApplicationContext().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+            getApplicationContext().bindService(intent, mMudraConnection, Context.BIND_AUTO_CREATE);
         }
 
         // Check for permission
@@ -398,47 +481,74 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         // Enqueue all the album and play it
         Bundle bndl = new Bundle();
         bndl.putSerializable(SERIALIZE_ALBUM, item);
-        MediaControllerCompat.TransportControls mediaController = MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls();
-        mediaController.sendCustomAction(ENQUEUE_ALBUM, bndl);
+        MediaControllerCompat.TransportControls transportControls = MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls();
+        transportControls.sendCustomAction(ENQUEUE_ALBUM, bndl);
     }
 
     @Override
     public void onSongsListFragmentInteraction(SongsAdapter.SongsViewHolder item, int position) {
         Toast.makeText(this, String.valueOf(position), Toast.LENGTH_LONG).show();
         MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls().skipToQueueItem(position);
+        isPlaying = true;
     }
 
     public void play_music(View view) {
-        view.setBackground(getDrawable(!isPlaying ? R.drawable.pause_icon : R.drawable.play_icon));
+        view.setBackground(getDrawable(isPlaying ? R.drawable.pause_icon : R.drawable.play_icon));
         if (!isPlaying) {
-            MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls()
-                    .play();
+            MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls().play();
         } else {
-            MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls()
-                    .pause();
+            MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls().pause();
         }
         isPlaying = !isPlaying;
+        view.invalidate();
         //showAlbumsScreen();
     }
 
-    public void nextSong(View view) {
-        goToNextSong();
+    public void play_music() {
+        playPauseView.setBackground(getDrawable(isPlaying ? R.drawable.pause_icon : R.drawable.play_icon));
+        if (!isPlaying) {
+            MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls().play();
+        } else {
+            MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls().pause();
+        }
+        isPlaying = !isPlaying;
+        tempsolution(playPauseView);
     }
 
-    private void goToNextSong() {
+    public void nextSong(View view) {
+        nextSong();
+    }
+
+    private void nextSong() {
         MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls().skipToNext();
+        playPauseView.setBackground(getDrawable(isPlaying ? R.drawable.pause_icon : R.drawable.play_icon));
+        tempsolution(playPauseView);
+        isPlaying = true;
     }
 
     public void prevSong(View view) {
-        goToPrevSong();
+        prevSong();
     }
 
-    private void goToPrevSong() {
+    private void prevSong() {
         MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls().skipToPrevious();
+        playPauseView.setBackground(getDrawable(isPlaying ? R.drawable.pause_icon : R.drawable.play_icon));
+        tempsolution(playPauseView);
+        isPlaying = true;
+    }
+
+    public void tempsolution(View v) {
+        a1.invalidate();
+        a2.invalidate();
+        a3.invalidate();
+        v.invalidate();
+
     }
 
     private void modifyVolume(int direction, int flags) {
-        MediaControllerCompat.getMediaController(MainActivity.this).adjustVolume(direction, AudioManager.FLAG_VIBRATE);
+        //TODO show ui when state can be saved
+        //MediaControllerCompat.getMediaController(MainActivity.this).adjustVolume(direction, AudioManager.FLAG_SHOW_UI);
+        MediaControllerCompat.getMediaController(MainActivity.this).adjustVolume(direction, 0);
     }
 
 

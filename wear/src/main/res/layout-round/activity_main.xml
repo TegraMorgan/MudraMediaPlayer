@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
 
+    android:id="@+id/test1"
     android:layout_height="match_parent"
     android:alpha="0.9"
     android:background="@drawable/mud1212"
@@ -15,7 +16,6 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-
 
         android:layout_marginBottom="-47px"
         android:layout_marginLeft="-47px"

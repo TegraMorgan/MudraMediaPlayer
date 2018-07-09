@@ -135,6 +135,7 @@
      private static final int STOP_DELAY = 30000;
      private final DelayedStopHandler mDelayedStopHandler = new DelayedStopHandler(this);
      private MusicProvider mMusicProvider;
+
      private PlaybackManager mPlaybackManager;
      private MediaSessionCompat mSession;
      private MediaNotificationManager mMediaNotificationManager;
@@ -496,4 +497,9 @@
          public void onSessionSuspended(CastSession session, int reason) {
          }
      }
+
+     public boolean getPlaybackStatus() {
+         return mPlaybackManager.getPlaybackStatus();
+     }
+
  }

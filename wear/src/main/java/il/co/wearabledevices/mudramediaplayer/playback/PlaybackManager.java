@@ -406,4 +406,9 @@ public class PlaybackManager implements Playback.Callback {
             });
         }
     }
+
+    public boolean getPlaybackStatus() {
+        return mPlayback.isPlaying();
+    }
+
 }
