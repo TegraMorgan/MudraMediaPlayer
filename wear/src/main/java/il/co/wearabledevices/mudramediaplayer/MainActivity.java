@@ -49,14 +49,17 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         , SongsFragment.OnSongsListFragmentInteractionListener, MediaBrowserProvider {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-    public static final int VOLUME_DIRECTIOIN_FLIP_DELAY = 1000;
+    //#region All these should be configurable in the production release
+    public static final int VOLUME_DIRECTION_FLIP_DELAY = 1000;
+    // 0<x<1 Higher values will demand more pressure to be applied
+    public static final double MUDRA_VOLUME_PRESSURE_SENSITIVITY = 0.8;
+    // Higher values will slow down volume change speed
     private static final int MUDRA_SMOOTH_FACTOR = 5;
+    //#endregion
+    //#region Variables
     /*  Unfortunately, we have been unable to get playback state
         directly from the music service
         so we have made our own isPlaying boolean  */
-
-    //#region Variables
-
     static boolean isPlaying = false, isMudraBinded = false, mudraCallbackAdded = false, VolumeUp = false;
     private static int mudraSmoother;
     public View a1, a2, a3;
@@ -151,7 +154,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
 
     //#region MUDRA CONTENT
     /**
-     * This Listener decides what actions to take when gesture recognized
+     * This Listener decides what actions to take when any gesture is recognized
      */
     IMudraDataListener mMudraDataCB = new IMudraDataListener.Stub() {
         @Override
@@ -195,7 +198,6 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
                         } catch (Exception e) {
                             Log.e("Tegra", e.toString());
                         }
-                        playPauseView.postInvalidate();
                     }
                     //No need for this anymore
                     //runOnUiThread(() -> Toast.makeText(mainContext, "Gesture", Toast.LENGTH_SHORT).show());
@@ -208,25 +210,29 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
 
                     runOnUiThread(() ->
                     {
-                        // Measure time from last proportional gesture
-                        long del = System.currentTimeMillis() - lastPressureOccurence;
-                        // If there was no gesture for a long time - reset smoother
-                        if (del > VOLUME_DIRECTIOIN_FLIP_DELAY) {
-                            mudraSmoother = 0;
-                            VolumeUp = !VolumeUp;
-                            String msg = VolumeUp ? "Volume Up" : "Volume Down";
-                            Toast.makeText(mainContext, msg, Toast.LENGTH_SHORT).show();
-                        }
-                        /* Only one of three volume change commands works - change is too quick */
-                        if (mudraSmoother % MUDRA_SMOOTH_FACTOR == 0) {
-                            if (canMudraInteract()) {
-                                Log.v("Tegra", "Time between pressures : " + String.valueOf(del));
-                                int direction = VolumeUp ? 1 : -1;
-                                modifyVolume(direction, 0);
-                                lastPressureOccurence = System.currentTimeMillis();
+                        Log.v("Tegra", "Proportional strength : " + String.valueOf(data[2]));
+                        if (data[2] > MUDRA_VOLUME_PRESSURE_SENSITIVITY) {
+                            // Measure time from last proportional gesture
+                            long del = System.currentTimeMillis() - lastPressureOccurence;
+                            // If there was no gesture for a long time - reset smoother
+                            if (del > VOLUME_DIRECTION_FLIP_DELAY) {
+                                mudraSmoother = 0;
+                                VolumeUp = !VolumeUp;
+                                String msg = VolumeUp ? "Volume Up" : "Volume Down";
+                                Toast.makeText(mainContext, msg, Toast.LENGTH_SHORT).show();
+                                //Measure the proportional strength
                             }
+                            /* Only one of three volume change commands works - change is too quick */
+                            if (mudraSmoother % MUDRA_SMOOTH_FACTOR == 0) {
+                                if (canMudraInteract()) {
+                                    Log.v("Tegra", "Time between pressures : " + String.valueOf(del));
+                                    int direction = VolumeUp ? 1 : -1;
+                                    modifyVolume(direction, 0);
+                                    lastPressureOccurence = System.currentTimeMillis();
+                                }
+                            }
+                            mudraSmoother = (mudraSmoother + 1) % MUDRA_SMOOTH_FACTOR;
                         }
-                        mudraSmoother = (mudraSmoother + 1) % MUDRA_SMOOTH_FACTOR;
                     });
                     Log.i("Gesture", "1");
                     break;
@@ -504,6 +510,8 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         }
         isPlaying = !isPlaying;
         tempsolution(playPauseView);
+        String msg = isPlaying ? "Playing" : "Paused";
+        Toast.makeText(mainContext, msg, Toast.LENGTH_SHORT).show();
     }
 
     public void nextSong(View view) {
@@ -515,6 +523,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         playPauseView.setBackground(getDrawable(isPlaying ? R.drawable.pause_icon : R.drawable.play_icon));
         tempsolution(playPauseView);
         isPlaying = true;
+        Toast.makeText(mainContext, "Next", Toast.LENGTH_SHORT).show();
     }
 
     public void prevSong(View view) {
@@ -526,6 +535,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         playPauseView.setBackground(getDrawable(isPlaying ? R.drawable.pause_icon : R.drawable.play_icon));
         tempsolution(playPauseView);
         isPlaying = true;
+        Toast.makeText(mainContext, "Prev", Toast.LENGTH_SHORT).show();
     }
 
     /**
