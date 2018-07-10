@@ -21,4 +21,8 @@ public class constants {
     public static final int SCROLL_DN_RIGHT = 2;
     public static final int SCROLL_UP_LEFT = 3;
 
+    public static final String CURRENT_SONG_RECYCLER_POSITION = "CURRENT_POSITION";
+    public static final String CURRENT_ALBUM_SIZE = "CURRENT_ALBUM_SIZE";
+    public static final int ALBUMS_LAYOUT_MARGIN = 0;
+    public static final int SONGS_LAYOUT_MARGIN = 74;
 }

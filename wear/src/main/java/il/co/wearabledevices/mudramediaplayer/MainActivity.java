@@ -48,16 +48,28 @@ import static il.co.wearabledevices.mudramediaplayer.constants.SERIALIZE_ALBUM;
 public class MainActivity extends WearableActivity implements AlbumsFragment.OnAlbumsListFragmentInteractionListener
         , SongsFragment.OnSongsListFragmentInteractionListener, MediaBrowserProvider {
 
-    public static final String CURRENT_SONG_RECYCLER_POSITION = "CURRENT_POSITION";
-    public static final String CURRENT_ALBUM_SIZE = "CURRENT_ALBUM_SIZE";
     private static final String TAG = MainActivity.class.getSimpleName();
-    private static final int ALBUMS_LAYOUT_MARGIN = 0;
-    private static final int SONGS_LAYOUT_MARGIN = 74;
     /*  Unfortunately, we have been unable to get playback state
         directly from the music service
         so we have made our own isPlaying boolean  */
+
+    //#region Variables
+
     static boolean isPlaying = false;
     static boolean isMudraBinded = false, mudraCallbackAdded = false;
+    ImageView playPauseView;
+    private Context mainContext;
+    private IMudraAPI mIMudraAPI = null;
+    public View a1;
+    private TextView mTextView;
+    private MediaBrowserCompat mMediaBrowser;
+    public View a2;
+    public View a3;
+
+    //#endregion
+
+    //#region Media controller and everything in it
+
     private final MediaControllerCompat.Callback mMediaControllerCallback =
             new MediaControllerCompat.Callback() {
                 @Override
@@ -89,8 +101,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
                     */
                 }
             };
-    ImageView playPauseView;
-    private IMudraAPI mIMudraAPI = null;
+
     IMudraDeviceStatuslListener mMudraDeviceStatusCB = new IMudraDeviceStatuslListener.Stub() {
         @Override
         public void onMudraStatusChanged(int statusType, String deviceAddress) throws RemoteException {
@@ -116,10 +127,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
             }
         }
     };
-    private Context mainContext;
-    public View a1;
-    private TextView mTextView;
-    private MediaBrowserCompat mMediaBrowser;
+
     //private String deviceAddress = "";
     private final MediaBrowserCompat.ConnectionCallback mConnectionCallback =
             new MediaBrowserCompat.ConnectionCallback() {
@@ -137,22 +145,14 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
                     }
                 }
             };
-    public View a2;
 
-    public static void setMargins(View v, int l, int t, int r, int b) {
-        if (v.getLayoutParams() instanceof ViewGroup.MarginLayoutParams) {
-            ViewGroup.MarginLayoutParams p = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
-            p.setMargins(l, t, r, b);
-            v.requestLayout();
-        }
-    }
+    //#endregion
 
-    @Override
-    public MediaBrowserCompat getMediaBrowser() {
-        return mMediaBrowser;
-    }
+    //#region MUDRA CONTENT
 
-    public View a3;
+    /**
+     * This Listener decides what actions to take when gesture recognized
+     */
     IMudraDataListener mMudraDataCB = new IMudraDataListener.Stub() {
         @Override
         public void onMudraDataReady(int dataType, float[] data) throws RemoteException {
@@ -267,91 +267,6 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
             }
         }
     };
-    private ServiceConnection mMudraConnection = new ServiceConnection() { // Called when the connection with the service is established using getApplicationContext()
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            try {
-                if (!mudraCallbackAdded) {
-                    Log.i("INFO", "bind SUCCEEDED"); // this gets an instance of the MudraAPI, which we can use to call on the service
-
-                    mIMudraAPI = IMudraAPI.Stub.asInterface(service);
-                    Log.i("INFO", "Stub");
-
-                    mIMudraAPI.initMudra(mMudraDeviceStatusCB, mMudraDataCB);
-                    Log.i("INFO", "init");
-
-                    mudraCallbackAdded = true;
-                }
-            } catch (RemoteException ex) {
-                Log.e("ERROR", ex.toString());
-            }
-        }
-
-        // Called when the connection with the service disconnects unexpectedly
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-            Log.e("ERROR", "Mudra Service has unexpectedly disconnected");
-            mIMudraAPI = null;
-        }
-    };
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        playPauseView = findViewById(R.id.play_pause);
-        mTextView = findViewById(R.id.text);
-        /*
-        By default all ViewGroup sub-classes do not call their onDraw method, you should enable it by calling setWillNotDraw(false)
-        http://developer.android.com/reference/android/view/View.html#setWillNotDraw%28boolean%29
-         */
-
-        playPauseView.setWillNotDraw(false);
-        a1 = findViewById(R.id.test1);
-        a1.setWillNotDraw(false);
-        a2 = findViewById(R.id.main_screen);
-        a2.setWillNotDraw(false);
-        a3 = findViewById(R.id.above);
-        a3.setWillNotDraw(false);
-
-        //TODO current ambient mode is draining the battery. Make a B/W ambient screen
-        setAmbientEnabled(); // Enables Always-on
-
-        // Connect a media browser just to get the media session token. There are other ways
-        // this can be done, for example by sharing the session token directly.
-        mMediaBrowser = new MediaBrowserCompat(this,
-                new ComponentName(this, MusicService.class), mConnectionCallback, null);
-
-        Intent intent = new Intent();
-        intent.setAction(IMudraAPI.class.getName());
-        intent.setComponent(new ComponentName("com.wearable.android.ble", "com.wearable.android.ble.service.BluetoothLeService"));
-
-        getApplicationContext().bindService(intent, mMudraConnection, Context.BIND_AUTO_CREATE);
-        Log.i("cooooo", "nnect");
-        this.mainContext = this;
-    }
-
-    /* MUDRA CONTENT */
-
-    /*              #############################################################*/
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        mMediaBrowser.connect();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        //Added by Tegra. When the application stops, we want to close Mudra channel
-        releaseMudra();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        mMediaBrowser.disconnect();
-    }
 
     private void connectToSession(MediaSessionCompat.Token token) throws RemoteException {
         MediaControllerCompat mediaController = new MediaControllerCompat(this, token);
@@ -416,7 +331,71 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         }
     }
 
-    /* ******************************************************************************/
+    private ServiceConnection mMudraConnection = new ServiceConnection() { // Called when the connection with the service is established using getApplicationContext()
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            try {
+                if (!mudraCallbackAdded) {
+                    Log.i("INFO", "bind SUCCEEDED"); // this gets an instance of the MudraAPI, which we can use to call on the service
+
+                    mIMudraAPI = IMudraAPI.Stub.asInterface(service);
+                    Log.i("INFO", "Stub");
+
+                    mIMudraAPI.initMudra(mMudraDeviceStatusCB, mMudraDataCB);
+                    Log.i("INFO", "init");
+
+                    mudraCallbackAdded = true;
+                }
+            } catch (RemoteException ex) {
+                Log.e("ERROR", ex.toString());
+            }
+        }
+
+        // Called when the connection with the service disconnects unexpectedly
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            Log.e("ERROR", "Mudra Service has unexpectedly disconnected");
+            mIMudraAPI = null;
+        }
+    };
+
+    //#endregion
+
+    //#region Main lifecycle functions
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        playPauseView = findViewById(R.id.play_pause);
+        mTextView = findViewById(R.id.text);
+        /*
+        By default all ViewGroup sub-classes do not call their onDraw method, you should enable it by calling setWillNotDraw(false)
+        http://developer.android.com/reference/android/view/View.html#setWillNotDraw%28boolean%29
+         */
+
+        playPauseView.setWillNotDraw(false);
+        a1 = findViewById(R.id.test1);
+        a1.setWillNotDraw(false);
+        a2 = findViewById(R.id.main_screen);
+        a2.setWillNotDraw(false);
+        a3 = findViewById(R.id.above);
+        a3.setWillNotDraw(false);
+
+        //TODO current ambient mode is draining the battery. Make a B/W ambient screen
+        setAmbientEnabled(); // Enables Always-on
+
+        // Connect a media browser just to get the media session token. There are other ways
+        // this can be done, for example by sharing the session token directly.
+        mMediaBrowser = new MediaBrowserCompat(this,
+                new ComponentName(this, MusicService.class), mConnectionCallback, null);
+
+        Intent intent = new Intent();
+        intent.setAction(IMudraAPI.class.getName());
+        intent.setComponent(new ComponentName("com.wearable.android.ble", "com.wearable.android.ble.service.BluetoothLeService"));
+
+        getApplicationContext().bindService(intent, mMudraConnection, Context.BIND_AUTO_CREATE);
+        Log.i("cooooo", "nnect");
+        this.mainContext = this;
+    }
 
     @Override
     protected void onResume() {
@@ -463,6 +442,33 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        mMediaBrowser.connect();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        //Added by Tegra. When the application stops, we want to close Mudra channel
+        releaseMudra();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mMediaBrowser.disconnect();
+    }
+
+    protected void onMediaControllerConnected() {
+
+        //getBrowseFragment().onConnected();
+    }
+
+    //#endregion
+
+    //#region Fragment interaction functions
+    @Override
     public void onAlbumsListFragmentInteraction(Album item) {
         //Show the player buttons upon album selection
         //showPlayerButtons();
@@ -483,6 +489,14 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         bndl.putSerializable(SERIALIZE_ALBUM, item);
         MediaControllerCompat.TransportControls transportControls = MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls();
         transportControls.sendCustomAction(ENQUEUE_ALBUM, bndl);
+    }
+
+    public static void setMargins(View v, int l, int t, int r, int b) {
+        if (v.getLayoutParams() instanceof ViewGroup.MarginLayoutParams) {
+            ViewGroup.MarginLayoutParams p = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
+            p.setMargins(l, t, r, b);
+            v.requestLayout();
+        }
     }
 
     @Override
@@ -537,10 +551,17 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         isPlaying = true;
     }
 
+    /**
+     * This is an attempt to fix play pause buttons not changing
+     *
+     * @param v
+     */
     public void tempsolution(View v) {
         a1.invalidate();
         a2.invalidate();
         a3.invalidate();
+        v.invalidate();
+        v.setBackground(getDrawable(isPlaying ? R.drawable.pause_icon : R.drawable.play_icon));
         v.invalidate();
 
     }
@@ -588,6 +609,12 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         player_play.setVisibility(View.INVISIBLE);
     }
 
+    /**
+     * Convert DP to pixels
+     *
+     * @param sizeInDP
+     * @return
+     */
     public int dpToPx(int sizeInDP) {
         int marginInDp = (int) TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_DIP, sizeInDP, getResources()
@@ -599,19 +626,19 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         FrameLayout fl = findViewById(R.id.songs_list_container);
         FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) fl.getLayoutParams();
 
-        setMargins(fl, lp.leftMargin, dpToPx(ALBUMS_LAYOUT_MARGIN), lp.rightMargin, lp.bottomMargin);
+        setMargins(fl, lp.leftMargin, dpToPx(constants.ALBUMS_LAYOUT_MARGIN), lp.rightMargin, lp.bottomMargin);
     }
 
     public void showSongsScreen() {
         FrameLayout fl = findViewById(R.id.songs_list_container);
         FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) fl.getLayoutParams();
-        setMargins(fl, lp.leftMargin, dpToPx(SONGS_LAYOUT_MARGIN), lp.rightMargin, lp.bottomMargin);
+        setMargins(fl, lp.leftMargin, dpToPx(constants.SONGS_LAYOUT_MARGIN), lp.rightMargin, lp.bottomMargin);
     }
 
-    protected void onMediaControllerConnected() {
-
-        //getBrowseFragment().onConnected();
+    @Override
+    public MediaBrowserCompat getMediaBrowser() {
+        return mMediaBrowser;
     }
-
+    //#endregion
 
 }
