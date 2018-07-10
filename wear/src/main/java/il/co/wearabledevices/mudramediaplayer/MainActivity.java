@@ -49,22 +49,23 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         , SongsFragment.OnSongsListFragmentInteractionListener, MediaBrowserProvider {
 
     private static final String TAG = MainActivity.class.getSimpleName();
+    public static final int VOLUME_DIRECTIOIN_FLIP_DELAY = 1000;
+    private static final int MUDRA_SMOOTH_FACTOR = 3;
     /*  Unfortunately, we have been unable to get playback state
         directly from the music service
         so we have made our own isPlaying boolean  */
 
     //#region Variables
 
-    static boolean isPlaying = false;
-    static boolean isMudraBinded = false, mudraCallbackAdded = false;
+    static boolean isPlaying = false, isMudraBinded = false, mudraCallbackAdded = false, VolumeUp = false;
+    private static int mudraSmoother;
+    public View a1, a2, a3;
     ImageView playPauseView;
     private Context mainContext;
     private IMudraAPI mIMudraAPI = null;
-    public View a1;
+    Long lastPressureOccurence;
     private TextView mTextView;
     private MediaBrowserCompat mMediaBrowser;
-    public View a2;
-    public View a3;
 
     //#endregion
 
@@ -149,7 +150,6 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     //#endregion
 
     //#region MUDRA CONTENT
-
     /**
      * This Listener decides what actions to take when gesture recognized
      */
@@ -164,27 +164,10 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
                         Log.i("INFO", "gesture: Thumb");
                         // Previous song
                         try {
-                            runOnUiThread(() ->
-                            {
-                                MediaControllerCompat a = MediaControllerCompat.getMediaController(MainActivity.this);
-                                Log.v("Tegra", "Got media controller? : " + String.valueOf(a != null));
-                                if (a != null) {
-                                    MediaControllerCompat.TransportControls b = a.getTransportControls();
-                                    Log.v("Tegra", "Got transport controller? : " + String.valueOf(b != null));
-                                    if (b != null) {
-                                        String c = String.valueOf(a.getQueueTitle());
-                                        Log.v("Tegra", "Queue title is : " + c);
-                                        if (!c.equals("null")) {
-                                            Log.v("Tegra", "Music is playing? : " + String.valueOf(isPlaying));
-                                            prevSong();
-                                        }
-                                    }
-                                }
+                            runOnUiThread(() -> {
+                                if (canMudraInteract()) prevSong();
                             });
                         } catch (Exception e) {
-                            if (RemoteException.class == e.getClass()) {
-                                Log.e("Tegra", e.toString());
-                            }
                             Log.e("Tegra", e.toString());
                         }
                     }
@@ -194,27 +177,10 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
                         Log.i("INFO", "gesture: Tap");
                         // Play or pause
                         try {
-                            runOnUiThread(() ->
-                            {
-                                MediaControllerCompat a = MediaControllerCompat.getMediaController(MainActivity.this);
-                                Log.v("Tegra", "Got media controller? : " + String.valueOf(a != null));
-                                if (a != null) {
-                                    MediaControllerCompat.TransportControls b = a.getTransportControls();
-                                    Log.v("Tegra", "Got transport controller? : " + String.valueOf(b != null));
-                                    if (b != null) {
-                                        String c = String.valueOf(a.getQueueTitle());
-                                        Log.v("Tegra", "Queue title is : " + c);
-                                        if (!c.equals("null")) {
-                                            Log.v("Tegra", "Music is playing? : " + String.valueOf(isPlaying));
-                                            play_music();
-                                        }
-                                    }
-                                }
+                            runOnUiThread(() -> {
+                                if (canMudraInteract()) play_music();
                             });
                         } catch (Exception e) {
-                            if (RemoteException.class == e.getClass()) {
-                                Log.e("Tegra", e.toString());
-                            }
                             Log.e("Tegra", e.toString());
                         }
                     }
@@ -223,27 +189,10 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
                         gest = "Index";
                         // Next song
                         try {
-                            runOnUiThread(() ->
-                            {
-                                MediaControllerCompat a = MediaControllerCompat.getMediaController(MainActivity.this);
-                                Log.v("Tegra", "Got media controller? : " + String.valueOf(a != null));
-                                if (a != null) {
-                                    MediaControllerCompat.TransportControls b = a.getTransportControls();
-                                    Log.v("Tegra", "Got transport controller? : " + String.valueOf(b != null));
-                                    if (b != null) {
-                                        String c = String.valueOf(a.getQueueTitle());
-                                        Log.v("Tegra", "Queue title is : " + c);
-                                        if (!c.equals("null")) {
-                                            Log.v("Tegra", "Music is playing? : " + String.valueOf(isPlaying));
-                                            nextSong();
-                                        }
-                                    }
-                                }
+                            runOnUiThread(() -> {
+                                if (canMudraInteract()) nextSong();
                             });
                         } catch (Exception e) {
-                            if (RemoteException.class == e.getClass()) {
-                                Log.e("Tegra", e.toString());
-                            }
                             Log.e("Tegra", e.toString());
                         }
                         playPauseView.postInvalidate();
@@ -251,11 +200,34 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
                     //No need for this anymore
                     //runOnUiThread(() -> Toast.makeText(mainContext, "Gesture", Toast.LENGTH_SHORT).show());
                     break;
-                case DATA_TYPE_PROPORTIONAL:/*if ( data[0] > data[1])
-                        Log.i ("INFO", "Tap Proportional:" +data[2]);
-                       if ( data[1] > data[0])
-                           Log.i ("INFO", "Middle Tap Proportional:" +data[2]);*/
-                    runOnUiThread(() -> Toast.makeText(mainContext, "Proportional", Toast.LENGTH_SHORT).show());
+                case DATA_TYPE_PROPORTIONAL:
+
+                    /* if ( data[0] > data[1]) Log.i ("INFO", "Tap Proportional:" +data[2]);
+                       if ( data[1] > data[0]) Log.i ("INFO", "Middle Tap Proportional:" +data[2]);
+                    */
+
+                    runOnUiThread(() ->
+                    {
+                        /* Only one of three volume change commands works - change is too quick */
+                        if (mudraSmoother % MUDRA_SMOOTH_FACTOR == 0) {
+                            if (canMudraInteract()) {
+                                long del = System.currentTimeMillis() - lastPressureOccurence;
+                                Log.v("Tegra", "Time between pressures : " + String.valueOf(del));
+                                if (del > VOLUME_DIRECTIOIN_FLIP_DELAY) {
+                                    VolumeUp = !VolumeUp;
+                                    String msg = VolumeUp ? "Volume Up" : "Volume Down";
+                                    Toast.makeText(mainContext, msg, Toast.LENGTH_SHORT).show();
+                                }
+                                if (VolumeUp) {
+                                    modifyVolume(1, 0);
+                                } else {
+                                    modifyVolume(-1, 0);
+                                }
+                                lastPressureOccurence = System.currentTimeMillis();
+                            }
+                        }
+                        mudraSmoother = (mudraSmoother + 1) % MUDRA_SMOOTH_FACTOR;
+                    });
                     Log.i("Gesture", "1");
                     break;
                 case 2:
@@ -364,6 +336,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        lastPressureOccurence = System.currentTimeMillis();
         setContentView(R.layout.activity_main);
         playPauseView = findViewById(R.id.play_pause);
         mTextView = findViewById(R.id.text);
@@ -484,6 +457,8 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         slf.setArguments(bdl);
         fm.beginTransaction().replace(R.id.songs_list_container, slf).addToBackStack(null).commit();
         MediaControllerCompat.getMediaController(MainActivity.this).adjustVolume(AudioManager.ADJUST_RAISE, 0);
+        MediaControllerCompat.getMediaController(MainActivity.this).adjustVolume(AudioManager.ADJUST_RAISE, 0);
+        MediaControllerCompat.getMediaController(MainActivity.this).adjustVolume(AudioManager.ADJUST_RAISE, 0);
         // Enqueue all the album and play it
         Bundle bndl = new Bundle();
         bndl.putSerializable(SERIALIZE_ALBUM, item);
@@ -566,10 +541,18 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
 
     }
 
+    /**
+     * Change playback volume
+     *
+     * @param direction -1 to lower, 1 to raise. Anything else will be discarded.
+     * @param flags     AudioManager.FLAGS (not used yet)
+     */
+    @SuppressWarnings({"SameParameterValue", "unused"})
     private void modifyVolume(int direction, int flags) {
         //TODO show ui when state can be saved
         //MediaControllerCompat.getMediaController(MainActivity.this).adjustVolume(direction, AudioManager.FLAG_SHOW_UI);
-        MediaControllerCompat.getMediaController(MainActivity.this).adjustVolume(direction, 0);
+        if (direction == -1 || direction == 1)
+            MediaControllerCompat.getMediaController(MainActivity.this).adjustVolume(direction, 0);
     }
 
 
@@ -638,6 +621,21 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     @Override
     public MediaBrowserCompat getMediaBrowser() {
         return mMediaBrowser;
+    }
+
+    public boolean canMudraInteract() {
+        MediaControllerCompat a = MediaControllerCompat.getMediaController(MainActivity.this);
+        Log.v("Tegra", "Got Media controller? : " + String.valueOf(a != null));
+        if (a != null) {
+            MediaControllerCompat.TransportControls b = a.getTransportControls();
+            Log.v("Tegra", "Got transport controller? : " + String.valueOf(b != null));
+            if (b != null) {
+                String c = String.valueOf(a.getQueueTitle());
+                Log.v("Tegra", "Queue title is : " + c);
+                if (!c.equals("null")) return true;
+            }
+        }
+        return false;
     }
     //#endregion
 
