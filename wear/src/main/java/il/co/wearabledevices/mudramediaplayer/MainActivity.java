@@ -50,7 +50,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
 
     private static final String TAG = MainActivity.class.getSimpleName();
     public static final int VOLUME_DIRECTIOIN_FLIP_DELAY = 1000;
-    private static final int MUDRA_SMOOTH_FACTOR = 3;
+    private static final int MUDRA_SMOOTH_FACTOR = 5;
     /*  Unfortunately, we have been unable to get playback state
         directly from the music service
         so we have made our own isPlaying boolean  */
@@ -208,21 +208,21 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
 
                     runOnUiThread(() ->
                     {
+                        // Measure time from last proportional gesture
+                        long del = System.currentTimeMillis() - lastPressureOccurence;
+                        // If there was no gesture for a long time - reset smoother
+                        if (del > VOLUME_DIRECTIOIN_FLIP_DELAY) {
+                            mudraSmoother = 0;
+                            VolumeUp = !VolumeUp;
+                            String msg = VolumeUp ? "Volume Up" : "Volume Down";
+                            Toast.makeText(mainContext, msg, Toast.LENGTH_SHORT).show();
+                        }
                         /* Only one of three volume change commands works - change is too quick */
                         if (mudraSmoother % MUDRA_SMOOTH_FACTOR == 0) {
                             if (canMudraInteract()) {
-                                long del = System.currentTimeMillis() - lastPressureOccurence;
                                 Log.v("Tegra", "Time between pressures : " + String.valueOf(del));
-                                if (del > VOLUME_DIRECTIOIN_FLIP_DELAY) {
-                                    VolumeUp = !VolumeUp;
-                                    String msg = VolumeUp ? "Volume Up" : "Volume Down";
-                                    Toast.makeText(mainContext, msg, Toast.LENGTH_SHORT).show();
-                                }
-                                if (VolumeUp) {
-                                    modifyVolume(1, 0);
-                                } else {
-                                    modifyVolume(-1, 0);
-                                }
+                                int direction = VolumeUp ? 1 : -1;
+                                modifyVolume(direction, 0);
                                 lastPressureOccurence = System.currentTimeMillis();
                             }
                         }
@@ -429,6 +429,8 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
 
     @Override
     protected void onStop() {
+        // FIXME Next line should be removed in production
+        MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls().pause();
         super.onStop();
         mMediaBrowser.disconnect();
     }
@@ -625,13 +627,13 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
 
     public boolean canMudraInteract() {
         MediaControllerCompat a = MediaControllerCompat.getMediaController(MainActivity.this);
-        Log.v("Tegra", "Got Media controller? : " + String.valueOf(a != null));
+        //Log.v("Tegra", "Got Media controller? : " + String.valueOf(a != null));
         if (a != null) {
             MediaControllerCompat.TransportControls b = a.getTransportControls();
-            Log.v("Tegra", "Got transport controller? : " + String.valueOf(b != null));
+            //Log.v("Tegra", "Got transport controller? : " + String.valueOf(b != null));
             if (b != null) {
                 String c = String.valueOf(a.getQueueTitle());
-                Log.v("Tegra", "Queue title is : " + c);
+                //Log.v("Tegra", "Queue title is : " + c);
                 if (!c.equals("null")) return true;
             }
         }
