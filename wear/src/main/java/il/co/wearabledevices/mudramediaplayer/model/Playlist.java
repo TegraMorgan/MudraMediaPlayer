@@ -3,10 +3,6 @@ package il.co.wearabledevices.mudramediaplayer.model;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-/**
- * Created by Tegra on 14/03/2018.
- */
-
 public class Playlist implements Serializable {
     public ArrayList<Song> songs;
     public int position;

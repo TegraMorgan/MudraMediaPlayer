@@ -18,10 +18,6 @@ import java.util.concurrent.TimeUnit;
 import il.co.wearabledevices.mudramediaplayer.BuildConfig;
 import il.co.wearabledevices.mudramediaplayer.R;
 
-/**
- * Created by Tegra on 21/03/2018.
- */
-
 public class MediaLibrary {
     private static final int ACCEPTABLE_LENGTH = 20;
     private static final String TAG = "Media Library";

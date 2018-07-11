@@ -62,7 +62,6 @@ public class MusicProvider {
     }
 
     public MusicProvider(ArrayMap<String, MediaMetadataCompat> source) {
-        // Tegra - this is a test
         mSource = source;
         mMusicListByGenre = new ConcurrentHashMap<>();
         mMusicListById = new ConcurrentHashMap<>();

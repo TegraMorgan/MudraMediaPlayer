@@ -39,8 +39,8 @@ public class SongsAdapter extends WearableRecyclerView.Adapter<SongsAdapter.Song
     @Override
     public void onBindViewHolder(final SongsViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
-        holder.mIdView.setText(mValues.get(position).getArtist());
-        holder.mContentView.setText(mValues.get(position).getTitle());
+        holder.mIdView.setText(mValues.get(position).getTitle());
+        holder.mContentView.setText(mValues.get(position).getArtist());
         holder.getAdapterPosition();
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override

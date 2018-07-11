@@ -362,8 +362,6 @@ public class PlaybackManager implements Playback.Callback {
                     LogHelper.v(TAG, "Play album :", album.getaName(), " number of songs :", album.getaSongs().size());
                     mQueueManager.setQueueFromAlbum(album);
                     handlePlayRequest();
-                    //Duplicate call - setQueueFromAlbum has one already
-                    //mQueueManager.updateMetadata();
                 } else {
                     LogHelper.e(TAG, "Unsupported action: ", action);
                 }

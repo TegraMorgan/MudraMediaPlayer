@@ -25,4 +25,5 @@ public class constants {
     public static final String CURRENT_ALBUM_SIZE = "CURRENT_ALBUM_SIZE";
     public static final int ALBUMS_LAYOUT_MARGIN = 0;
     public static final int SONGS_LAYOUT_MARGIN = 74;
+    public static final int BACK_BUTTON_SONG_ID = -2;
 }

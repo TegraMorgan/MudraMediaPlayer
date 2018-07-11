@@ -11,11 +11,6 @@ import java.util.ArrayList;
 
 import il.co.wearabledevices.mudramediaplayer.model.Album;
 
-/**
- * Created by Tegra on 11/03/2018.
- * Work in progress
- */
-
 public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.GenresViewHolder> {
     private static final String TAG = AlbumAdapter.class.getSimpleName();
     private static final int ACCEPTABLE_LENGTH = 25;

@@ -9,11 +9,6 @@ import java.util.concurrent.TimeUnit;
 import il.co.wearabledevices.mudramediaplayer.BuildConfig;
 import il.co.wearabledevices.mudramediaplayer.R;
 
-/**
- * Created by Tegra on 12/03/2018.
- * Model for the song file
- */
-
 public class Song implements Serializable {
     private static final int EMPTY_ART_ID = R.drawable.music_metal_molder_icon;
     private long id;

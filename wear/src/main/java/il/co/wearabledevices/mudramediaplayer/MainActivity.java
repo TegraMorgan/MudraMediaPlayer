@@ -32,8 +32,11 @@ import com.wearable.android.ble.interfaces.IMudraAPI;
 import com.wearable.android.ble.interfaces.IMudraDataListener;
 import com.wearable.android.ble.interfaces.IMudraDeviceStatuslListener;
 
+import java.util.ArrayList;
+
 import il.co.wearabledevices.mudramediaplayer.model.Album;
 import il.co.wearabledevices.mudramediaplayer.model.MediaLibrary;
+import il.co.wearabledevices.mudramediaplayer.model.Song;
 import il.co.wearabledevices.mudramediaplayer.ui.AlbumsFragment;
 import il.co.wearabledevices.mudramediaplayer.ui.MediaBrowserProvider;
 import il.co.wearabledevices.mudramediaplayer.ui.SongsAdapter;
@@ -55,13 +58,15 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     public static final double MUDRA_VOLUME_PRESSURE_SENSITIVITY = 0.8;
     // Higher values will slow down volume change speed
     private static final int MUDRA_SMOOTH_FACTOR = 5;
+    public static final int BACK_BUTTON_INTERVAL = 3;
     //#endregion
 
     //#region Variables
 
-    /*  Unfortunately, we have been unable to get playback state
-        directly from the music service
-        so we have made our own isPlaying boolean  */
+    /*
+        Unfortunately, we have been unable to get playback state directly
+        from the music service so we have made our own isPlaying boolean
+    */
     static boolean isPlaying = false, isMudraBinded = false, mudraCallbackAdded = false, VolumeUp = false;
     private static int mudraSmoother;
     ImageView playPauseView;
@@ -70,6 +75,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     Long lastPressureOccurence;
     private TextView mTextView;
     private MediaBrowserCompat mMediaBrowser;
+    private static Album nowPlaying;
 
     //#endregion
 
@@ -398,11 +404,11 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
             if (!MediaLibrary.isInitialized()) {
                 MediaLibrary.buildMediaLibrary(this);
             }
-            hidePlayerButtons();
-            showAlbumsScreen();
-            android.app.FragmentManager fm = getFragmentManager();
-            AlbumsFragment slf = new AlbumsFragment();
-            fm.beginTransaction().replace(R.id.songs_list_container, slf).commit();
+            // Tegra this our Main function delete this line when finished
+
+            if (!isPlaying) {
+                switchToAlbumView();
+            }
         }
     }
 
@@ -435,30 +441,35 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     //#endregion
 
     //#region Fragment interaction functions
+
+    /**
+     * Fires when user selects album to play
+     *
+     * @param item Album the user has selected
+     */
     @Override
     public void onAlbumsListFragmentInteraction(Album item) {
-        //Show the player buttons upon album selection
-        //showPlayerButtons();
-        isPlaying = true;
-        showPlayerButtons();
-        showSongsScreen();
+        /* --- Local variables preparation and update --- */
+        isPlaying = true;                                       // Set play state as playing
+        inflateNowPlaying(item);                                // add back buttons to the selected album
+        nowPlaying = item;                                      // Save inflated playlist in a static variable
+        showPlayerButtons();                                    // Show the player buttons
+        prepareSongsScreen();                                      // Change elements size for song list
+        /* --- Changing UI fragments ---*/
         android.app.FragmentManager fm = getFragmentManager();
-        SongsFragment slf = SongsFragment.newInstance(item.getaSongs().size(), item);
-        // Create Bundle to be sent to Song List Fragment
-        Bundle bdl = new Bundle();
-        // put album object in it
-        bdl.putSerializable(SERIALIZE_ALBUM, item);
-        slf.setArguments(bdl);
-        fm.beginTransaction().replace(R.id.songs_list_container, slf).commit();
-        MediaControllerCompat.getMediaController(MainActivity.this).adjustVolume(AudioManager.ADJUST_RAISE, 0);
-        MediaControllerCompat.getMediaController(MainActivity.this).adjustVolume(AudioManager.ADJUST_RAISE, 0);
-        MediaControllerCompat.getMediaController(MainActivity.this).adjustVolume(AudioManager.ADJUST_RAISE, 0);
-        // Enqueue all the album and play it
-        Bundle bndl = new Bundle();
-        bndl.putSerializable(SERIALIZE_ALBUM, item);
-        MediaControllerCompat.TransportControls transportControls = MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls();
-        transportControls.sendCustomAction(ENQUEUE_ALBUM, bndl);
+        SongsFragment fragment = SongsFragment.newInstance(item.getaSongs().size(), item);
+        Bundle albumBundle = new Bundle();                      // Create Bundle to be sent to Song List Fragment
+        albumBundle.putSerializable(SERIALIZE_ALBUM, item);     // Put album object in it
+        fragment.setArguments(albumBundle);                     // Assign bundle to fragment
+        fm.beginTransaction().replace(R.id.songs_list_container, fragment).commit();
+        updatePlayButton(playPauseView);
+        /* --- Music Service controls --- */
+        MediaControllerCompat controller = MediaControllerCompat.getMediaController(MainActivity.this);
+        MediaControllerCompat.TransportControls transportControls = controller.getTransportControls();
+        jumpstartVolume(controller);                                    // Boost initial volume
+        transportControls.sendCustomAction(ENQUEUE_ALBUM, albumBundle); // Enqueue all the album and play it
     }
+
 
     public static void setMargins(View v, int l, int t, int r, int b) {
         if (v.getLayoutParams() instanceof ViewGroup.MarginLayoutParams) {
@@ -471,8 +482,13 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     @Override
     public void onSongsListFragmentInteraction(SongsAdapter.SongsViewHolder item, int position) {
         Toast.makeText(this, String.valueOf(position), Toast.LENGTH_LONG).show();
-        MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls().skipToQueueItem(position);
-        isPlaying = true;
+        if (nowPlaying.getaSongs().get(position).getId() == -2) {        // if back button was pressed
+            switchToAlbumView();
+        } else {                                                         // if regular song was selected
+            MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls().skipToQueueItem(position);
+            isPlaying = true;
+            updatePlayButton(playPauseView);
+        }
     }
 
     public void play_music(View view) {
@@ -587,23 +603,51 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         return marginInDp;
     }
 
-    public void showAlbumsScreen() {
+    /**
+     * Raise volume
+     */
+    @SuppressWarnings("SpellCheckingInspection")
+    private void jumpstartVolume(MediaControllerCompat cn) {
+        cn.adjustVolume(AudioManager.ADJUST_RAISE, 0);
+        cn.adjustVolume(AudioManager.ADJUST_RAISE, 0);
+        cn.adjustVolume(AudioManager.ADJUST_RAISE, 0);
+        cn.adjustVolume(AudioManager.ADJUST_RAISE, 0);
+    }
+
+    public void prepareAlbumsScreen() {
         FrameLayout fl = findViewById(R.id.songs_list_container);
         FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) fl.getLayoutParams();
-
         setMargins(fl, lp.leftMargin, dpToPx(constants.ALBUMS_LAYOUT_MARGIN), lp.rightMargin, lp.bottomMargin);
     }
 
-    public void showSongsScreen() {
+    public void prepareSongsScreen() {
         FrameLayout fl = findViewById(R.id.songs_list_container);
         FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) fl.getLayoutParams();
         setMargins(fl, lp.leftMargin, dpToPx(constants.SONGS_LAYOUT_MARGIN), lp.rightMargin, lp.bottomMargin);
     }
 
+    /**
+     * Receives album and adds into it back buttons
+     *
+     * @param alb album to inflate with back buttons
+     */
+    public void inflateNowPlaying(Album alb) {
+        ArrayList<Song> songs = alb.getaSongs();
+        int songCount = alb.SongCount();
+        Song backButton = new Song(constants.BACK_BUTTON_SONG_ID, "Back", "to album selection", "to album selection2", 0, "", "");
+        int backCount = songCount / BACK_BUTTON_INTERVAL;
+        for (int i = backCount; i > 0; i--) {
+            songs.add(i * BACK_BUTTON_INTERVAL, backButton);
+        }
+        Log.v("Tegra", "songs.size is " + String.valueOf(songs.size()));
+    }
 
-    public void backToAlbums(){
-        showAlbumsScreen();
+    public void switchToAlbumView() {
         hidePlayerButtons();
+        prepareAlbumsScreen();
+        android.app.FragmentManager fragmentManager = getFragmentManager();
+        AlbumsFragment fragment = new AlbumsFragment();
+        fragmentManager.beginTransaction().replace(R.id.songs_list_container, fragment).commit();
     }
 
     @Override
@@ -613,13 +657,10 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
 
     public boolean canMudraInteract() {
         MediaControllerCompat a = MediaControllerCompat.getMediaController(MainActivity.this);
-        //Log.v("Tegra", "Got Media controller? : " + String.valueOf(a != null));
         if (a != null) {
             MediaControllerCompat.TransportControls b = a.getTransportControls();
-            //Log.v("Tegra", "Got transport controller? : " + String.valueOf(b != null));
             if (b != null) {
                 String c = String.valueOf(a.getQueueTitle());
-                //Log.v("Tegra", "Queue title is : " + c);
                 if (!c.equals("null")) return true;
             }
         }

@@ -225,16 +225,6 @@
 
          int playServicesAvailable =
                  GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(this);
-
-         /* Tegra - Delete this
-         if (!TvHelper.isTvUiMode(this) && playServicesAvailable == ConnectionResult.SUCCESS) {
-             mCastSessionManager = CastContext.getSharedInstance(this).getSessionManager();
-             mCastSessionManagerListener = new CastSessionManagerListener();
-             mCastSessionManager.addSessionManagerListener(mCastSessionManagerListener,
-                     CastSession.class);
-         }
-         */
-
          mMediaRouter = MediaRouter.getInstance(getApplicationContext());
 
          registerCarConnectionReceiver();

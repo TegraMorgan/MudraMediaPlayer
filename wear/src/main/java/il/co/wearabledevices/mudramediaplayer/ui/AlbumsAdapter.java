@@ -16,7 +16,6 @@ import il.co.wearabledevices.mudramediaplayer.ui.dummy.AlbumsDummyContent;
 /**
  * {@link RecyclerView.Adapter} that can display a {@link AlbumsDummyContent.AlbumsDummyItem} and makes a call to the
  * specified {@link AlbumsFragment.OnAlbumsListFragmentInteractionListener}.
- * TODO: Replace the implementation with code for your data type.
  */
 public class AlbumsAdapter extends WearableRecyclerView.Adapter<AlbumsAdapter.ViewHolder> {
 
