@@ -64,7 +64,6 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         so we have made our own isPlaying boolean  */
     static boolean isPlaying = false, isMudraBinded = false, mudraCallbackAdded = false, VolumeUp = false;
     private static int mudraSmoother;
-    public View a1, a2, a3;
     ImageView playPauseView;
     private Context mainContext;
     private IMudraAPI mIMudraAPI = null;
@@ -344,26 +343,13 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         lastPressureOccurence = System.currentTimeMillis();
         setContentView(R.layout.activity_main);
         playPauseView = findViewById(R.id.play_pause);
         mTextView = findViewById(R.id.text);
-        /*
-        By default all ViewGroup sub-classes do not call their onDraw method, you should enable it by calling setWillNotDraw(false)
-        http://developer.android.com/reference/android/view/View.html#setWillNotDraw%28boolean%29
-         */
-
-        playPauseView.setWillNotDraw(false);
-        a1 = findViewById(R.id.test1);
-        a1.setWillNotDraw(false);
-        a2 = findViewById(R.id.main_screen);
-        a2.setWillNotDraw(false);
-        a3 = findViewById(R.id.above);
-        a3.setWillNotDraw(false);
-
         //TODO current ambient mode is draining the battery. Make a B/W ambient screen
         setAmbientEnabled(); // Enables Always-on
-
         // Connect a media browser just to get the media session token. There are other ways
         // this can be done, for example by sharing the session token directly.
         mMediaBrowser = new MediaBrowserCompat(this,
@@ -372,9 +358,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         Intent intent = new Intent();
         intent.setAction(IMudraAPI.class.getName());
         intent.setComponent(new ComponentName("com.wearable.android.ble", "com.wearable.android.ble.service.BluetoothLeService"));
-
         getApplicationContext().bindService(intent, mMudraConnection, Context.BIND_AUTO_CREATE);
-        Log.i("cooooo", "nnect");
         this.mainContext = this;
     }
 
@@ -493,28 +477,16 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
 
     public void play_music(View view) {
         play_music();
-        /*
-        view.setBackground(getDrawable(isPlaying ? R.drawable.pause_icon : R.drawable.play_icon));
-        if (!isPlaying) {
-            MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls().play();
-        } else {
-            MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls().pause();
-        }
-        isPlaying = !isPlaying;
-        view.invalidate();
-        */
-        //showAlbumsScreen();
     }
 
     public void play_music() {
-        playPauseView.setBackground(getDrawable(isPlaying ? R.drawable.pause_icon : R.drawable.play_icon));
         if (!isPlaying) {
             MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls().play();
         } else {
             MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls().pause();
         }
         isPlaying = !isPlaying;
-        tempsolution(playPauseView);
+        updatePlayButton(playPauseView);
         String msg = isPlaying ? "Playing" : "Paused";
         Toast.makeText(mainContext, msg, Toast.LENGTH_SHORT).show();
     }
@@ -525,9 +497,8 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
 
     private void nextSong() {
         MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls().skipToNext();
-        playPauseView.setBackground(getDrawable(isPlaying ? R.drawable.pause_icon : R.drawable.play_icon));
         isPlaying = true;
-        tempsolution(playPauseView);
+        updatePlayButton(playPauseView);
         Toast.makeText(mainContext, "Next", Toast.LENGTH_SHORT).show();
     }
 
@@ -537,25 +508,14 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
 
     private void prevSong() {
         MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls().skipToPrevious();
-        playPauseView.setBackground(getDrawable(isPlaying ? R.drawable.pause_icon : R.drawable.play_icon));
         isPlaying = true;
-        tempsolution(playPauseView);
+        updatePlayButton(playPauseView);
         Toast.makeText(mainContext, "Prev", Toast.LENGTH_SHORT).show();
     }
 
-    /**
-     * This is an attempt to fix play pause buttons not changing
-     *
-     * @param v
-     */
-    public void tempsolution(View v) {
-        a1.invalidate();
-        a2.invalidate();
-        a3.invalidate();
+    public void updatePlayButton(View v) {
         v.invalidate();
         v.setBackground(getDrawable(isPlaying ? R.drawable.pause_icon : R.drawable.play_icon));
-        v.invalidate();
-
     }
 
     /**
@@ -569,7 +529,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         //TODO show ui when state can be saved
         //MediaControllerCompat.getMediaController(MainActivity.this).adjustVolume(direction, AudioManager.FLAG_SHOW_UI);
         if (direction == -1 || direction == 1)
-            MediaControllerCompat.getMediaController(MainActivity.this).adjustVolume(direction, 0);
+            MediaControllerCompat.getMediaController(MainActivity.this).adjustVolume(direction, flags);
     }
 
 
