@@ -2,7 +2,9 @@ package il.co.wearabledevices.mudramediaplayer.ui;
 
 import android.app.Fragment;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PagerSnapHelper;
 import android.support.v7.widget.RecyclerView;
@@ -12,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -37,6 +40,8 @@ public class AlbumsFragment extends Fragment {
     private OnAlbumsListFragmentInteractionListener mListener;
 
     private WearableRecyclerView mRecyclerView;
+    private int prevCenterPos; // Keep track the previous pos to dehighlight
+
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -90,7 +95,7 @@ public class AlbumsFragment extends Fragment {
                 recyclerView.setLayoutManager(new WearableLinearLayoutManager(context));
             }
             recyclerView.setAdapter(new AlbumsAdapter(mAlbums, mListener));
-            /*
+
             recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
                 @Override
                 public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
@@ -100,8 +105,36 @@ public class AlbumsFragment extends Fragment {
                         onPageChanged(position);
                     }
                 }
+
+                @Override
+                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                    super.onScrolled(recyclerView, dx, dy);
+
+                    int center = mRecyclerView.getHeight() / 2;
+                    View centerView = mRecyclerView.findChildViewUnder(center, mRecyclerView.getTop());
+                    int centerPos = mRecyclerView.getChildAdapterPosition(centerView);
+                    if (prevCenterPos != centerPos) {
+                        // dehighlight the previously highlighted view
+                        View prevView = mRecyclerView.getLayoutManager().findViewByPosition(prevCenterPos);
+                        if (prevView != null) {
+                            LinearLayout layout = prevView.findViewById(R.id.album_item);
+                            //int white = ContextCompat.getColor(context, R.color.white);
+                            layout.setBackgroundColor(Color.parseColor("#ff0000"));;
+                        }
+
+                        // highlight view in the middle
+                        if (centerView != null) {
+                            View button = centerView.findViewById(R.id.album_item);
+                            //int highlightColor = ContextCompat.getColor(context, R.color.colorAccent);
+                            button.setBackgroundColor(Color.RED);
+                        }
+
+                        prevCenterPos = centerPos;
+                    }
+                }
+
             });
-            */
+
             PagerSnapHelper snapHelper = new PagerSnapHelper();
             snapHelper.attachToRecyclerView(recyclerView);
             mRecyclerView = recyclerView;
