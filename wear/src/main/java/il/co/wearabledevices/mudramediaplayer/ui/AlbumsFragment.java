@@ -110,23 +110,28 @@ public class AlbumsFragment extends Fragment {
                 public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                     super.onScrolled(recyclerView, dx, dy);
 
-                    int center = mRecyclerView.getHeight() / 2;
+//                    int firstVisible = mRecyclerView.get);
+//                    int lastVisible = layoutManager.findLastVisibleItemPosition();
+//                    int itemsCount = lastVisible - firstVisible + 1;
+
+                    int center = (mRecyclerView.getTop() + mRecyclerView.getBottom()) / 2;
                     View centerView = mRecyclerView.findChildViewUnder(center, mRecyclerView.getTop());
                     int centerPos = mRecyclerView.getChildAdapterPosition(centerView);
+
                     if (prevCenterPos != centerPos) {
                         // dehighlight the previously highlighted view
                         View prevView = mRecyclerView.getLayoutManager().findViewByPosition(prevCenterPos);
                         if (prevView != null) {
-                            LinearLayout layout = prevView.findViewById(R.id.album_item);
+                            View layout = prevView.findViewById(R.id.album_item);
                             //int white = ContextCompat.getColor(context, R.color.white);
                             layout.setBackgroundColor(Color.parseColor("#ff0000"));;
                         }
 
                         // highlight view in the middle
                         if (centerView != null) {
-                            View button = centerView.findViewById(R.id.album_item);
+                            View layout = centerView.findViewById(R.id.album_item);
                             //int highlightColor = ContextCompat.getColor(context, R.color.colorAccent);
-                            button.setBackgroundColor(Color.RED);
+                            layout.setBackgroundColor(Color.RED);
                         }
 
                         prevCenterPos = centerPos;
