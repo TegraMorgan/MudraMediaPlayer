@@ -56,7 +56,9 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     // Higher values will slow down volume change speed
     private static final int MUDRA_SMOOTH_FACTOR = 5;
     //#endregion
+
     //#region Variables
+
     /*  Unfortunately, we have been unable to get playback state
         directly from the music service
         so we have made our own isPlaying boolean  */
@@ -490,6 +492,8 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     }
 
     public void play_music(View view) {
+        play_music();
+        /*
         view.setBackground(getDrawable(isPlaying ? R.drawable.pause_icon : R.drawable.play_icon));
         if (!isPlaying) {
             MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls().play();
@@ -498,6 +502,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         }
         isPlaying = !isPlaying;
         view.invalidate();
+        */
         //showAlbumsScreen();
     }
 
@@ -521,8 +526,8 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     private void nextSong() {
         MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls().skipToNext();
         playPauseView.setBackground(getDrawable(isPlaying ? R.drawable.pause_icon : R.drawable.play_icon));
-        tempsolution(playPauseView);
         isPlaying = true;
+        tempsolution(playPauseView);
         Toast.makeText(mainContext, "Next", Toast.LENGTH_SHORT).show();
     }
 
@@ -533,8 +538,8 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     private void prevSong() {
         MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls().skipToPrevious();
         playPauseView.setBackground(getDrawable(isPlaying ? R.drawable.pause_icon : R.drawable.play_icon));
-        tempsolution(playPauseView);
         isPlaying = true;
+        tempsolution(playPauseView);
         Toast.makeText(mainContext, "Prev", Toast.LENGTH_SHORT).show();
     }
 
