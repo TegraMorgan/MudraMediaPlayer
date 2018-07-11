@@ -463,7 +463,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         // put album object in it
         bdl.putSerializable(SERIALIZE_ALBUM, item);
         slf.setArguments(bdl);
-        fm.beginTransaction().replace(R.id.songs_list_container, slf).addToBackStack(null).commit();
+        fm.beginTransaction().replace(R.id.songs_list_container, slf).commit();
         MediaControllerCompat.getMediaController(MainActivity.this).adjustVolume(AudioManager.ADJUST_RAISE, 0);
         MediaControllerCompat.getMediaController(MainActivity.this).adjustVolume(AudioManager.ADJUST_RAISE, 0);
         MediaControllerCompat.getMediaController(MainActivity.this).adjustVolume(AudioManager.ADJUST_RAISE, 0);
@@ -584,24 +584,29 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
      * Shop Play Pause Next Prev Buttons
      */
     public void showPlayerButtons() {
+        TextView albums_text = findViewById(R.id.player_albums_text);
         ImageView player_prev = findViewById(R.id.player_prev);
         ImageView player_play = findViewById(R.id.play_pause);
         ImageView player_next = findViewById(R.id.player_next);
         player_prev.setVisibility(View.VISIBLE);
         player_next.setVisibility(View.VISIBLE);
         player_play.setVisibility(View.VISIBLE);
+        albums_text.setVisibility(View.INVISIBLE);
     }
 
     /**
      * Hide Play Pause Next Prev Buttons
      */
     public void hidePlayerButtons() {
+        TextView albums_text = findViewById(R.id.player_albums_text);
         ImageView player_prev = findViewById(R.id.player_prev);
         ImageView player_play = findViewById(R.id.play_pause);
         ImageView player_next = findViewById(R.id.player_next);
         player_prev.setVisibility(View.INVISIBLE);
         player_next.setVisibility(View.INVISIBLE);
         player_play.setVisibility(View.INVISIBLE);
+        albums_text.setVisibility(View.VISIBLE);
+
     }
 
     /**
@@ -628,6 +633,12 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         FrameLayout fl = findViewById(R.id.songs_list_container);
         FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) fl.getLayoutParams();
         setMargins(fl, lp.leftMargin, dpToPx(constants.SONGS_LAYOUT_MARGIN), lp.rightMargin, lp.bottomMargin);
+    }
+
+
+    public void backToAlbums(){
+        showAlbumsScreen();
+        hidePlayerButtons();
     }
 
     @Override
