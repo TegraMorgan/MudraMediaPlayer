@@ -94,7 +94,7 @@ public class AlbumsFragment extends Fragment {
             }
             recyclerView.setAdapter(new AlbumsAdapter(mAlbums, mListener));
 
-            recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            /*recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
                 @Override
                 public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                     super.onScrollStateChanged(recyclerView, newState);
@@ -122,7 +122,7 @@ public class AlbumsFragment extends Fragment {
                         if (prevView != null) {
                             View layout = prevView.findViewById(R.id.album_item);
                             //int white = ContextCompat.getColor(context, R.color.white);
-                            layout.setBackgroundColor(Color.parseColor("#ff0000"));;
+                            layout.setBackgroundColor(Color.CYAN);;
                         }
 
                         // highlight view in the middle
@@ -136,7 +136,7 @@ public class AlbumsFragment extends Fragment {
                     }
                 }
 
-            });
+            });*/
 
             PagerSnapHelper snapHelper = new PagerSnapHelper();
             snapHelper.attachToRecyclerView(recyclerView);

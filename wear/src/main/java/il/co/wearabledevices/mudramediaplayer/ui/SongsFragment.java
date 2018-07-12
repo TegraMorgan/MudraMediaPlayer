@@ -2,9 +2,11 @@ package il.co.wearabledevices.mudramediaplayer.ui;
 
 import android.app.Fragment;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.PagerSnapHelper;
 import android.support.v7.widget.RecyclerView;
 import android.support.wear.widget.WearableLinearLayoutManager;
 import android.support.wear.widget.WearableRecyclerView;
@@ -41,6 +43,8 @@ public class SongsFragment extends Fragment {
     // TODO: Customize parameters
     private int mColumnCount = 1;
     private OnSongsListFragmentInteractionListener mListener;
+    private int prevCenterPos; // Keep track the previous pos to dehighlight
+
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -108,7 +112,8 @@ public class SongsFragment extends Fragment {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
             recyclerView.setAdapter(new SongsAdapter(mSongs, mListener));
-            recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+
+            /*recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
                 @Override
                 public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                     super.onScrollStateChanged(recyclerView, newState);
@@ -117,8 +122,50 @@ public class SongsFragment extends Fragment {
                         onSelectedSongChanged(position);
                     }
                 }
-            });
+            });*/
+
+            /*recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+
+
+                @Override
+                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                    super.onScrolled(recyclerView, dx, dy);
+
+//                    int firstVisible = mRecyclerView.get);
+//                    int lastVisible = layoutManager.findLastVisibleItemPosition();
+//                    int itemsCount = lastVisible - firstVisible + 1;
+
+                    int center = (mRecyclerView.getTop() + mRecyclerView.getBottom()) / 2;
+                    View centerView = mRecyclerView.findChildViewUnder(center, mRecyclerView.getTop());
+                    int centerPos = mRecyclerView.getChildAdapterPosition(centerView);
+
+                    if (prevCenterPos != centerPos) {
+                        // dehighlight the previously highlighted view
+                        View prevView = mRecyclerView.getLayoutManager().findViewByPosition(prevCenterPos);
+                        if (prevView != null) {
+                            View layout = prevView.findViewById(R.id.album_item);
+                            //int white = ContextCompat.getColor(context, R.color.white);
+                            layout.setBackgroundColor(Color.CYAN);;
+                        }
+
+                        // highlight view in the middle
+                        if (centerView != null) {
+                            View layout = centerView.findViewById(R.id.album_item);
+                            //int highlightColor = ContextCompat.getColor(context, R.color.colorAccent);
+                            layout.setBackgroundColor(Color.RED);
+                        }
+
+                        prevCenterPos = centerPos;
+                    }
+                }
+
+            });*/
+
+            PagerSnapHelper snapHelper = new PagerSnapHelper();
+            snapHelper.attachToRecyclerView(recyclerView);
+            recyclerView.setOnFlingListener(snapHelper);
             mRecyclerView = recyclerView;
+            mRecyclerView.invalidate();
         }
         return view;
     }
@@ -133,10 +180,66 @@ public class SongsFragment extends Fragment {
     }
 
     public int getCurrentItem() {
-        return ((LinearLayoutManager) mRecyclerView.getLayoutManager())
+        int pos = ((LinearLayoutManager) mRecyclerView.getLayoutManager())
                 .findFirstVisibleItemPosition();
+        return pos;
     }
 
+    public boolean hasPreview() {
+        return getCurrentItem() > 0;
+    }
+
+    public boolean hasNext() {
+        return mRecyclerView.getAdapter() != null &&
+                getCurrentItem() < (mRecyclerView.getAdapter().getItemCount()- 1);
+    }
+
+    public void preview() {
+        int position = getCurrentItem();
+        if (position > 0)
+            setCurrentItem(position -1, true);
+    }
+
+    public boolean next() {
+        RecyclerView.Adapter adapter = mRecyclerView.getAdapter();
+        if (adapter == null){
+            return false;
+        }
+
+
+        int position = getCurrentItem();
+        int count = adapter.getItemCount();
+        if (position < (count -1))
+            setCurrentItem(position + 1, true);
+        return true;
+    }
+
+
+    private void setCurrentItem(int position, boolean smooth){
+        if (smooth) {
+            mRecyclerView.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    mRecyclerView.scrollToPosition(position);
+                }
+            },100);
+        }
+        else {
+            mRecyclerView.scrollToPosition(position);
+        }
+    }
+
+
+    public void scrollToPos(int position, boolean smooth){
+        RecyclerView.Adapter adapter = mRecyclerView.getAdapter();
+        if(position <= adapter.getItemCount() - 1) {
+            setCurrentItem(position,smooth);
+            //adapter.notifyDataSetChanged();
+        }
+        return;
+
+
+    }
 
     @Override
     public void onAttach(Context context) {
