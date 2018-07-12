@@ -236,10 +236,6 @@ public class QueueHelper {
         return (queue != null && index >= 0 && index < queue.size());
     }
 
-    public static boolean isIndexBackButton(int index, List<MediaSessionCompat.QueueItem> queue) {
-        return !(queue.get(index).getDescription().getMediaId().equals(String.valueOf(constants.BACK_BUTTON_SONG_ID)));
-    }
-
     /**
      * Determine if two queues contain identical media id's in order.
      *

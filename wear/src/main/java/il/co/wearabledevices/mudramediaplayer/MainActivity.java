@@ -32,11 +32,8 @@ import com.wearable.android.ble.interfaces.IMudraAPI;
 import com.wearable.android.ble.interfaces.IMudraDataListener;
 import com.wearable.android.ble.interfaces.IMudraDeviceStatuslListener;
 
-import java.util.ArrayList;
-
 import il.co.wearabledevices.mudramediaplayer.model.Album;
 import il.co.wearabledevices.mudramediaplayer.model.MediaLibrary;
-import il.co.wearabledevices.mudramediaplayer.model.Song;
 import il.co.wearabledevices.mudramediaplayer.ui.AlbumsFragment;
 import il.co.wearabledevices.mudramediaplayer.ui.MediaBrowserProvider;
 import il.co.wearabledevices.mudramediaplayer.ui.SongsAdapter;
@@ -71,10 +68,13 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     ImageView playPauseView;
     private Context mainContext;
     private IMudraAPI mIMudraAPI = null;
-    Long lastPressureOccurence;
+    private static long lastPressureOccurence;
+    private static long a1, a2, a3, a4;
+    private static boolean isGoingBack;
     private TextView mTextView;
     private MediaBrowserCompat mMediaBrowser;
     private static Album nowPlaying;
+
 
     //#endregion
 
@@ -217,27 +217,42 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
                     runOnUiThread(() ->
                     {
                         Log.v("Tegra", "Proportional strength : " + String.valueOf(data[2]));
-                        if (data[2] > MUDRA_VOLUME_PRESSURE_SENSITIVITY) {
-                            // Measure time from last proportional gesture
-                            long del = System.currentTimeMillis() - lastPressureOccurence;
-                            // If there was no gesture for a long time - reset smoother
-                            if (del > VOLUME_DIRECTION_FLIP_DELAY) {
-                                mudraSmoother = 0;
-                                VolumeUp = !VolumeUp;
-                                String msg = VolumeUp ? "Volume Up" : "Volume Down";
-                                Toast.makeText(mainContext, msg, Toast.LENGTH_SHORT).show();
-                                //Measure the proportional strength
-                            }
-                            /* Only one of three volume change commands works - change is too quick */
-                            if (mudraSmoother % MUDRA_SMOOTH_FACTOR == 0) {
-                                if (canMudraInteract()) {
-                                    Log.v("Tegra", "Time between pressures : " + String.valueOf(del));
-                                    int direction = VolumeUp ? 1 : -1;
-                                    modifyVolume(direction, 0);
-                                    lastPressureOccurence = System.currentTimeMillis();
+                        if (isPlaying) {                         // if music is playing pressure controls volume
+                            if (data[2] > MUDRA_VOLUME_PRESSURE_SENSITIVITY) {
+                                // Measure time from last proportional gesture
+                                long del = System.currentTimeMillis() - lastPressureOccurence;
+                                // If there was no gesture for a long time - reset smoother
+                                if (del > VOLUME_DIRECTION_FLIP_DELAY) {
+                                    mudraSmoother = 0;
+                                    VolumeUp = !VolumeUp;
+                                    String msg = VolumeUp ? "Volume Up" : "Volume Down";
+                                    Toast.makeText(mainContext, msg, Toast.LENGTH_SHORT).show();
+                                    //Measure the proportional strength
                                 }
+                                /* Only one of three volume change commands works - change is too quick */
+                                if (mudraSmoother % MUDRA_SMOOTH_FACTOR == 0) {
+                                    if (canMudraInteract()) {
+                                        Log.v("Tegra", "Time between pressures : " + String.valueOf(del));
+                                        int direction = VolumeUp ? 1 : -1;
+                                        modifyVolume(direction, 0);
+                                        lastPressureOccurence = System.currentTimeMillis();
+                                    }
+                                }
+                                mudraSmoother = (mudraSmoother + 1) % MUDRA_SMOOTH_FACTOR;
                             }
-                            mudraSmoother = (mudraSmoother + 1) % MUDRA_SMOOTH_FACTOR;
+                        } else {                                  // if music is not playing long pressure is back button
+                            a1 = System.currentTimeMillis();
+                            if (a1 - a2 > 400) {
+                                a2 = a1;
+                                a3 = a1;
+                            } else {
+                                if (a3 - a1 > 1500) {
+                                    switchToAlbumView();
+                                } else {
+                                    a2 = a1;
+                                }
+
+                            }
                         }
                     });
                     Log.i("Gesture", "1");
@@ -479,14 +494,10 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
 
     @Override
     public void onSongsListFragmentInteraction(SongsAdapter.SongsViewHolder item, int position) {
-        Toast.makeText(this, String.valueOf(position), Toast.LENGTH_LONG).show();
-        if (nowPlaying.getAlbumSongs().get(position).getId() == -2) {        // if back button was pressed
-            switchToAlbumView();
-        } else {                                                         // if regular song was selected
-            MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls().skipToQueueItem(position);
-            isPlaying = true;
-            updatePlayButton(playPauseView);
-        }
+        Toast.makeText(this, "Playing : " + nowPlaying.getAlbumSongs().get(position).getTitle(), Toast.LENGTH_LONG).show();
+        MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls().skipToQueueItem(position);
+        isPlaying = true;
+        updatePlayButton(playPauseView);
     }
 
     public void play_music(View view) {

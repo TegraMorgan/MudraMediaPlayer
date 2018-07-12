@@ -98,11 +98,12 @@ public class QueueManager {
 
     public boolean skipQueuePosition(int amount) {
         int index = mCurrentIndex + amount;
-        index = fixIndex(index);
-        if (!QueueHelper.isIndexBackButton(index, mPlayingQueue)) {
-            // if this is back button we need to skip to next song
-            index += amount;
-            index = fixIndex(index);
+        if (index < 0) {
+            // skip backwards before the first song will keep you on the first song
+            index = 0;
+        } else {
+            // skip forwards when in last song will cycle back to start of the queue
+            index %= mPlayingQueue.size();
         }
         if (!QueueHelper.isIndexPlayable(index, mPlayingQueue)) {
             LogHelper.e(TAG, "Cannot increment queue index by ", amount,
@@ -111,17 +112,6 @@ public class QueueManager {
         }
         mCurrentIndex = index;
         return true;
-    }
-
-    private int fixIndex(int index) {
-        if (index < 0) {
-            // skip backwards before the first song will keep you on the first song
-            index = 0;
-        } else {
-            // skip forwards when in last song will cycle back to start of the queue
-            index %= mPlayingQueue.size();
-        }
-        return index;
     }
 
     public boolean setQueueFromSearch(String query, Bundle extras) {
