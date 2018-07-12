@@ -114,28 +114,10 @@ public class MediaLibrary {
         if (cursor != null) {
             //If the cursor was not null - we finished
             cursor.close();
-            for (Album alb : mAlbumListByName.values()) {
-                inflateAlbumWithBackButtons(alb);
-            }
             mCurrentState = State.INITIALIZED;
         } else {
             //If the cursor is null - something was wrong
             mCurrentState = State.NON_INITIALIZED;
-        }
-    }
-
-    /**
-     * Receives album and adds into it back buttons
-     *
-     * @param a album to inflate with back buttons
-     */
-    private static void inflateAlbumWithBackButtons(Album a) {
-        ArrayList<Song> songs = a.getAlbumSongs();
-        int songCount = a.getSongsCount();
-        Song backButton = new Song(constants.BACK_BUTTON_SONG_ID, "Back", "to album selection", "to album selection2", 0, "", "");
-        int backCount = songCount / BACK_BUTTON_INTERVAL;
-        for (int i = backCount; i > 0; i--) {
-            songs.add(i * BACK_BUTTON_INTERVAL, backButton);
         }
     }
 
