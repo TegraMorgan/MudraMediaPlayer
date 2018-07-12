@@ -72,7 +72,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     private IMudraAPI mIMudraAPI = null;
     private static long lastPressureOccurence;
 
-    private static long a1, a2, a3, a4;
+    private static long currentTime, lastTime, firstMeasure, a4;
     private static String currentView = "";
 
     private TextView mTextView;
@@ -236,7 +236,6 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
                                 /* Only one of three volume change commands works - change is too quick */
                                 if (mudraSmoother % MUDRA_SMOOTH_FACTOR == 0) {
                                     if (canMudraInteract()) {
-                                        Log.v("Tegra", "Time between pressures : " + String.valueOf(del));
                                         int direction = VolumeUp ? 1 : -1;
                                         modifyVolume(direction, 0);
                                         lastPressureOccurence = System.currentTimeMillis();
@@ -244,19 +243,26 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
                                 }
                                 mudraSmoother = (mudraSmoother + 1) % MUDRA_SMOOTH_FACTOR;
                             }
-                        } else {                                  // if music is not playing long pressure is back button
-                            if (currentView.equals(VIEW_SONGS) && data[2] > MUDRA_VOLUME_PRESSURE_SENSITIVITY) {
-                                a1 = System.currentTimeMillis();
-                                if (a1 - a2 > 400) {
-                                    a2 = a1;
-                                    a3 = a1;
+                        } else {        // if music is not playing long pressure is back button
+                            if (data[2] > MUDRA_VOLUME_PRESSURE_SENSITIVITY) {  //only react if the pressure is strong enough
+                                currentTime = System.currentTimeMillis();
+                                if (currentTime - lastTime > 400) {
+                                    lastTime = currentTime;
+                                    firstMeasure = currentTime;
                                 } else {
-                                    if (a3 - a1 > 1500) {
-                                        switchToAlbumView();
+                                    if (firstMeasure - currentTime > 1500) {
+                                        // Pressure was for 1.5 seconds - we can act now
+                                        if (currentView.equals(VIEW_SONGS)) {
+                                            switchToAlbumView();
+                                        } else {
+                                            // We can exit application here if we want
+                                        }
                                     } else {
-                                        a2 = a1;
+                                        // continue waiting
+                                        lastTime = currentTime;
                                     }
                                 }
+
                             }
                         }
                     });
@@ -469,8 +475,8 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     @Override
     public void onAlbumsListFragmentInteraction(Album item) {
         /* --- Local variables preparation and update --- */
-        isPlaying = true;                                       // Set play state as playing
-        nowPlaying = item;                                      // Save inflated playlist in a static variable
+        isPlaying = true;                                               // Set play state as playing
+        nowPlaying = item;                                              // Save inflated playlist in a static variable
         switchToSongView(item);
         updatePlayButton(playPauseView);
         /* --- Music Service controls --- */
