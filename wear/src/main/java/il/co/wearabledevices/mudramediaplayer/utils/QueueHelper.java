@@ -181,32 +181,19 @@ public class QueueHelper {
         List<MediaSessionCompat.QueueItem> queue = new ArrayList<>();
         int count = 0;
         for (Song track : tracks) {
+            // We create a hierarchy-aware mediaID, so we know what the queue is about by looking
+            // at the QueueItem media IDs.
+            String hierarchyAwareMediaID = MediaIDHelper.createMediaID(track.getMetadata().getDescription().getMediaId());
 
-            if (track.getId() != -2) {                  // Make an exclusion for back button
-                // We create a hierarchy-aware mediaID, so we know what the queue is about by looking
-                // at the QueueItem media IDs.
-                String hierarchyAwareMediaID = MediaIDHelper.createMediaID(track.getMetadata().getDescription().getMediaId());
+            MediaMetadataCompat trackCopy = new MediaMetadataCompat.Builder(track.getMetadata())
+                    .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, hierarchyAwareMediaID)
+                    .build();
 
-                MediaMetadataCompat trackCopy = new MediaMetadataCompat.Builder(track.getMetadata())
-                        .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, hierarchyAwareMediaID)
-                        .build();
-
-                // We don't expect queues to change after created, so we use the item index as the
-                // queueId. Any other number unique in the queue would work.
-                MediaSessionCompat.QueueItem item = new MediaSessionCompat.QueueItem(
-                        trackCopy.getDescription(), count++);
-                queue.add(item);
-            } else {                                    // Take care of back button
-                String hierarchyAwareMediaID = String.valueOf(constants.BACK_BUTTON_SONG_ID);
-
-                MediaMetadataCompat trackCopy = new MediaMetadataCompat.Builder()
-                        .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, hierarchyAwareMediaID)
-                        .build();
-
-                MediaSessionCompat.QueueItem item = new MediaSessionCompat.QueueItem(
-                        trackCopy.getDescription(), count++);
-                queue.add(item);
-            }
+            // We don't expect queues to change after created, so we use the item index as the
+            // queueId. Any other number unique in the queue would work.
+            MediaSessionCompat.QueueItem item = new MediaSessionCompat.QueueItem(
+                    trackCopy.getDescription(), count++);
+            queue.add(item);
         }
         return queue;
 
