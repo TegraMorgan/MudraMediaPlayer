@@ -53,10 +53,6 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     private static final String VIEW_SONGS = "SongList";
     //#region All these should be configurable in the production release
     public static final int VOLUME_DIRECTION_FLIP_DELAY = 1000;
-    // 0<x<1 Higher values will demand more pressure to be applied
-    public static final double MUDRA_VOLUME_PRESSURE_SENSITIVITY = 0.8;
-    // Higher values will slow down volume change speed
-    private static final int MUDRA_SMOOTH_FACTOR = 5;
     //#endregion
 
     //#region Variables
@@ -222,7 +218,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
                     {
                         Log.v("Tegra", "Proportional strength : " + String.valueOf(data[2]));
                         if (isPlaying) {                         // if music is playing pressure controls volume
-                            if (data[2] > MUDRA_VOLUME_PRESSURE_SENSITIVITY) {
+                            if (data[2] > constants.MUDRA_VOLUME_PRESSURE_SENSITIVITY) {
                                 // Measure time from last proportional gesture
                                 long del = System.currentTimeMillis() - lastPressureOccurence;
                                 // If there was no gesture for a long time - reset smoother
@@ -234,23 +230,23 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
                                     //Measure the proportional strength
                                 }
                                 /* Only one of three volume change commands works - change is too quick */
-                                if (mudraSmoother % MUDRA_SMOOTH_FACTOR == 0) {
+                                if (mudraSmoother % constants.MUDRA_SMOOTH_FACTOR == 0) {
                                     if (canMudraInteract()) {
                                         int direction = VolumeUp ? 1 : -1;
                                         modifyVolume(direction, 0);
                                         lastPressureOccurence = System.currentTimeMillis();
                                     }
                                 }
-                                mudraSmoother = (mudraSmoother + 1) % MUDRA_SMOOTH_FACTOR;
+                                mudraSmoother = (mudraSmoother + 1) % constants.MUDRA_SMOOTH_FACTOR;
                             }
                         } else {        // if music is not playing long pressure is back button
-                            if (data[2] > MUDRA_VOLUME_PRESSURE_SENSITIVITY) {  //only react if the pressure is strong enough
+                            if (data[2] > constants.MUDRA_VOLUME_PRESSURE_SENSITIVITY) {  //only react if the pressure is strong enough
                                 currentTime = System.currentTimeMillis();
                                 if (currentTime - lastTime > 400) {
                                     lastTime = currentTime;
                                     firstMeasure = currentTime;
                                 } else {
-                                    if (firstMeasure - currentTime > 1500) {
+                                    if (firstMeasure - currentTime > constants.BACK_BUTTON_DELAY) {
                                         // Pressure was for 1.5 seconds - we can act now
                                         if (currentView.equals(VIEW_SONGS)) {
                                             switchToAlbumView();
