@@ -25,6 +25,10 @@ public class constants {
     public static final String CURRENT_ALBUM_SIZE = "CURRENT_ALBUM_SIZE";
     public static final int ALBUMS_LAYOUT_MARGIN = 0;
     public static final int SONGS_LAYOUT_MARGIN = 74;
-    public static final int BACK_BUTTON_SONG_ID = -2;
     public static final int BACK_BUTTON_INTERVAL = 3;
+    public static final int BACK_BUTTON_DELAY = 1500;
+    // 0<x<1 Higher values will demand more pressure to be applied
+    public static final double MUDRA_VOLUME_PRESSURE_SENSITIVITY = 0.8;
+    // Higher values will slow down volume change speed
+    static final int MUDRA_SMOOTH_FACTOR = 5;
 }
