@@ -63,7 +63,7 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.GenresViewHo
 
         void bind(int listIndex) {
             Album curr = albums.get(listIndex);
-            String name = curr.getaName();
+            String name = curr.getAlbumName();
             String art = curr.getaArtist();
             listItemAlbum.setText(name + " - ");
             listItemArtist.setText(art);

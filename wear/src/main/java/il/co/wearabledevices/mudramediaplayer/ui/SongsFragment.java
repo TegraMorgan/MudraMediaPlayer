@@ -16,7 +16,6 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
-import il.co.wearabledevices.mudramediaplayer.MainActivity;
 import il.co.wearabledevices.mudramediaplayer.R;
 import il.co.wearabledevices.mudramediaplayer.model.Album;
 import il.co.wearabledevices.mudramediaplayer.model.Song;
@@ -72,7 +71,7 @@ public class SongsFragment extends Fragment {
         if (getArguments() != null) {
             mColumnCount = bdl.getInt(ARG_COLUMN_COUNT);
             album = (Album) bdl.getSerializable(SERIALIZE_ALBUM);
-            mSongs = album.getaSongs();
+            mSongs = album.getAlbumSongs();
             Log.d("Is there any songs", (mSongs.isEmpty() ? "Yes" : "No"));
 
         }
@@ -88,7 +87,7 @@ public class SongsFragment extends Fragment {
             mColumnCount = bdl.getInt(ARG_COLUMN_COUNT);
             album = (Album) bdl.getSerializable(SERIALIZE_ALBUM);
             if (mSongs.isEmpty()) {
-                mSongs = album.getaSongs();
+                mSongs = album.getAlbumSongs();
                 Log.d("Is there any songs2", (mSongs.isEmpty() ? "Yes" : "No"));
             }
 

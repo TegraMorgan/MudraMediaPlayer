@@ -4,7 +4,6 @@ import android.app.Fragment;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PagerSnapHelper;
 import android.support.v7.widget.RecyclerView;
@@ -14,7 +13,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -52,7 +50,7 @@ public class AlbumsFragment extends Fragment {
         mAlbums = (ArrayList<Album>) MediaLibrary.getAlbums();
         Log.v(TAG, "Got " + mAlbums.size() + " albums from media library");
         // sort by album name
-        mAlbums.sort(Comparator.comparing(Album::getaName));
+        mAlbums.sort(Comparator.comparing(Album::getAlbumName));
 
     }
 

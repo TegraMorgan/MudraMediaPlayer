@@ -77,8 +77,8 @@ public class QueueHelper {
     }
 
     public static List<MediaSessionCompat.QueueItem> getPlayingQueue(Album album) {
-        LogHelper.d(TAG, "Creating playing queue for album ", album.getaName());
-        return convertAlbumToQueue(album.getaSongs());
+        LogHelper.d(TAG, "Creating playing queue for album ", album.getAlbumName());
+        return convertAlbumToQueue(album.getAlbumSongs());
     }
 
     public static List<MediaSessionCompat.QueueItem> getPlayingQueueFromSearch(String query,

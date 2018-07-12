@@ -30,11 +30,11 @@ public class Album implements Serializable {
         return this.aName.equals(((Album) obj).aName);
     }
 
-    public String getaName() {
+    public String getAlbumName() {
         return aName;
     }
 
-    public void setaName(String aName) {
+    public void setAlbumName(String aName) {
         this.aName = aName;
     }
 
@@ -46,7 +46,7 @@ public class Album implements Serializable {
         this.aArtist = aArtist;
     }
 
-    public ArrayList<Song> getaSongs() {
+    public ArrayList<Song> getAlbumSongs() {
         return aSongs;
     }
 
@@ -54,7 +54,7 @@ public class Album implements Serializable {
         this.aSongs = aSongs;
     }
 
-    public int SongCount() {
+    public int getSongsCount() {
         return aSongs.size();
     }
 }

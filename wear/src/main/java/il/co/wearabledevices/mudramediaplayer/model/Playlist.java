@@ -13,7 +13,7 @@ public class Playlist implements Serializable {
     }
 
     public Playlist(Album al) {
-        songs = al.getaSongs();
+        songs = al.getAlbumSongs();
         position = 0;
     }
 

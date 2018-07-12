@@ -17,6 +17,9 @@ import java.util.concurrent.TimeUnit;
 
 import il.co.wearabledevices.mudramediaplayer.BuildConfig;
 import il.co.wearabledevices.mudramediaplayer.R;
+import il.co.wearabledevices.mudramediaplayer.constants;
+
+import static il.co.wearabledevices.mudramediaplayer.constants.BACK_BUTTON_INTERVAL;
 
 public class MediaLibrary {
     private static final int ACCEPTABLE_LENGTH = 20;
@@ -111,6 +114,9 @@ public class MediaLibrary {
         if (cursor != null) {
             //If the cursor was not null - we finished
             cursor.close();
+            for (Album alb : mAlbumListByName.values()) {
+                inflateAlbumWithBackButtons(alb);
+            }
             mCurrentState = State.INITIALIZED;
         } else {
             //If the cursor is null - something was wrong
@@ -119,15 +125,18 @@ public class MediaLibrary {
     }
 
     /**
-     * @return Array of Album names as strings
+     * Receives album and adds into it back buttons
+     *
+     * @param a album to inflate with back buttons
      */
-    public static String[] getAlbumNames() {
-        if (mAlbumListByName.size() == 0) return null;
-        String[] result = new String[mAlbumListByName.size()];
-        for (int i = 0; i < mAlbumListByName.size(); i++) {
-            result[i] = mAlbumListByName.keyAt(i);
+    private static void inflateAlbumWithBackButtons(Album a) {
+        ArrayList<Song> songs = a.getAlbumSongs();
+        int songCount = a.getSongsCount();
+        Song backButton = new Song(constants.BACK_BUTTON_SONG_ID, "Back", "to album selection", "to album selection2", 0, "", "");
+        int backCount = songCount / BACK_BUTTON_INTERVAL;
+        for (int i = backCount; i > 0; i--) {
+            songs.add(i * BACK_BUTTON_INTERVAL, backButton);
         }
-        return result;
     }
 
     public static Album getAlbum(String albumName) {
@@ -163,7 +172,7 @@ public class MediaLibrary {
         int res = 0;
         if (mAlbumListByName.containsKey(mediaId)) {
             Album a = mAlbumListByName.get(mediaId);
-            res = a.getaSongs().get(0).getAlbumRes();
+            res = a.getAlbumSongs().get(0).getAlbumRes();
         }
         return res;
     }
@@ -202,12 +211,12 @@ public class MediaLibrary {
 
     private static void addAlbumIf(ArrayMap<String, Album> allAlbums, Album currentAlbum, Song song) {
 
-        String can = currentAlbum.getaName();
+        String can = currentAlbum.getAlbumName();
         if (allAlbums.containsKey(can)) {
-            allAlbums.get(can).getaSongs().add(song);
+            allAlbums.get(can).getAlbumSongs().add(song);
         } else {
             allAlbums.put(can, new Album(can, currentAlbum.getaArtist()));
-            allAlbums.get(can).getaSongs().add(song);
+            allAlbums.get(can).getAlbumSongs().add(song);
         }
     }
 

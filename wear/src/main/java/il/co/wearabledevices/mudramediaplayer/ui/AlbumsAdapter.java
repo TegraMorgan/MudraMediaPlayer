@@ -42,7 +42,7 @@ public class AlbumsAdapter extends WearableRecyclerView.Adapter<AlbumsAdapter.Vi
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues[position];
-        holder.mIdView.setText(mValues[position].getaName());
+        holder.mIdView.setText(mValues[position].getAlbumName());
         holder.mContentView.setText(mValues[position].getaArtist());
 
         holder.mView.setOnClickListener(new View.OnClickListener() {

@@ -58,7 +58,6 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     public static final double MUDRA_VOLUME_PRESSURE_SENSITIVITY = 0.8;
     // Higher values will slow down volume change speed
     private static final int MUDRA_SMOOTH_FACTOR = 5;
-    public static final int BACK_BUTTON_INTERVAL = 3;
     //#endregion
 
     //#region Variables
@@ -451,13 +450,12 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     public void onAlbumsListFragmentInteraction(Album item) {
         /* --- Local variables preparation and update --- */
         isPlaying = true;                                       // Set play state as playing
-        inflateNowPlaying(item);                                // add back buttons to the selected album
         nowPlaying = item;                                      // Save inflated playlist in a static variable
         showPlayerButtons();                                    // Show the player buttons
         prepareSongsScreen();                                      // Change elements size for song list
         /* --- Changing UI fragments ---*/
         android.app.FragmentManager fm = getFragmentManager();
-        SongsFragment fragment = SongsFragment.newInstance(item.getaSongs().size(), item);
+        SongsFragment fragment = SongsFragment.newInstance(item.getAlbumSongs().size(), item);
         Bundle albumBundle = new Bundle();                      // Create Bundle to be sent to Song List Fragment
         albumBundle.putSerializable(SERIALIZE_ALBUM, item);     // Put album object in it
         fragment.setArguments(albumBundle);                     // Assign bundle to fragment
@@ -482,7 +480,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     @Override
     public void onSongsListFragmentInteraction(SongsAdapter.SongsViewHolder item, int position) {
         Toast.makeText(this, String.valueOf(position), Toast.LENGTH_LONG).show();
-        if (nowPlaying.getaSongs().get(position).getId() == -2) {        // if back button was pressed
+        if (nowPlaying.getAlbumSongs().get(position).getId() == -2) {        // if back button was pressed
             switchToAlbumView();
         } else {                                                         // if regular song was selected
             MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls().skipToQueueItem(position);
@@ -624,22 +622,6 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         FrameLayout fl = findViewById(R.id.songs_list_container);
         FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) fl.getLayoutParams();
         setMargins(fl, lp.leftMargin, dpToPx(constants.SONGS_LAYOUT_MARGIN), lp.rightMargin, lp.bottomMargin);
-    }
-
-    /**
-     * Receives album and adds into it back buttons
-     *
-     * @param alb album to inflate with back buttons
-     */
-    public void inflateNowPlaying(Album alb) {
-        ArrayList<Song> songs = alb.getaSongs();
-        int songCount = alb.SongCount();
-        Song backButton = new Song(constants.BACK_BUTTON_SONG_ID, "Back", "to album selection", "to album selection2", 0, "", "");
-        int backCount = songCount / BACK_BUTTON_INTERVAL;
-        for (int i = backCount; i > 0; i--) {
-            songs.add(i * BACK_BUTTON_INTERVAL, backButton);
-        }
-        Log.v("Tegra", "songs.size is " + String.valueOf(songs.size()));
     }
 
     public void switchToAlbumView() {
