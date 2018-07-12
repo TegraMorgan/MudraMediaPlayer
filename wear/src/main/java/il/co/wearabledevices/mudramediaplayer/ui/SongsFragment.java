@@ -191,49 +191,48 @@ public class SongsFragment extends Fragment {
 
     public boolean hasNext() {
         return mRecyclerView.getAdapter() != null &&
-                getCurrentItem() < (mRecyclerView.getAdapter().getItemCount()- 1);
+                getCurrentItem() < (mRecyclerView.getAdapter().getItemCount() - 1);
     }
 
     public void preview() {
         int position = getCurrentItem();
         if (position > 0)
-            setCurrentItem(position -1, true);
+            setCurrentItem(position - 1, true);
     }
 
     public boolean next() {
         RecyclerView.Adapter adapter = mRecyclerView.getAdapter();
-        if (adapter == null){
+        if (adapter == null) {
             return false;
         }
 
 
         int position = getCurrentItem();
         int count = adapter.getItemCount();
-        if (position < (count -1))
+        if (position < (count - 1))
             setCurrentItem(position + 1, true);
         return true;
     }
 
 
-    private void setCurrentItem(int position, boolean smooth){
+    private void setCurrentItem(int position, boolean smooth) {
         if (smooth) {
             mRecyclerView.postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     mRecyclerView.scrollToPosition(position);
                 }
-            },100);
-        }
-        else {
+            }, 100);
+        } else {
             mRecyclerView.scrollToPosition(position);
         }
     }
 
 
-    public void scrollToPos(int position, boolean smooth){
+    public void scrollToPos(int position, boolean smooth) {
         RecyclerView.Adapter adapter = mRecyclerView.getAdapter();
-        if(position <= adapter.getItemCount() - 1) {
-            setCurrentItem(position,smooth);
+        if (position <= adapter.getItemCount() - 1) {
+            setCurrentItem(position, smooth);
             //adapter.notifyDataSetChanged();
         }
         return;

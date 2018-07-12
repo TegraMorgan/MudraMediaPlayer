@@ -491,9 +491,9 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
             MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls().skipToQueueItem(position);
             //save current playing song position
             currentPlayingSongPosition = position;
-            Log.i("current position (click)",currentPlayingSongPosition+"");
+            Log.i("current position (click)", currentPlayingSongPosition + "");
             //put that song in the center of the screen
-            mSongsFragment.scrollToPos(position,true);
+            mSongsFragment.scrollToPos(position, true);
             mSongsFragment.getRecycler().getAdapter().notifyDataSetChanged();
             isPlaying = true;
             updatePlayButton(playPauseView);
@@ -526,25 +526,25 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         updatePlayButton(playPauseView);
         //Toast.makeText(mainContext, "Next", Toast.LENGTH_SHORT).show();
 
-        if(nowPlaying == null)
+        if (nowPlaying == null)
             return;
 
         //check if we're inside the safe zone
         int _songsCount = nowPlaying.getAlbumSongs().size();
 
-        if(currentPlayingSongPosition < _songsCount - 1){
+        if (currentPlayingSongPosition < _songsCount - 1) {
             currentPlayingSongPosition += 1;
             //check if the current object is back and if we're no at the end of the list
-            if (nowPlaying.getAlbumSongs().get(currentPlayingSongPosition).getId() == constants.BACK_BUTTON_SONG_ID && currentPlayingSongPosition < _songsCount - 1){
+            if (nowPlaying.getAlbumSongs().get(currentPlayingSongPosition).getId() == constants.BACK_BUTTON_SONG_ID && currentPlayingSongPosition < _songsCount - 1) {
                 currentPlayingSongPosition += 1;
             }
             //put the next song in the center of the screen
             mSongsFragment.scrollToPos(currentPlayingSongPosition, true);
-            Log.i("current position", currentPlayingSongPosition +"");
+            Log.i("current position", currentPlayingSongPosition + "");
             mSongsFragment.getRecycler().getAdapter().notifyDataSetChanged();
 
-        }else{
-            Log.i("current position","reached the end");
+        } else {
+            Log.i("current position", "reached the end");
         }
 
     }
