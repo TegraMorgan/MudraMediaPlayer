@@ -31,4 +31,6 @@ public class constants {
     public static final double MUDRA_VOLUME_PRESSURE_SENSITIVITY = 0.8;
     // Higher values will slow down volume change speed
     static final int MUDRA_SMOOTH_FACTOR = 5;
+    public static final String VIEW_ALBUMS = "Albums";
+    public static final String VIEW_SONGS = "SongList";
 }
