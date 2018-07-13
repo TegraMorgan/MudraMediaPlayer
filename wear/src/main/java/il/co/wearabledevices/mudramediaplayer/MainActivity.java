@@ -32,11 +32,8 @@ import com.wearable.android.ble.interfaces.IMudraAPI;
 import com.wearable.android.ble.interfaces.IMudraDataListener;
 import com.wearable.android.ble.interfaces.IMudraDeviceStatuslListener;
 
-import java.util.ArrayList;
-
 import il.co.wearabledevices.mudramediaplayer.model.Album;
 import il.co.wearabledevices.mudramediaplayer.model.MediaLibrary;
-import il.co.wearabledevices.mudramediaplayer.model.Song;
 import il.co.wearabledevices.mudramediaplayer.ui.AlbumsFragment;
 import il.co.wearabledevices.mudramediaplayer.ui.MediaBrowserProvider;
 import il.co.wearabledevices.mudramediaplayer.ui.SongsAdapter;
@@ -52,13 +49,6 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         , SongsFragment.OnSongsListFragmentInteractionListener, MediaBrowserProvider {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-    //#region All these should be configurable in the production release
-    public static final int VOLUME_DIRECTION_FLIP_DELAY = 1000;
-    // 0<x<1 Higher values will demand more pressure to be applied
-    public static final double MUDRA_VOLUME_PRESSURE_SENSITIVITY = 0.8;
-    // Higher values will slow down volume change speed
-    private static final int MUDRA_SMOOTH_FACTOR = 5;
-    public static final int BACK_BUTTON_INTERVAL = 3;
     //#endregion
 
     //#region Variables
@@ -73,6 +63,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     private Context mainContext;
     private IMudraAPI mIMudraAPI = null;
     Long lastPressureOccurence;
+    private static String currentView = "";
     private TextView mTextView;
     private MediaBrowserCompat mMediaBrowser;
     private static Album nowPlaying;
@@ -220,11 +211,11 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
                     runOnUiThread(() ->
                     {
                         Log.v("Tegra", "Proportional strength : " + String.valueOf(data[2]));
-                        if (data[2] > MUDRA_VOLUME_PRESSURE_SENSITIVITY) {
+                        if (data[2] > constants.MUDRA_VOLUME_PRESSURE_SENSITIVITY) {
                             // Measure time from last proportional gesture
                             long del = System.currentTimeMillis() - lastPressureOccurence;
                             // If there was no gesture for a long time - reset smoother
-                            if (del > VOLUME_DIRECTION_FLIP_DELAY) {
+                            if (del > constants.VOLUME_DIRECTION_FLIP_DELAY) {
                                 mudraSmoother = 0;
                                 VolumeUp = !VolumeUp;
                                 String msg = VolumeUp ? "Volume Up" : "Volume Down";
@@ -232,7 +223,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
                                 //Measure the proportional strength
                             }
                             /* Only one of three volume change commands works - change is too quick */
-                            if (mudraSmoother % MUDRA_SMOOTH_FACTOR == 0) {
+                            if (mudraSmoother % constants.MUDRA_SMOOTH_FACTOR == 0) {
                                 if (canMudraInteract()) {
                                     Log.v("Tegra", "Time between pressures : " + String.valueOf(del));
                                     int direction = VolumeUp ? 1 : -1;
@@ -240,7 +231,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
                                     lastPressureOccurence = System.currentTimeMillis();
                                 }
                             }
-                            mudraSmoother = (mudraSmoother + 1) % MUDRA_SMOOTH_FACTOR;
+                            mudraSmoother = (mudraSmoother + 1) % constants.MUDRA_SMOOTH_FACTOR;
                         }
                     });
                     Log.i("Gesture", "1");
@@ -455,21 +446,14 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         /* --- Local variables preparation and update --- */
         isPlaying = true;                                       // Set play state as playing
         nowPlaying = item;                                      // Save inflated playlist in a static variable
-        showPlayerButtons();                                    // Show the player buttons
-        prepareSongsScreen();                                      // Change elements size for song list
-        /* --- Changing UI fragments ---*/
-        android.app.FragmentManager fm = getFragmentManager();
-        SongsFragment fragment = SongsFragment.newInstance(item.getAlbumSongs().size(), item);
-        mSongsFragment = fragment;
-        Bundle albumBundle = new Bundle();                      // Create Bundle to be sent to Song List Fragment
-        albumBundle.putSerializable(SERIALIZE_ALBUM, item);     // Put album object in it
-        fragment.setArguments(albumBundle);                     // Assign bundle to fragment
-        fm.beginTransaction().replace(R.id.songs_list_container, fragment).commit();
+        switchToSongView(item);
         updatePlayButton(playPauseView);
         /* --- Music Service controls --- */
         MediaControllerCompat controller = MediaControllerCompat.getMediaController(MainActivity.this);
         MediaControllerCompat.TransportControls transportControls = controller.getTransportControls();
         jumpstartVolume(controller);                                    // Boost initial volume
+        Bundle albumBundle = new Bundle();                              // Create Bundle to be sent to Queue Manager
+        albumBundle.putSerializable(SERIALIZE_ALBUM, item);             // Put album object in it
         transportControls.sendCustomAction(ENQUEUE_ALBUM, albumBundle); // Enqueue all the album and play it
     }
 
@@ -484,7 +468,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
 
     @Override
     public void onSongsListFragmentInteraction(SongsAdapter.SongsViewHolder item, int position) {
-        Toast.makeText(this, String.valueOf(position), Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "Playing : " + nowPlaying.getAlbumSongs().get(position).getTitle(), Toast.LENGTH_LONG).show();
         if (nowPlaying.getAlbumSongs().get(position).getId() == constants.BACK_BUTTON_SONG_ID) {        // if back button was pressed
             switchToAlbumView();
         } else {                                                         // if regular song was selected
@@ -657,9 +641,23 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         setMargins(fl, lp.leftMargin, dpToPx(constants.SONGS_LAYOUT_MARGIN), lp.rightMargin, lp.bottomMargin);
     }
 
+    public void switchToSongView(Album item) {
+        showPlayerButtons();                                    // Show the player buttons
+        prepareSongsScreen();                                   // Change elements size for song list
+        currentView = constants.VIEW_SONGS;
+        android.app.FragmentManager fm = getFragmentManager();
+        SongsFragment fragment = SongsFragment.newInstance(item.getAlbumSongs().size(), item);
+        mSongsFragment = fragment;
+        Bundle albumBundle = new Bundle();                      // Create Bundle to be sent to Song List Fragment
+        albumBundle.putSerializable(SERIALIZE_ALBUM, item);     // Put album object in it
+        fragment.setArguments(albumBundle);                     // Assign bundle to fragment
+        fm.beginTransaction().replace(R.id.songs_list_container, fragment).commit();
+    }
+
     public void switchToAlbumView() {
         hidePlayerButtons();
         prepareAlbumsScreen();
+        currentView = constants.VIEW_ALBUMS;
         android.app.FragmentManager fragmentManager = getFragmentManager();
         AlbumsFragment fragment = new AlbumsFragment();
         mAlbumsFragment = fragment;
