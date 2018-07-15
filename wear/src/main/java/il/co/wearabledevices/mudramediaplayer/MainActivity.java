@@ -422,6 +422,8 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     protected void onStop() {
         // FIXME Next line should be removed in production
         MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls().pause();
+        isPlaying=false;
+        updatePlayButton(playPauseView);
         super.onStop();
         mMediaBrowser.disconnect();
     }
@@ -541,7 +543,27 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls().skipToPrevious();
         isPlaying = true;
         updatePlayButton(playPauseView);
-        Toast.makeText(mainContext, "Prev", Toast.LENGTH_SHORT).show();
+        if (nowPlaying == null)
+            return;
+
+        //check if we're inside the safe zone
+        int _songsCount = nowPlaying.getAlbumSongs().size();
+
+        if (currentPlayingSongPosition > 0) {
+            currentPlayingSongPosition -= 1;
+            //check if the current object is back and if we're no at the end of the list
+            if (nowPlaying.getAlbumSongs().get(currentPlayingSongPosition).getId() == constants.BACK_BUTTON_SONG_ID && currentPlayingSongPosition > 0) {
+                currentPlayingSongPosition -= 1;
+            }
+            //put the next song in the center of the screen
+            mSongsFragment.scrollToPos(currentPlayingSongPosition, true);
+            Log.i("current position", currentPlayingSongPosition + "");
+            mSongsFragment.getRecycler().getAdapter().notifyDataSetChanged();
+
+        } else {
+            Log.i("current position", "reached the end");
+        }
+        //Toast.makeText(mainContext, "Prev", Toast.LENGTH_SHORT).show();
     }
 
     public void updatePlayButton(View v) {
@@ -632,7 +654,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     public void prepareAlbumsScreen() {
         FrameLayout fl = findViewById(R.id.songs_list_container);
         FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) fl.getLayoutParams();
-        setMargins(fl, lp.leftMargin, dpToPx(constants.SONGS_LAYOUT_MARGIN), lp.rightMargin, lp.bottomMargin);
+        setMargins(fl, lp.leftMargin, dpToPx(constants.ALBUMS_LAYOUT_MARGIN), lp.rightMargin, lp.bottomMargin);
     }
 
     public void prepareSongsScreen() {

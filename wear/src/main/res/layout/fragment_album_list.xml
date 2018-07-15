@@ -6,7 +6,7 @@
     android:name="ItemAlbumFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fadeScrollbars="false"
+    android:fadeScrollbars="true"
     app:circular_scrolling_gesture_enabled="true"
     tools:context="il.co.wearabledevices.mudramediaplayer.ui.AlbumsFragment"
     tools:listitem="@layout/fragment_item_album" />
