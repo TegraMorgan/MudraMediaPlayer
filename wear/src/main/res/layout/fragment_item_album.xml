@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:id="@+id/album_item">
@@ -11,20 +11,25 @@
         android:id="@+id/album_id"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="20dp"
-        android:textColor="#fff" />
+        android:textSize="22dp"
+        android:textStyle="bold"
+        android:textColor="#fff"
+        android:layout_marginLeft="20dp" />
     <!--android:textColor="#003B46"-->
 
 
     <TextView
         android:id="@+id/album_content"
         android:layout_width="wrap_content"
+        android:textSize="16dp"
+        android:layout_marginLeft="20dp"
+        android:textStyle="italic"
         android:layout_height="wrap_content"
         android:textColor="#fff" />
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="20dp"
-        android:layout_weight="1" />
+    <!--<View-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="20dp"-->
+    <!--android:layout_weight="1" />-->
     <!--android:textColor="#003B46"-->
 </LinearLayout>

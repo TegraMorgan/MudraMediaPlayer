@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -21,6 +23,7 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.wearable.activity.WearableActivity;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -34,6 +37,7 @@ import com.wearable.android.ble.interfaces.IMudraDeviceStatuslListener;
 
 import il.co.wearabledevices.mudramediaplayer.model.Album;
 import il.co.wearabledevices.mudramediaplayer.model.MediaLibrary;
+import il.co.wearabledevices.mudramediaplayer.ui.AlbumsAdapter;
 import il.co.wearabledevices.mudramediaplayer.ui.AlbumsFragment;
 import il.co.wearabledevices.mudramediaplayer.ui.MediaBrowserProvider;
 import il.co.wearabledevices.mudramediaplayer.ui.SongsAdapter;
@@ -43,17 +47,12 @@ import il.co.wearabledevices.mudramediaplayer.utils.LogHelper;
 import static il.co.wearabledevices.mudramediaplayer.constants.DATA_TYPE_GESTURE;
 import static il.co.wearabledevices.mudramediaplayer.constants.DATA_TYPE_PROPORTIONAL;
 import static il.co.wearabledevices.mudramediaplayer.constants.ENQUEUE_ALBUM;
-import static il.co.wearabledevices.mudramediaplayer.constants.MUDRA_SMOOTH_FACTOR;
 import static il.co.wearabledevices.mudramediaplayer.constants.SERIALIZE_ALBUM;
 
 public class MainActivity extends WearableActivity implements AlbumsFragment.OnAlbumsListFragmentInteractionListener
         , SongsFragment.OnSongsListFragmentInteractionListener, MediaBrowserProvider {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-    //#region All these should be configurable in the production release
-
-    public static final int VOLUME_DIRECTION_FLIP_DELAY = 1000;
-
     //#endregion
 
     //#region Variables
@@ -69,9 +68,9 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     private IMudraAPI mIMudraAPI = null;
     private static long lastPressureOccurence;
 
+    private int currentAlbumPosition = 0;
     private static long currentTime, lastTime, firstMeasure, a4;
     private static String currentView = "";
-
     private TextView mTextView;
     private MediaBrowserCompat mMediaBrowser;
     private static Album nowPlaying;
@@ -176,7 +175,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
                         // Previous song
                         try {
                             runOnUiThread(() -> {
-                                if (canMudraInteract()) prevSong();
+                                if (canMudraInteract()) prevSong(constants.USING_MUDRA);
                             });
                         } catch (Exception e) {
                             Log.e("Tegra", e.toString());
@@ -201,7 +200,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
                         // Next song
                         try {
                             runOnUiThread(() -> {
-                                if (canMudraInteract()) nextSong();
+                                if (canMudraInteract()) nextSong(constants.USING_MUDRA);
                             });
                         } catch (Exception e) {
                             Log.e("Tegra", e.toString());
@@ -224,7 +223,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
                                 // Measure time from last proportional gesture
                                 long del = System.currentTimeMillis() - lastPressureOccurence;
                                 // If there was no gesture for a long time - reset smoother
-                                if (del > VOLUME_DIRECTION_FLIP_DELAY) {
+                                if (del > constants.VOLUME_DIRECTION_FLIP_DELAY) {
                                     mudraSmoother = 0;
                                     VolumeUp = !VolumeUp;
                                     String msg = VolumeUp ? "Volume Up" : "Volume Down";
@@ -232,35 +231,36 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
                                     //Measure the proportional strength
                                 }
                                 /* Only one of three volume change commands works - change is too quick */
-                                if (mudraSmoother % MUDRA_SMOOTH_FACTOR == 0) {
+                                if (mudraSmoother % constants.MUDRA_SMOOTH_FACTOR == 0) {
                                     if (canMudraInteract()) {
                                         int direction = VolumeUp ? 1 : -1;
                                         modifyVolume(direction, 0);
                                         lastPressureOccurence = System.currentTimeMillis();
                                     }
                                 }
-                                mudraSmoother = (mudraSmoother + 1) % MUDRA_SMOOTH_FACTOR;
-                            }
-                        } else {        // if music is not playing long pressure is back button
-                            if (data[2] > constants.MUDRA_VOLUME_PRESSURE_SENSITIVITY) {  //only react if the pressure is strong enough
-                                currentTime = System.currentTimeMillis();
-                                if (currentTime - lastTime > 400) {
-                                    lastTime = currentTime;
-                                    firstMeasure = currentTime;
-                                } else {
-                                    if (firstMeasure - currentTime > constants.BACK_BUTTON_DELAY) {
-                                        // Pressure was for 1.5 seconds - we can act now
-                                        if (currentView.equals(constants.VIEW_SONGS)) {
-                                            switchToAlbumView();
-                                        } else {
-                                            // We can exit application here if we want
-                                        }
-                                    } else {
-                                        // continue waiting
+                                mudraSmoother = (mudraSmoother + 1) % constants.MUDRA_SMOOTH_FACTOR;
+                            } else {
+                                // if music is not playing long pressure is back button
+                                if (data[2] > constants.MUDRA_VOLUME_PRESSURE_SENSITIVITY) {  //only react if the pressure is strong enough
+                                    currentTime = System.currentTimeMillis();
+                                    if (currentTime - lastTime > 400) {
                                         lastTime = currentTime;
+                                        firstMeasure = currentTime;
+                                    } else {
+                                        if (firstMeasure - currentTime > constants.BACK_BUTTON_DELAY) {
+                                            // Pressure was for 1.5 seconds - we can act now
+                                            if (currentView.equals(constants.VIEW_SONGS)) {
+                                                switchToAlbumView();
+                                            } else {
+                                                // We can exit application here if we want
+                                            }
+                                        } else {
+                                            // continue waiting
+                                            lastTime = currentTime;
+                                        }
                                     }
-                                }
 
+                                }
                             }
                         }
                     });
@@ -376,6 +376,9 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         lastPressureOccurence = System.currentTimeMillis();
         setContentView(R.layout.activity_main);
         playPauseView = findViewById(R.id.play_pause);
+        findViewById(R.id.player_next).setOnTouchListener(clickEffect);
+        findViewById(R.id.player_prev).setOnTouchListener(clickEffect);
+        playPauseView.setOnTouchListener(clickEffect);
         mTextView = findViewById(R.id.text);
         //TODO current ambient mode is draining the battery. Make a B/W ambient screen
         setAmbientEnabled(); // Enables Always-on
@@ -452,6 +455,8 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     protected void onStop() {
         // FIXME Next line should be removed in production
         MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls().pause();
+        isPlaying = false;
+        updatePlayButton(playPauseView);
         super.onStop();
         mMediaBrowser.disconnect();
     }
@@ -471,19 +476,19 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
      * @param item Album the user has selected
      */
     @Override
-    public void onAlbumsListFragmentInteraction(Album item) {
+    public void onAlbumsListFragmentInteraction(AlbumsAdapter.ViewHolder item, int position) {
         currentPlayingSongPosition = 0;
         /* --- Local variables preparation and update --- */
-        isPlaying = true;                                               // Set play state as playing
-        nowPlaying = item;                                              // Save inflated playlist in a static variable
-        switchToSongView(item);
+        isPlaying = true;                                       // Set play state as playing
+        nowPlaying = item.mItem;                                      // Save inflated playlist in a static variable
+        switchToSongView(item.mItem);
         updatePlayButton(playPauseView);
         /* --- Music Service controls --- */
         MediaControllerCompat controller = MediaControllerCompat.getMediaController(MainActivity.this);
         MediaControllerCompat.TransportControls transportControls = controller.getTransportControls();
         jumpstartVolume(controller);                                    // Boost initial volume
         Bundle albumBundle = new Bundle();                              // Create Bundle to be sent to Queue Manager
-        albumBundle.putSerializable(SERIALIZE_ALBUM, item);             // Put album object in it
+        albumBundle.putSerializable(SERIALIZE_ALBUM, item.mItem);             // Put album object in it
         transportControls.sendCustomAction(ENQUEUE_ALBUM, albumBundle); // Enqueue all the album and play it
     }
 
@@ -526,11 +531,55 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         Toast.makeText(mainContext, msg, Toast.LENGTH_SHORT).show();
     }
 
-    public void nextSong(View view) {
-        nextSong();
+    /**
+     * With Mudra usage only
+     */
+    public void nextAlbum() {
+        int _albumsCount = mAlbumsFragment.getRecycler().getChildCount();
+        if (currentAlbumPosition < _albumsCount - 1) {
+            currentAlbumPosition += 1;
+
+            //put the next song in the center of the screen
+            mAlbumsFragment.scrollToPos(currentAlbumPosition, true);
+            Log.i("current position", currentAlbumPosition + "");
+            mAlbumsFragment.getRecycler().getAdapter().notifyDataSetChanged();
+
+        } else {
+            Log.i("current position", "reached the end");
+        }
+
     }
 
-    private void nextSong() {
+    /**
+     * With Mudra usage only
+     */
+    public void prevAlbum() {
+        if (currentAlbumPosition > 0) {
+            currentAlbumPosition -= 1;
+
+            //put the next song in the center of the screen
+            mAlbumsFragment.scrollToPos(currentAlbumPosition, true);
+            Log.i("current position", currentAlbumPosition + "");
+            mAlbumsFragment.getRecycler().getAdapter().notifyDataSetChanged();
+
+        } else {
+            Log.i("current position", "reached the beginning");
+        }
+
+    }
+
+    /**
+     * With Mudra usage only
+     */
+    public void clickAlbum(View v) {
+        mAlbumsFragment.getRecycler().getChildAt(mAlbumsFragment.getCurrentItem()).performClick();
+    }
+
+    public void nextSong(View view) {
+        nextSong(!constants.USING_MUDRA);
+    }
+
+    private void nextSong(boolean usingMudra) {
         MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls().skipToNext();
         isPlaying = true;
         updatePlayButton(playPauseView);
@@ -560,14 +609,34 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     }
 
     public void prevSong(View view) {
-        prevSong();
+        prevSong(!constants.USING_MUDRA);
     }
 
-    private void prevSong() {
+    private void prevSong(boolean usingMudra) {
         MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls().skipToPrevious();
         isPlaying = true;
         updatePlayButton(playPauseView);
-        Toast.makeText(mainContext, "Prev", Toast.LENGTH_SHORT).show();
+        if (nowPlaying == null)
+            return;
+
+        //check if we're inside the safe zone
+        int _songsCount = nowPlaying.getAlbumSongs().size();
+
+        if (currentPlayingSongPosition > 0) {
+            currentPlayingSongPosition -= 1;
+            //check if the current object is back and if we're no at the end of the list
+            if (!usingMudra && currentPlayingSongPosition > 0) {
+                currentPlayingSongPosition -= 1;
+            }
+            //put the next song in the center of the screen
+            mSongsFragment.scrollToPos(currentPlayingSongPosition, true);
+            Log.i("current position", currentPlayingSongPosition + "");
+            mSongsFragment.getRecycler().getAdapter().notifyDataSetChanged();
+
+        } else {
+            Log.i("current position", "reached the beginning");
+        }
+        //Toast.makeText(mainContext, "Prev", Toast.LENGTH_SHORT).show();
     }
 
     public void updatePlayButton(View v) {
@@ -606,20 +675,29 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
      * Shop Play Pause Next Prev Buttons
      */
     public void showPlayerButtons() {
+        /**Hide the list for now - for better paging (not the best thing yet)*/
+        findViewById(R.id.songs_list_container).setVisibility(View.INVISIBLE);
+        findViewById(R.id.songs_list_container).invalidate();
+
         TextView albums_text = findViewById(R.id.player_albums_text);
         ImageView player_prev = findViewById(R.id.player_prev);
         ImageView player_play = findViewById(R.id.play_pause);
         ImageView player_next = findViewById(R.id.player_next);
+        albums_text.setVisibility(View.INVISIBLE);
+        albums_text.invalidate();
         player_prev.setVisibility(View.VISIBLE);
         player_next.setVisibility(View.VISIBLE);
         player_play.setVisibility(View.VISIBLE);
-        albums_text.setVisibility(View.INVISIBLE);
+
     }
 
     /**
      * Hide Play Pause Next Prev Buttons
      */
     public void hidePlayerButtons() {
+        /**Hide the list for now - for better paging (not the best thing yet)*/
+        //findViewById(R.id.songs_list_container).setVisibility(View.INVISIBLE);
+        //findViewById(R.id.songs_list_container).invalidate();
         TextView albums_text = findViewById(R.id.player_albums_text);
         ImageView player_prev = findViewById(R.id.player_prev);
         ImageView player_play = findViewById(R.id.play_pause);
@@ -658,7 +736,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     public void prepareAlbumsScreen() {
         FrameLayout fl = findViewById(R.id.songs_list_container);
         FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) fl.getLayoutParams();
-        setMargins(fl, lp.leftMargin, dpToPx(constants.SONGS_LAYOUT_MARGIN), lp.rightMargin, lp.bottomMargin);
+        setMargins(fl, lp.leftMargin, dpToPx(constants.ALBUMS_LAYOUT_MARGIN), lp.rightMargin, lp.bottomMargin);
     }
 
     public void prepareSongsScreen() {
@@ -677,17 +755,34 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         Bundle albumBundle = new Bundle();                      // Create Bundle to be sent to Song List Fragment
         albumBundle.putSerializable(SERIALIZE_ALBUM, item);     // Put album object in it
         fragment.setArguments(albumBundle);                     // Assign bundle to fragment
-        fm.beginTransaction().replace(R.id.songs_list_container, fragment).commit();
-    }
+        fm.beginTransaction().replace(R.id.songs_list_container, fragment).addToBackStack(null).commit();
+        getFragmentManager().executePendingTransactions();
+        /**Show the list again*/
+        findViewById(R.id.songs_list_container).setVisibility(ViewGroup.VISIBLE);
+        findViewById(R.id.songs_list_container).invalidate();
 
+    }
+    boolean o = true;
     public void switchToAlbumView() {
         hidePlayerButtons();
-        prepareAlbumsScreen();
-        currentView = constants.VIEW_ALBUMS;
-        android.app.FragmentManager fragmentManager = getFragmentManager();
-        AlbumsFragment fragment = new AlbumsFragment();
-        mAlbumsFragment = fragment;
-        fragmentManager.beginTransaction().replace(R.id.songs_list_container, fragment).commit();
+        if (o) {
+            prepareAlbumsScreen();
+            currentView = constants.VIEW_ALBUMS;
+            android.app.FragmentManager fragmentManager = getFragmentManager();
+            AlbumsFragment fragment = new AlbumsFragment();
+            mAlbumsFragment = fragment;
+
+            fragmentManager.beginTransaction().replace(R.id.songs_list_container, fragment).commit();
+            getFragmentManager().executePendingTransactions();
+            o = false;
+        } else {
+            getFragmentManager().popBackStack();
+            Log.i("Fragment", "popBackStack()");
+        }
+
+        /**Show the list again*/
+        //findViewById(R.id.songs_list_container).setVisibility(ViewGroup.VISIBLE);
+        //findViewById(R.id.songs_list_container).invalidate();
     }
 
     @Override
@@ -707,5 +802,25 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         return false;
     }
     //#endregion
+
+    View.OnTouchListener clickEffect = new View.OnTouchListener() {
+
+        public boolean onTouch(View v, MotionEvent event) {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN: {
+                    v.getBackground().setColorFilter(Color.parseColor("#3304FFFF"), PorterDuff.Mode.SRC_ATOP);
+                    v.invalidate();
+                    break;
+                }
+                case MotionEvent.ACTION_UP: {
+                    v.getBackground().clearColorFilter();
+                    v.invalidate();
+                    break;
+                }
+            }
+            return false;
+        }
+    };
+
 
 }

@@ -23,7 +23,7 @@ public class constants {
 
     public static final String CURRENT_SONG_RECYCLER_POSITION = "CURRENT_POSITION";
     public static final String CURRENT_ALBUM_SIZE = "CURRENT_ALBUM_SIZE";
-    public static final int ALBUMS_LAYOUT_MARGIN = 0;
+    public static final int ALBUMS_LAYOUT_MARGIN = 60;
     public static final int SONGS_LAYOUT_MARGIN = 74;
     public static final int BACK_BUTTON_INTERVAL = 3;
     public static final int BACK_BUTTON_DELAY = 1500;
@@ -33,4 +33,6 @@ public class constants {
     static final int MUDRA_SMOOTH_FACTOR = 5;
     public static final String VIEW_ALBUMS = "Albums";
     public static final String VIEW_SONGS = "SongList";
+    public static final boolean USING_MUDRA = true;
+    public static final int VOLUME_DIRECTION_FLIP_DELAY = 1000;
 }

@@ -105,66 +105,18 @@ public class SongsFragment extends Fragment {
             recyclerView.setBezelFraction(0.3f);
             recyclerView.setScrollDegreesPerScreen(230);
 
-            if (mColumnCount <= 1) {
-                recyclerView.setLayoutManager(
-                        new WearableLinearLayoutManager(context));
-            } else {
-                recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
-            }
+
+            /**using custom scrolling for selection*/
+            CustomScrollingLayoutCallback2 customScrollingLayoutCallback =
+                    new CustomScrollingLayoutCallback2();
+            recyclerView.setLayoutManager(
+                    new WearableLinearLayoutManager(context, customScrollingLayoutCallback));
             recyclerView.setAdapter(new SongsAdapter(mSongs, mListener));
-
-            /*recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-                @Override
-                public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                    super.onScrollStateChanged(recyclerView, newState);
-                    if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                        int position = getCurrentItem();
-                        onSelectedSongChanged(position);
-                    }
-                }
-            });*/
-
-            /*recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-
-
-                @Override
-                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                    super.onScrolled(recyclerView, dx, dy);
-
-//                    int firstVisible = mRecyclerView.get);
-//                    int lastVisible = layoutManager.findLastVisibleItemPosition();
-//                    int itemsCount = lastVisible - firstVisible + 1;
-
-                    int center = (mRecyclerView.getTop() + mRecyclerView.getBottom()) / 2;
-                    View centerView = mRecyclerView.findChildViewUnder(center, mRecyclerView.getTop());
-                    int centerPos = mRecyclerView.getChildAdapterPosition(centerView);
-
-                    if (prevCenterPos != centerPos) {
-                        // dehighlight the previously highlighted view
-                        View prevView = mRecyclerView.getLayoutManager().findViewByPosition(prevCenterPos);
-                        if (prevView != null) {
-                            View layout = prevView.findViewById(R.id.album_item);
-                            //int white = ContextCompat.getColor(context, R.color.white);
-                            layout.setBackgroundColor(Color.CYAN);;
-                        }
-
-                        // highlight view in the middle
-                        if (centerView != null) {
-                            View layout = centerView.findViewById(R.id.album_item);
-                            //int highlightColor = ContextCompat.getColor(context, R.color.colorAccent);
-                            layout.setBackgroundColor(Color.RED);
-                        }
-
-                        prevCenterPos = centerPos;
-                    }
-                }
-
-            });*/
-
+            /**using snap helper for better scrolling experience*/
             PagerSnapHelper snapHelper = new PagerSnapHelper();
             snapHelper.attachToRecyclerView(recyclerView);
-            recyclerView.setOnFlingListener(snapHelper);
             mRecyclerView = recyclerView;
+
             mRecyclerView.invalidate();
         }
         return view;
@@ -278,27 +230,33 @@ public class SongsFragment extends Fragment {
         void onSongsListFragmentInteraction(SongsAdapter.SongsViewHolder item, int position);
     }
 
-    private class CustomScrollingLayoutCallback extends WearableLinearLayoutManager.LayoutCallback {
+    public class CustomScrollingLayoutCallback2 extends WearableLinearLayoutManager.LayoutCallback {
+        /**
+         * How much should we scale the icon at most.
+         */
+        private static final float MAX_ICON_PROGRESS = 0.65f;
 
-        private static final float MAX_ICON_PROGRESS = 2F;
+        private float mProgressToCenter;
 
         @Override
         public void onLayoutFinished(View child, RecyclerView parent) {
 
+            // Figure out % progress from top to bottom
             float centerOffset = ((float) child.getHeight() / 2.0f) / (float) parent.getHeight();
             float yRelativeToCenterOffset = (child.getY() / parent.getHeight()) + centerOffset;
 
-            float progresstoCenter = (float) Math.sin(yRelativeToCenterOffset * Math.PI);
-
-            float mProgressToCenter = Math.abs(0.5f - yRelativeToCenterOffset);
-
+            // Normalize for center
+            mProgressToCenter = Math.abs(0.5f - yRelativeToCenterOffset);
+            // Adjust to the maximum scale
             mProgressToCenter = Math.min(mProgressToCenter, MAX_ICON_PROGRESS);
 
             child.setScaleX(1 - mProgressToCenter);
             child.setScaleY(1 - mProgressToCenter);
-            child.setX(+(1 - progresstoCenter) * 80);
-        }
+            child.setAlpha(0.5f);
 
+            /**Item highlighting upon focus*/
+            child.setBackgroundColor(Color.DKGRAY * (int) (1 - mProgressToCenter));
+        }
     }
 
 }
