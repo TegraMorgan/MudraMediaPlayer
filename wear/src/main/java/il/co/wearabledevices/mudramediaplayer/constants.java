@@ -35,4 +35,5 @@ public class constants {
     static final int MUDRA_SMOOTH_FACTOR = 5;
     public static final String VIEW_ALBUMS = "Albums";
     public static final String VIEW_SONGS = "SongList";
+    public static final boolean USING_MUDRA = true;
 }

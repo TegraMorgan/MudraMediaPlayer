@@ -18,6 +18,7 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 import java.util.Comparator;
 
+import il.co.wearabledevices.mudramediaplayer.AlbumAdapter;
 import il.co.wearabledevices.mudramediaplayer.MainActivity;
 import il.co.wearabledevices.mudramediaplayer.R;
 import il.co.wearabledevices.mudramediaplayer.model.Album;
@@ -138,7 +139,7 @@ public class AlbumsFragment extends Fragment {
         return true;
     }
 
-    private int getCurrentItem() {
+    public int getCurrentItem() {
         return ((LinearLayoutManager) mRecyclerView.getLayoutManager())
                 .findFirstVisibleItemPosition();
     }
@@ -195,7 +196,7 @@ public class AlbumsFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnAlbumsListFragmentInteractionListener {
-        void onAlbumsListFragmentInteraction(Album item);
+        void onAlbumsListFragmentInteraction(AlbumsAdapter.ViewHolder item, int position);
     }
 
 
