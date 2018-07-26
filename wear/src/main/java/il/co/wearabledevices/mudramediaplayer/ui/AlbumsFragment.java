@@ -150,7 +150,7 @@ public class AlbumsFragment extends Fragment {
         else
             mRecyclerView.scrollToPosition(position);
 
-        mRecyclerView.getChildAt(position).setSelected(true);
+        //mRecyclerView.getChildAt(position).setSelected(true);
     }
 
 

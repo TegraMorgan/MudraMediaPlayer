@@ -427,10 +427,24 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        //super.onDestroy();
+        getApplicationContext().unbindService(mMudraConnection);
+        isMudraBinded = false;
+        mMediaBrowser.disconnect();
+
+
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         //Added by Tegra. When the application stops, we want to close Mudra channel
         releaseMudra();
+        isMudraBinded = false;
+        getApplicationContext().unbindService(mMudraConnection);
+        mMediaBrowser.disconnect();
     }
 
     @Override
@@ -438,6 +452,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         // FIXME Next line should be removed in production
         MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls().pause();
         isPlaying=false;
+        isMudraBinded = false;
         updatePlayButton(playPauseView);
         super.onStop();
         mMediaBrowser.disconnect();
@@ -524,7 +539,8 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
 
     /**With Mudra usage only*/
     public void nextAlbum(){
-        int _albumsCount = mAlbumsFragment.getRecycler().getChildCount();
+        int _albumsCount = mAlbumsFragment.getRecycler().getAdapter().getItemCount();
+        Log.i("Albums count",_albumsCount+"");
         if (currentAlbumPosition < _albumsCount - 1) {
             currentAlbumPosition += 1;
 
@@ -557,7 +573,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
 
     /**With Mudra usage only*/
     public void clickAlbum(){
-        mAlbumsFragment.getRecycler().getChildAt(mAlbumsFragment.getCurrentItem()).performClick();
+        mAlbumsFragment.getRecycler().findViewHolderForAdapterPosition(mAlbumsFragment.getCurrentItem()).itemView.performClick();
     }
 
     public void nextSong(View view) {
@@ -736,6 +752,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     public void switchToAlbumView() {
         currentScreen = constants.VIEW_ALBUMS;
         hidePlayerButtons();
+        currentAlbumPosition = 0;
         if(albumsFragmentNotInitialized){
             prepareAlbumsScreen();
             currentScreen = constants.VIEW_ALBUMS;
