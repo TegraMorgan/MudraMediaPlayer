@@ -592,24 +592,25 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     private void nextSong(boolean usingMudra) {
         if (nowPlaying == null)
             return;
-        //check if we're inside the safe zone
         int _songsCount = nowPlaying.getAlbumSongs().size();
         currentPlayingSongPosition = (currentPlayingSongPosition + 1) % _songsCount;
         if (nowPlaying.getAlbumSongs().get(currentPlayingSongPosition).getId() == constants.BACK_BUTTON_SONG_ID) {
             if (!usingMudra) {
                 currentPlayingSongPosition = (currentPlayingSongPosition + 1) % _songsCount;
-                isPlaying = true;
-                updatePlayButton(playPauseView);
-                MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls().skipToNext();
+                skipToNextSong();
             }
         } else {
-            isPlaying = true;
-            updatePlayButton(playPauseView);
-            MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls().skipToNext();
+            skipToNextSong();
         }
         mSongsFragment.scrollToPos(currentPlayingSongPosition, true);
         Log.i("current position", currentPlayingSongPosition + "");
         mSongsFragment.getRecycler().getAdapter().notifyDataSetChanged();
+    }
+
+    private void skipToNextSong() {
+        isPlaying = true;
+        updatePlayButton(playPauseView);
+        MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls().skipToQueueItem(currentPlayingSongPosition);
     }
 
     public void prevSong(View view) {
@@ -777,8 +778,6 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         return mMediaBrowser;
     }
 
-    //#endregion
-
     View.OnTouchListener clickEffect = (v, event) -> {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN: {
@@ -794,6 +793,9 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         }
         return false;
     };
+
+    //#endregion
+
 
 
 }
