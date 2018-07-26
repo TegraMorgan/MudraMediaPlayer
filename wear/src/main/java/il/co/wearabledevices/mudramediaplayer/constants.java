@@ -1,9 +1,5 @@
 package il.co.wearabledevices.mudramediaplayer;
 
-/**
- * Created by User on 11/27/2017.
- */
-
 public class constants {
     public static final int DATA_TYPE_GESTURE = 0;
     public static final int DATA_TYPE_PROPORTIONAL = 1;
