@@ -28,7 +28,7 @@ public class constants {
     public static final int BACK_BUTTON_INTERVAL = 3;
     public static final int BACK_BUTTON_DELAY = 1500;
     // 0<x<1 Higher values will demand more pressure to be applied
-    public static final double MUDRA_VOLUME_PRESSURE_SENSITIVITY = 0.8;
+    public static final double MUDRA_VOLUME_PRESSURE_SENSITIVITY = 0.6;
     // Higher values will slow down volume change speed
     static final int MUDRA_SMOOTH_FACTOR = 5;
     public static final String VIEW_ALBUMS = "Albums";

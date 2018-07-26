@@ -244,29 +244,30 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
                                     lastPressureOccurence = System.currentTimeMillis();
                                 }
                                 mudraSmoother = (mudraSmoother + 1) % constants.MUDRA_SMOOTH_FACTOR;
-                            } else {
-                                // if music is not playing long pressure is back button
-                                if (data[2] > constants.MUDRA_VOLUME_PRESSURE_SENSITIVITY) {  //only react if the pressure is strong enough
-                                    currentTime = System.currentTimeMillis();
-                                    if (currentTime - lastTime > 400) {
-                                        lastTime = currentTime;
-                                        firstMeasure = currentTime;
-                                    } else {
-                                        if (firstMeasure - currentTime > constants.BACK_BUTTON_DELAY) {
-                                            // Pressure was for 1.5 seconds - we can act now
-                                            if (currentScreen.equals(constants.VIEW_SONGS)) {
-                                                switchToAlbumView();
-                                            } else {
-                                                // We can exit application here if we want
-                                            }
-                                        } else {
-                                            // continue waiting
-                                            lastTime = currentTime;
-                                        }
-                                    }
-
-                                }
                             }
+                        } else {
+                            // if music is not playing long pressure is back button
+                            if (data[2] > constants.MUDRA_VOLUME_PRESSURE_SENSITIVITY) {  //only react if the pressure is strong enough
+                                currentTime = System.currentTimeMillis();
+                                if (currentTime - lastTime > 400) {
+                                    lastTime = currentTime;
+                                    firstMeasure = currentTime;
+                                } else {
+                                    if (firstMeasure - currentTime > constants.BACK_BUTTON_DELAY) {
+                                        // Pressure was for 1.5 seconds - we can act now
+                                        if (currentScreen.equals(constants.VIEW_SONGS)) {
+                                            switchToAlbumView();
+                                        } else {
+                                            // We can exit application here if we want
+                                        }
+                                    } else {
+                                        // continue waiting
+                                        lastTime = currentTime;
+                                    }
+                                }
+
+                            }
+
                         }
                     });
                     Log.i("Gesture", "1");
