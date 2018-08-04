@@ -223,11 +223,16 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
             long del = System.currentTimeMillis() - lastPressureOccurrence;
             // If there was no gesture for a long time - reset smoother
             if (del > constants.VOLUME_DIRECTION_FLIP_DELAY) {
-                mudraSmoother = 0;
-                VolumeUp = !VolumeUp;
-                String msg = VolumeUp ? "Volume Up" : "Volume Down";
-                Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
-                //Measure the proportional strength
+                if (isPlaying()) {
+                    mudraSmoother = 0;
+                    VolumeUp = !VolumeUp;
+                    String msg = VolumeUp ? "Volume Up" : "Volume Down";
+                    Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
+                    //Measure the proportional strength
+                } else {
+                    switchToAlbumView();
+                    del = lastPressureOccurrence;
+                }
             }
             /* Only one of three volume change commands works - change is too quick */
             if (mudraSmoother % constants.MUDRA_SMOOTH_FACTOR == 0) {
