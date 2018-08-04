@@ -1,4 +1,4 @@
-package il.co.wearabledevices.mudramediaplayer;
+package il.co.wearabledevices.mudramediaplayer.activities;
 
 
 import android.Manifest;
@@ -30,13 +30,15 @@ import com.wearable.android.ble.interfaces.IMudraAPI;
 import com.wearable.android.ble.interfaces.IMudraDataListener;
 import com.wearable.android.ble.interfaces.IMudraDeviceStatuslListener;
 
+import il.co.wearabledevices.mudramediaplayer.R;
+import il.co.wearabledevices.mudramediaplayer.constants;
 import il.co.wearabledevices.mudramediaplayer.model.Album;
 import il.co.wearabledevices.mudramediaplayer.model.MediaLibrary;
 import il.co.wearabledevices.mudramediaplayer.ui.AlbumsAdapter;
 import il.co.wearabledevices.mudramediaplayer.ui.AlbumsFragment;
 import il.co.wearabledevices.mudramediaplayer.ui.SongsAdapter;
 import il.co.wearabledevices.mudramediaplayer.ui.SongsFragment;
-import il.co.wearabledevices.mudramediaplayer.utils.TegraController;
+import il.co.wearabledevices.mudramediaplayer.utils.CustomMediaController;
 
 import static il.co.wearabledevices.mudramediaplayer.constants.DATA_TYPE_GESTURE;
 import static il.co.wearabledevices.mudramediaplayer.constants.DATA_TYPE_PROPORTIONAL;
@@ -53,8 +55,8 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     //#region Variables
 
 
-    private TegraService musicSrv;
-    private TegraController controller;
+    private MudraMusicService musicSrv;
+    private CustomMediaController controller;
     private Intent playIntent;
     private boolean musicBound = false;
     private boolean paused = false, playbackPaused = true;
@@ -372,7 +374,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         super.onStart();
         Log.v(DB, "Starting");
         if (playIntent == null) {
-            playIntent = new Intent(this, TegraService.class);
+            playIntent = new Intent(this, MudraMusicService.class);
             bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
             startService(playIntent);
         }
@@ -693,7 +695,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     private ServiceConnection musicConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            TegraService.MusicBinder binder = (TegraService.MusicBinder) service;
+            MudraMusicService.MusicBinder binder = (MudraMusicService.MusicBinder) service;
             musicSrv = binder.getService();
             musicBound = true;
             // If the music is playing we want to get back to the now playing screen
@@ -717,7 +719,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     //#region MediaPlayerControl implementation
 
     private void setController() {
-        controller = new TegraController(this);
+        controller = new CustomMediaController(this);
         controller.setPrevNextListeners(v -> nextSong(), v -> prevSong());
         controller.setMediaPlayer(this);
         controller.setAnchorView(findViewById(R.id.main_screen));

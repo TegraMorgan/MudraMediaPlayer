@@ -1,4 +1,4 @@
-package il.co.wearabledevices.mudramediaplayer;
+package il.co.wearabledevices.mudramediaplayer.activities;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -19,12 +19,14 @@ import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import il.co.wearabledevices.mudramediaplayer.R;
+import il.co.wearabledevices.mudramediaplayer.constants;
 import il.co.wearabledevices.mudramediaplayer.model.Album;
 import il.co.wearabledevices.mudramediaplayer.model.Song;
 
-public class TegraService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener, AudioManager.OnAudioFocusChangeListener {
+public class MudraMusicService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener, AudioManager.OnAudioFocusChangeListener {
 
-    private static final String TAG = TegraService.class.getSimpleName();
+    private static final String TAG = MudraMusicService.class.getSimpleName();
     private static final int NOTIFY_ID = 475;
     private static final String NOTIF_CHANN_ID = "MudraPlayer";
 
@@ -109,8 +111,8 @@ public class TegraService extends Service implements MediaPlayer.OnPreparedListe
     }
 
     public class MusicBinder extends Binder {
-        TegraService getService() {
-            return TegraService.this;
+        MudraMusicService getService() {
+            return MudraMusicService.this;
         }
     }
 

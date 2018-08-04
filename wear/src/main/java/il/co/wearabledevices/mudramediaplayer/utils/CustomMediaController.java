@@ -4,11 +4,12 @@ import android.content.Context;
 import android.view.KeyEvent;
 import android.widget.MediaController;
 
-import il.co.wearabledevices.mudramediaplayer.MainActivity;
+import il.co.wearabledevices.mudramediaplayer.activities.MainActivity;
 
-public class TegraController extends MediaController {
+public class CustomMediaController extends MediaController {
     Context c;
-    public TegraController(Context context) {
+
+    public CustomMediaController(Context context) {
         super(context);
         c = context;
     }

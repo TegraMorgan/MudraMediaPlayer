@@ -4,7 +4,6 @@ import android.app.Fragment;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PagerSnapHelper;
 import android.support.v7.widget.RecyclerView;
@@ -18,8 +17,6 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 import java.util.Comparator;
 
-import il.co.wearabledevices.mudramediaplayer.AlbumAdapter;
-import il.co.wearabledevices.mudramediaplayer.MainActivity;
 import il.co.wearabledevices.mudramediaplayer.R;
 import il.co.wearabledevices.mudramediaplayer.model.Album;
 import il.co.wearabledevices.mudramediaplayer.model.MediaLibrary;

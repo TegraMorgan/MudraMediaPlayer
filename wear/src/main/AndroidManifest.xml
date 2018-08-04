@@ -43,7 +43,7 @@
             tools:replace="android:value" />
 
         <activity
-            android:name=".MainActivity"
+            android:name=".activities.MainActivity"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -71,9 +71,9 @@
         </receiver>
 
         <activity
-            android:name=".PermissionRequestActivity"
+            android:name=".activities.PermissionRequestActivity"
             android:theme="@style/MyWearTheme" />
-        <service android:name=".TegraService" />
+        <service android:name=".activities.MudraMusicService" />
     </application>
 
 </manifest>
