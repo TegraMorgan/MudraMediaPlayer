@@ -3,6 +3,7 @@ package il.co.wearabledevices.mudramediaplayer;
 
 import android.Manifest;
 import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -342,7 +343,9 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
 
             //#region Initialize Media Library
             if (!MediaLibrary.isInitialized()) {
-                MediaLibrary.buildMediaLibrary(this);
+                ContentResolver res = getContentResolver();
+                MediaLibrary.buildMediaLibrary(res);
+                /*new Thread(() -> MediaLibrary.buildMediaLibrary(res));*/
             }
             //#endregion
 
@@ -351,7 +354,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
                 setController();
                 paused = false;
             }
-            if (musicBound) {
+            if (musicBound && musicSrv.getNowPlaying() != null && musicSrv.isPlaying()) {
                 playbackPaused = !musicSrv.isPlaying();
                 if (musicSrv.getNowPlaying() != null && !playbackPaused) {
                     switchToSongView(musicSrv.getNowPlaying());
@@ -399,6 +402,8 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
                 isMudraBinded = false;
                 getApplicationContext().unbindService(mMudraConnection);
             }
+            finish();
+            System.exit(0);
         }
         super.onDestroy();
     }

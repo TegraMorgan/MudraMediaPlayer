@@ -243,6 +243,12 @@ public class TegraService extends Service implements MediaPlayer.OnPreparedListe
     public Notification makeNotification(PendingIntent pendInt) {
         NotificationChannel notCha;
         Notification.Builder builder;
+
+        String mainTitle = currentSong.getTitle();
+        String secondTitle = "secondTitle";
+        String thirdTitle = currentSong.getArtist();
+
+
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             notCha = new NotificationChannel(NOTIF_CHANN_ID, "MudraChannel", NotificationManager.IMPORTANCE_DEFAULT);
             notMan.createNotificationChannel(notCha);
@@ -251,11 +257,11 @@ public class TegraService extends Service implements MediaPlayer.OnPreparedListe
             builder = new Notification.Builder(this);
         }
         builder.setContentIntent(pendInt)
-                .setSmallIcon(R.drawable.play_icon)
-                .setTicker(currentSong.getTitle())
+                .setSmallIcon(R.drawable.music_metal_molder_icon)
+                .setTicker(secondTitle)
                 .setOngoing(true)
-                .setContentTitle("Playing")
-                .setContentText(currentSong.getTitle());
+                .setContentTitle(mainTitle)
+                .setContentText(thirdTitle);
         return builder.build();
     }
 

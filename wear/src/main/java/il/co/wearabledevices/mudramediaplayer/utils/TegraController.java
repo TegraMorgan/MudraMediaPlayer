@@ -8,7 +8,6 @@ import il.co.wearabledevices.mudramediaplayer.MainActivity;
 
 public class TegraController extends MediaController {
     Context c;
-
     public TegraController(Context context) {
         super(context);
         c = context;
