@@ -1,0 +1,286 @@
+package il.co.wearabledevices.mudramediaplayer;
+
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.Service;
+import android.content.ContentUris;
+import android.content.Intent;
+import android.media.AudioAttributes;
+import android.media.AudioFocusRequest;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.net.Uri;
+import android.os.Binder;
+import android.os.IBinder;
+import android.os.PowerManager;
+import android.provider.MediaStore;
+import android.support.annotation.Nullable;
+import android.util.Log;
+
+import il.co.wearabledevices.mudramediaplayer.model.Album;
+import il.co.wearabledevices.mudramediaplayer.model.Song;
+
+public class TegraService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener, AudioManager.OnAudioFocusChangeListener {
+
+    private static final String TAG = TegraService.class.getSimpleName();
+    private static final int NOTIFY_ID = 475;
+    private static final String NOTIF_CHANN_ID = "MudraPlayer";
+
+    private AudioManager mAudioManager;
+    private MediaPlayer mMediaPlayer;
+
+    /**
+     * Notification manager
+     */
+    NotificationManager notMan;
+    /**
+     * Current playlist
+     */
+    private Album nowPlaying;
+    /**
+     * Current song
+     */
+    private Song currentSong;
+    /**
+     * Current position in playlist
+     */
+    private int songNum;
+    private final IBinder musicBind = new MusicBinder();
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        songNum = 0;
+        mMediaPlayer = new MediaPlayer();
+        notMan = this.getSystemService(NotificationManager.class);
+        mAudioManager = this.getSystemService(AudioManager.class);
+        initMusicPlayer();
+    }
+
+    public void initMusicPlayer() {
+        mMediaPlayer.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
+        mMediaPlayer.setOnPreparedListener(this);
+        mMediaPlayer.setOnCompletionListener(this);
+        mMediaPlayer.setOnErrorListener(this);
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            AudioAttributes attr = new AudioAttributes.Builder().
+                    setUsage(AudioAttributes.USAGE_MEDIA).
+                    setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build();
+            AudioFocusRequest req = null;
+            req = new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
+                    .setAudioAttributes(attr)
+                    .setAcceptsDelayedFocusGain(true)
+                    .setWillPauseWhenDucked(false)
+                    .setOnAudioFocusChangeListener(this, null)
+                    .build();
+            mMediaPlayer.setAudioAttributes(attr);
+            int res = mAudioManager.requestAudioFocus(req);
+        } else {
+            mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        }
+    }
+
+    public void enqueueAlbum(Album album) {
+        nowPlaying = album;
+        songNum = 0;
+    }
+
+    @Override
+    public void onAudioFocusChange(int focusChange) {
+        switch (focusChange) {
+            case AudioManager.AUDIOFOCUS_GAIN:
+                //Focus gained - if not playing resume playing
+                break;
+            case AudioManager.AUDIOFOCUS_LOSS:
+                //Focus lost because there is another music app running - no resume
+                break;
+            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
+                //Focus lost so we pause playback
+                break;
+            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
+                //Focus lost so lower the volume
+                break;
+            default:
+                break;
+        }
+
+    }
+
+    public class MusicBinder extends Binder {
+        TegraService getService() {
+            return TegraService.this;
+        }
+    }
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return musicBind;
+    }
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+        return false;
+    }
+
+    @Override
+    public void onCompletion(MediaPlayer mp) {
+        if (mMediaPlayer.getCurrentPosition() > 0) {
+            mp.reset();
+            playNext(!constants.USING_MUDRA);
+        }
+    }
+
+    public void playSong() {
+        mMediaPlayer.reset();
+        currentSong = nowPlaying.getAlbumSongs().get(songNum);
+        long currSongId = currentSong.getId();
+        Uri trackUri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, currSongId);
+        try {
+            mMediaPlayer.setDataSource(getApplicationContext(), trackUri);
+        } catch (Exception e) {
+            Log.v(TAG, "Error setting data source of:" + currentSong.getTitle() + " by " + currentSong.getArtist());
+        }
+        mMediaPlayer.prepareAsync();
+    }
+
+    public void adjustVolume(int direction, int flags) {
+        if (direction == -1 || direction == 1)
+            //TODO show ui when state can be saved
+            //getMMPS().mediaControllerCompat.adjustVolume(direction, AudioManager.FLAG_SHOW_UI||flags);
+            mAudioManager.adjustVolume(direction, 0);
+    }
+
+    public int getCurrentVolume() {
+        return mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+    }
+
+    public int getMaxVolume() {
+        return mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+    }
+
+    public void jumpToSong(int i) {
+        songNum = i;
+    }
+
+    public int getPosn() {
+        return mMediaPlayer.getCurrentPosition();
+    }
+
+    public int getDur() {
+        return mMediaPlayer.getDuration();
+    }
+
+    public boolean isPlaying() {
+        return mMediaPlayer.isPlaying();
+    }
+
+    public void pausePlayer() {
+        mMediaPlayer.pause();
+    }
+
+    public void seek(int posn) {
+        mMediaPlayer.seekTo(posn);
+    }
+
+    public void go() {
+        mMediaPlayer.start();
+    }
+
+    public void playPrev(boolean usingMudra) {
+        if (songNum > 0) {
+            songNum--;
+            //check if the current object is back and if we're no at the end of the list
+            if (usingMudra) {
+                if (nowPlaying.getAlbumSongs().get(songNum).getId() != constants.BACK_BUTTON_SONG_ID) {
+                    playSong();
+                }
+            } else {
+                if (nowPlaying.getAlbumSongs().get(songNum).getId() == constants.BACK_BUTTON_SONG_ID) {
+                    songNum--;
+                }
+                playSong();
+            }
+        } else {
+            Log.i("current position", "reached the beginning");
+        }
+    }
+
+    public void playNext(boolean usingMudra) {
+        songNum = (songNum + 1) % nowPlaying.getSongsCount();
+        if (usingMudra) {
+            if (nowPlaying.getAlbumSongs().get(songNum).getId() != constants.BACK_BUTTON_SONG_ID) {
+                playSong();
+            }
+        } else {
+            if (nowPlaying.getAlbumSongs().get(songNum).getId() == constants.BACK_BUTTON_SONG_ID) {
+                songNum = (songNum + 1) % nowPlaying.getSongsCount();
+            }
+            playSong();
+        }
+    }
+
+    @Override
+    public boolean onError(MediaPlayer mp, int what, int extra) {
+        mp.reset();
+        return false;
+    }
+
+    @Override
+    public void onPrepared(MediaPlayer mp) {
+        mp.start();
+        Intent notificationIntent = new Intent(this, MainActivity.class);
+        notificationIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pendInt = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Notification not = makeNotification(pendInt);
+
+        startForeground(NOTIFY_ID, not);
+    }
+
+    public Notification makeNotification(PendingIntent pendInt) {
+        NotificationChannel notCha;
+        Notification.Builder builder;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            notCha = new NotificationChannel(NOTIF_CHANN_ID, "MudraChannel", NotificationManager.IMPORTANCE_DEFAULT);
+            notMan.createNotificationChannel(notCha);
+            builder = new Notification.Builder(this, NOTIF_CHANN_ID);
+        } else {
+            builder = new Notification.Builder(this);
+        }
+        builder.setContentIntent(pendInt)
+                .setSmallIcon(R.drawable.play_icon)
+                .setTicker(currentSong.getTitle())
+                .setOngoing(true)
+                .setContentTitle("Playing")
+                .setContentText(currentSong.getTitle());
+        return builder.build();
+    }
+
+    @Override
+    public void onDestroy() {
+        stopForeground(true);
+        if (mMediaPlayer != null) {
+            if (mMediaPlayer.isPlaying()) mMediaPlayer.stop();
+            mMediaPlayer.reset();
+            mMediaPlayer.release();
+            mMediaPlayer = null;
+        }
+        super.onDestroy();
+    }
+
+    public Album getNowPlaying() {
+        return nowPlaying;
+    }
+
+    public Song getCurrentSong() {
+        return currentSong;
+    }
+
+    public int getPlaylistPos() {
+        return songNum;
+    }
+
+}

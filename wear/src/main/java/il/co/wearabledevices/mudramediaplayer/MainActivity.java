@@ -9,17 +9,10 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.media.MediaBrowserCompat;
-import android.support.v4.media.MediaMetadataCompat;
-import android.support.v4.media.session.MediaControllerCompat;
-import android.support.v4.media.session.MediaSessionCompat;
-import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.wearable.activity.WearableActivity;
 import android.util.Log;
 import android.util.TypedValue;
@@ -28,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.MediaController;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,78 +33,45 @@ import il.co.wearabledevices.mudramediaplayer.model.Album;
 import il.co.wearabledevices.mudramediaplayer.model.MediaLibrary;
 import il.co.wearabledevices.mudramediaplayer.ui.AlbumsAdapter;
 import il.co.wearabledevices.mudramediaplayer.ui.AlbumsFragment;
-import il.co.wearabledevices.mudramediaplayer.ui.MediaBrowserProvider;
 import il.co.wearabledevices.mudramediaplayer.ui.SongsAdapter;
 import il.co.wearabledevices.mudramediaplayer.ui.SongsFragment;
-import il.co.wearabledevices.mudramediaplayer.utils.LogHelper;
+import il.co.wearabledevices.mudramediaplayer.utils.TegraController;
 
 import static il.co.wearabledevices.mudramediaplayer.constants.DATA_TYPE_GESTURE;
 import static il.co.wearabledevices.mudramediaplayer.constants.DATA_TYPE_PROPORTIONAL;
-import static il.co.wearabledevices.mudramediaplayer.constants.ENQUEUE_ALBUM;
 import static il.co.wearabledevices.mudramediaplayer.constants.SERIALIZE_ALBUM;
 
 @SuppressWarnings("SpellCheckingInspection")
 public class MainActivity extends WearableActivity implements AlbumsFragment.OnAlbumsListFragmentInteractionListener
-        , SongsFragment.OnSongsListFragmentInteractionListener, MediaBrowserProvider {
+        , SongsFragment.OnSongsListFragmentInteractionListener, MediaController.MediaPlayerControl {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-    //#endregion
+    private static final String DB = "Tegra";
+    private static final boolean KEEP_PLAYING_AFTER_EXIT = true;
 
     //#region Variables
 
-    /*
-        Unfortunately, we have been unable to get playback state directly
-        from the music service so we have made our own isPlaying boolean
-    */
-    static boolean isPlaying = false, isMudraBinded = false, mudraCallbackAdded = false, VolumeUp = false;
-    private static int mudraSmoother;
-    ImageView playPauseView;
-    private Context mainContext;
-    private IMudraAPI mIMudraAPI = null;
-    Long lastPressureOccurence;
+
+    private TegraService musicSrv;
+    private TegraController controller;
+    private Intent playIntent;
+    private boolean musicBound = false;
+    private boolean paused = false, playbackPaused = true;
+
+
     private TextView mTextView;
-    private MediaBrowserCompat mMediaBrowser;
-    private static Album nowPlaying;
     private AlbumsFragment mAlbumsFragment;
     private SongsFragment mSongsFragment;
-    private int currentPlayingSongPosition = 0;
-    private String currentScreen = constants.VIEW_ALBUMS;
+    private int currentAlbumPosition = 0;
+    private boolean isMudraBinded = false, mudraCallbackAdded = false, VolumeUp = false, albumsFragmentNotInitialized = true;
+    private IMudraAPI mIMudraAPI = null;
+    private Long lastPressureOccurrence;
+    private int mudraSmoother;
+    private String currentScreen;
+
     //#endregion
 
-    //#region Media controller and everything in it
-
-    private final MediaControllerCompat.Callback mMediaControllerCallback =
-            new MediaControllerCompat.Callback() {
-                @Override
-                public void onPlaybackStateChanged(@NonNull PlaybackStateCompat state) {
-                    /* This section hides or displays playback controls - we don't use it
-
-
-                    if (shouldShowControls()) {
-                        showPlaybackControls();
-                    } else {
-                        LogHelper.d(TAG, "mediaControllerCallback.onPlaybackStateChanged: " +
-                                "hiding controls because state is ", state.getState());
-                        hidePlaybackControls();
-                    }
-                    */
-                }
-
-                @Override
-                public void onMetadataChanged(MediaMetadataCompat metadata) {
-                    /* This section hides or shows controls - we don't use it
-
-                    if (shouldShowControls()) {
-                        showPlaybackControls();
-                    } else {
-                        LogHelper.d(TAG, "mediaControllerCallback.onMetadataChanged: " +
-                                "hiding controls because metadata is null");
-                        hidePlaybackControls();
-                    }
-                    */
-                }
-            };
-
+    //#region Mudra service
     IMudraDeviceStatuslListener mMudraDeviceStatusCB = new IMudraDeviceStatuslListener.Stub() {
         @Override
         public void onMudraStatusChanged(int statusType, String deviceAddress) throws RemoteException {
@@ -137,133 +98,6 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         }
     };
 
-    //private String deviceAddress = "";
-    private final MediaBrowserCompat.ConnectionCallback mConnectionCallback =
-            new MediaBrowserCompat.ConnectionCallback() {
-                @Override
-                public void onConnected() {
-                    LogHelper.d(TAG, "onConnected");
-                    try {
-                        connectToSession(mMediaBrowser.getSessionToken());
-                    } catch (RemoteException e) {
-                        LogHelper.e(TAG, e, "could not connect media controller");
-                        /* This section hides controls - we don't use it
-
-                        hidePlaybackControls();
-                        */
-                    }
-                }
-            };
-
-    //#endregion
-
-    //#region MUDRA CONTENT
-    /**
-     * This Listener decides what actions to take when any gesture is recognized
-     */
-    IMudraDataListener mMudraDataCB = new IMudraDataListener.Stub() {
-        @Override
-        public void onMudraDataReady(int dataType, float[] data) throws RemoteException {
-            switch (dataType) {
-                case DATA_TYPE_GESTURE:
-                    if ((data[0] > data[1]) && (data[0] > data[2]) && (data[0] > 0.9)) {
-                        Log.i("INFO", "gesture: Thumb");
-                        // Previous song
-                        try {
-                            runOnUiThread(() -> {
-                                Log.i("Mudra interaction", "Thumb " + currentScreen);
-                                if (currentScreen.equals(constants.VIEW_SONGS))
-                                    prevSong(constants.USING_MUDRA);
-                                else {
-                                    prevAlbum();
-                                }
-
-                            });
-                        } catch (Exception e) {
-                            Log.e("Tegra", e.toString());
-                        }
-                    }
-                    if ((data[1] > data[0]) && (data[1] > data[2]) && (data[1] > 0.9)) {
-                        Log.i("INFO", "gesture: Tap");
-                        // Play or pause
-                        try {
-                            runOnUiThread(() -> {
-                                Log.i("Mudra interaction", "Tap " + currentScreen);
-                                if (currentScreen.equals(constants.VIEW_SONGS))
-                                    play_music();
-                                else
-                                    clickAlbum();
-                            });
-                        } catch (Exception e) {
-                            Log.e("Tegra", e.toString());
-                        }
-                    }
-                    if ((data[2] > data[0]) && (data[2] > data[1]) && (data[2] > 0.9)) {
-                        Log.i("INFO", "gesture: Index");
-                        // Next song
-                        try {
-                            runOnUiThread(() -> {
-                                Log.i("Mudra interaction", "Index " + currentScreen);
-                                if (currentScreen.equals(constants.VIEW_SONGS))
-                                    nextSong(constants.USING_MUDRA);
-                                else
-                                    nextAlbum();
-                            });
-                        } catch (Exception e) {
-                            Log.e("Tegra", e.toString());
-                        }
-                    }
-                    break;
-                case DATA_TYPE_PROPORTIONAL:
-
-                    /* if ( data[0] > data[1]) Log.i ("INFO", "Tap Proportional:" +data[2]);
-                       if ( data[1] > data[0]) Log.i ("INFO", "Middle Tap Proportional:" +data[2]);
-                    */
-
-                    runOnUiThread(() ->
-                    {
-                        Log.v("Tegra", "Proportional strength : " + String.valueOf(data[2]));
-                        Log.i("Mudra interaction", "Proportional");
-                        if (data[2] > constants.MUDRA_VOLUME_PRESSURE_SENSITIVITY) {
-                            // Measure time from last proportional gesture
-                            long del = System.currentTimeMillis() - lastPressureOccurence;
-                            // If there was no gesture for a long time - reset smoother
-                            if (del > constants.VOLUME_DIRECTION_FLIP_DELAY) {
-                                mudraSmoother = 0;
-                                VolumeUp = !VolumeUp;
-                                String msg = VolumeUp ? "Volume Up" : "Volume Down";
-                                Toast.makeText(mainContext, msg, Toast.LENGTH_SHORT).show();
-                                //Measure the proportional strength
-                            }
-                            /* Only one of three volume change commands works - change is too quick */
-                            if (mudraSmoother % constants.MUDRA_SMOOTH_FACTOR == 0) {
-                                Log.v("Tegra", "Time between pressures : " + String.valueOf(del));
-                                int direction = VolumeUp ? 1 : -1;
-                                modifyVolume(direction, 0);
-                                lastPressureOccurence = System.currentTimeMillis();
-                            }
-                            mudraSmoother = (mudraSmoother + 1) % constants.MUDRA_SMOOTH_FACTOR;
-                        }
-                    });
-                    Log.i("Gesture", "1");
-                    break;
-                case 2:
-                    Log.i("INFO", "IMU acc x: " + data[0] + " \nacc Y: " + data[1] + " \nacc Z: " + data[2] + " \nQ W: " + data[3] + " \nQ X: " + data[4] + " \nQ Y: " + data[5] + " \nQ Z: " + data[6]);
-                    break;
-                default:
-                    Log.i("Gesture", data[0] + "gesture detected");
-                    break;
-            }
-        }
-    };
-    private int currentAlbumPosition = 0;
-
-    private void connectToSession(MediaSessionCompat.Token token) throws RemoteException {
-        MediaControllerCompat mediaController = new MediaControllerCompat(this, token);
-        MediaControllerCompat.setMediaController(this, mediaController);
-        mediaController.registerCallback(mMediaControllerCallback);
-        onMediaControllerConnected();
-    }
 
     public void startScan() {
         try {
@@ -315,7 +149,8 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
 
     public void releaseMudra() {
         try {
-            mIMudraAPI.releaseMudra();
+            if (mIMudraAPI != null)
+                mIMudraAPI.releaseMudra();
         } catch (RemoteException ex) {
             Log.e("ERROR:", ex.toString());
         }
@@ -347,6 +182,105 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
             mIMudraAPI = null;
         }
     };
+    //#endregion
+
+    //#region Mudra gesture capture
+    /**
+     * This Listener decides what actions to take when any gesture is recognized
+     */
+    IMudraDataListener mMudraDataCB = new IMudraDataListener.Stub() {
+        @Override
+        public void onMudraDataReady(int dataType, float[] data) throws RemoteException {
+            switch (dataType) {
+                case DATA_TYPE_GESTURE:
+                    runOnUiThread(() -> mudraGesture(data));
+                    break;
+                case DATA_TYPE_PROPORTIONAL:
+                    runOnUiThread(() -> mudraProportional(data));
+                    break;
+                case 2:
+                    Log.i("INFO", "IMU acc x: " + data[0] + " \nacc Y: " + data[1] + " \nacc Z: " + data[2] + " \nQ W: " + data[3] + " \nQ X: " + data[4] + " \nQ Y: " + data[5] + " \nQ Z: " + data[6]);
+                    break;
+                default:
+                    Log.i("Gesture", data[0] + "gesture detected");
+                    break;
+            }
+        }
+    };
+
+
+    //#endregion
+
+    //#region Mudra gesture functions
+
+    public void mudraProportional(float[] data) {
+        Log.v("Tegra", "Proportional strength : " + String.valueOf(data[2]));
+        Log.i("Mudra interaction", "Proportional");
+        if (data[2] > constants.MUDRA_VOLUME_PRESSURE_SENSITIVITY) {
+            // Measure time from last proportional gesture
+            long del = System.currentTimeMillis() - lastPressureOccurrence;
+            // If there was no gesture for a long time - reset smoother
+            if (del > constants.VOLUME_DIRECTION_FLIP_DELAY) {
+                mudraSmoother = 0;
+                VolumeUp = !VolumeUp;
+                String msg = VolumeUp ? "Volume Up" : "Volume Down";
+                Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
+                //Measure the proportional strength
+            }
+            /* Only one of three volume change commands works - change is too quick */
+            if (mudraSmoother % constants.MUDRA_SMOOTH_FACTOR == 0) {
+                Log.v("Tegra", "Time between pressures : " + String.valueOf(del));
+                int direction = VolumeUp ? 1 : -1;
+                musicSrv.adjustVolume(direction, 0);
+                lastPressureOccurrence = System.currentTimeMillis();
+            }
+            mudraSmoother = (mudraSmoother + 1) % constants.MUDRA_SMOOTH_FACTOR;
+        }
+    }
+
+    public void mudraGesture(float[] data) {
+        if ((data[0] > data[1]) && (data[0] > data[2]) && (data[0] > 0.9)) {
+            Log.i("INFO", "gesture: Thumb");
+            // Previous song
+            try {
+                Log.i("Mudra interaction", "Thumb " + currentScreen);
+                if (currentScreen.equals(constants.VIEW_SONGS))
+                    musicSrv.playPrev(constants.USING_MUDRA);
+                else {
+                    prevAlbum();
+                }
+
+            } catch (Exception e) {
+                Log.e("Tegra", e.toString());
+            }
+        }
+        if ((data[1] > data[0]) && (data[1] > data[2]) && (data[1] > 0.9)) {
+            Log.i("INFO", "gesture: Tap");
+            // Play or pause
+            try {
+                Log.i("Mudra interaction", "Tap " + currentScreen);
+                if (currentScreen.equals(constants.VIEW_SONGS))
+                    play_music(constants.USING_MUDRA);
+                else
+                    clickAlbum();
+            } catch (Exception e) {
+                Log.e("Tegra", e.toString());
+            }
+        }
+        if ((data[2] > data[0]) && (data[2] > data[1]) && (data[2] > 0.9)) {
+            Log.i("INFO", "gesture: Index");
+            // Next song
+            try {
+                Log.i("Mudra interaction", "Index " + currentScreen);
+                if (currentScreen.equals(constants.VIEW_SONGS))
+                    nextSong(constants.USING_MUDRA);
+                else
+                    nextAlbum();
+            } catch (Exception e) {
+                Log.e("Tegra", e.toString());
+            }
+        }
+    }
 
     //#endregion
 
@@ -354,26 +288,22 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        lastPressureOccurence = System.currentTimeMillis();
+        lastPressureOccurrence = System.currentTimeMillis();
         setContentView(R.layout.activity_main);
-        playPauseView = findViewById(R.id.play_pause);
+        ImageView playPauseView = getPlayPauseView();
         findViewById(R.id.player_next).setOnTouchListener(clickEffect);
         findViewById(R.id.player_prev).setOnTouchListener(clickEffect);
         playPauseView.setOnTouchListener(clickEffect);
         mTextView = findViewById(R.id.text);
         //TODO current ambient mode is draining the battery. Make a B/W ambient screen
         setAmbientEnabled(); // Enables Always-on
-        // Connect a media browser just to get the media session token. There are other ways
-        // this can be done, for example by sharing the session token directly.
-        mMediaBrowser = new MediaBrowserCompat(this,
-                new ComponentName(this, MusicService.class), mConnectionCallback, null);
+
+        setController();
 
         Intent intent = new Intent();
         intent.setAction(IMudraAPI.class.getName());
         intent.setComponent(new ComponentName("com.wearable.android.ble", "com.wearable.android.ble.service.BluetoothLeService"));
         getApplicationContext().bindService(intent, mMudraConnection, Context.BIND_AUTO_CREATE);
-        this.mainContext = this;
     }
 
     @Override
@@ -381,11 +311,11 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         super.onResume();
         Log.v(TAG, "Starting on Resume");
 
+        //#region Rebind mudra
         if (!isMudraBinded) {
             Intent intent = new Intent();
             intent.setAction(IMudraAPI.class.getName());
             intent.setComponent(new ComponentName("com.wearable.android.ble", "com.wearable.android.ble.service.BluetoothLeService"));
-
             getApplicationContext().bindService(intent, mMudraConnection, Context.BIND_AUTO_CREATE);
             isMudraBinded = true;
         } else {
@@ -393,75 +323,84 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
             Intent intent = new Intent();
             intent.setAction(IMudraAPI.class.getName());
             intent.setComponent(new ComponentName("com.wearable.android.ble", "com.wearable.android.ble.service.BluetoothLeService"));
-
             getApplicationContext().bindService(intent, mMudraConnection, Context.BIND_AUTO_CREATE);
         }
+        //#endregion
 
         // Check for permission
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            // We don't have permission
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            //#region  We don't have permission
             Log.v(TAG, "No permission");
             // We want to request permission
             // navigate to another activity and request permission there
             Intent NavToReqPerms = new Intent(MainActivity.this, PermissionRequestActivity.class);
             startActivity(NavToReqPerms);
+            //#endregion
         } else {
             // We already have permission
             //TODO Tegra Launch this on separate thread in the future
+
+            //#region Initialize Media Library
             if (!MediaLibrary.isInitialized()) {
                 MediaLibrary.buildMediaLibrary(this);
             }
-            // Tegra this our Main function delete this line when finished
+            //#endregion
 
-            if (!isPlaying) {
+            //#region Rebind Player Controller
+            if (paused) {
+                setController();
+                paused = false;
+            }
+            if (musicBound) {
+                playbackPaused = !musicSrv.isPlaying();
+                if (musicSrv.getNowPlaying() != null && !playbackPaused) {
+                    switchToSongView(musicSrv.getNowPlaying());
+                    updateSongRecyclerPosition(musicSrv.getPlaylistPos());
+                }
+            } else {
                 switchToAlbumView();
             }
+            //#endregion
         }
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        mMediaBrowser.connect();
+        Log.v(DB, "Starting");
+        if (playIntent == null) {
+            playIntent = new Intent(this, TegraService.class);
+            bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
+            startService(playIntent);
+        }
     }
 
     @Override
     protected void onPause() {
-        super.onPause();
-        //super.onDestroy();
         getApplicationContext().unbindService(mMudraConnection);
         isMudraBinded = false;
-        mMediaBrowser.disconnect();
-
-
+        paused = true;
+        super.onPause();
     }
+
 
     @Override
     protected void onDestroy() {
+        if (musicBound) {
+            unbindService(musicConnection);
+            musicBound = false;
+        }
+        if (!KEEP_PLAYING_AFTER_EXIT || !musicSrv.isPlaying()) {
+            stopService(playIntent);
+            musicSrv = null;
+            /* only release mudra if the music is not playing */
+            releaseMudra();
+            if (isMudraBinded) {
+                isMudraBinded = false;
+                getApplicationContext().unbindService(mMudraConnection);
+            }
+        }
         super.onDestroy();
-        //Added by Tegra. When the application stops, we want to close Mudra channel
-        releaseMudra();
-        isMudraBinded = false;
-        getApplicationContext().unbindService(mMudraConnection);
-        mMediaBrowser.disconnect();
-    }
-
-    @Override
-    protected void onStop() {
-        // FIXME Next line should be removed in production
-        MediaControllerCompat tr = MediaControllerCompat.getMediaController(MainActivity.this);
-        if (tr != null) tr.getTransportControls().pause();
-        isPlaying = false;
-        isMudraBinded = false;
-        updatePlayButton(playPauseView);
-        super.onStop();
-        mMediaBrowser.disconnect();
-    }
-
-    protected void onMediaControllerConnected() {
-
-        //getBrowseFragment().onConnected();
     }
 
     //#endregion
@@ -475,193 +414,121 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
      */
     @Override
     public void onAlbumsListFragmentInteraction(AlbumsAdapter.ViewHolder item, int position) {
-        currentPlayingSongPosition = 0;
         /* --- Local variables preparation and update --- */
-        isPlaying = true;                                       // Set play state as playing
-        nowPlaying = item.mItem;                                      // Save inflated playlist in a static variable
-        switchToSongView(item.mItem);
-        updatePlayButton(playPauseView);
-        /* --- Music Service controls --- */
-        MediaControllerCompat controller = MediaControllerCompat.getMediaController(MainActivity.this);
-        MediaControllerCompat.TransportControls transportControls = controller.getTransportControls();
-        jumpstartVolume(controller);                                    // Boost initial volume
-        Bundle albumBundle = new Bundle();                              // Create Bundle to be sent to Queue Manager
-        albumBundle.putSerializable(SERIALIZE_ALBUM, item.mItem);             // Put album object in it
-        transportControls.sendCustomAction(ENQUEUE_ALBUM, albumBundle); // Enqueue all the album and play it
-    }
-
-
-    public static void setMargins(View v, int l, int t, int r, int b) {
-        if (v.getLayoutParams() instanceof ViewGroup.MarginLayoutParams) {
-            ViewGroup.MarginLayoutParams p = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
-            p.setMargins(l, t, r, b);
-            v.requestLayout();
+        if (playbackPaused) {
+            setController();
+            playbackPaused = false;
         }
+
+        switchToSongView(item.mItem);
+        updatePlayButton();
+
+        /* --- Music Service controls --- */
+
+        musicSrv.enqueueAlbum(item.mItem);
+        musicSrv.playSong();
+
+        jumpstartVolume();
     }
 
     @Override
     public void onSongsListFragmentInteraction(SongsAdapter.SongsViewHolder item, int position) {
-        Toast.makeText(this, "Playing : " + nowPlaying.getAlbumSongs().get(position).getTitle(), Toast.LENGTH_LONG).show();
-        if (nowPlaying.getAlbumSongs().get(position).getId() == constants.BACK_BUTTON_SONG_ID) {        // if back button was pressed
+        // if back button was pressed
+        if (musicSrv.getNowPlaying().getAlbumSongs().get(position).getId() == constants.BACK_BUTTON_SONG_ID) {
             switchToAlbumView();
-        } else {                                                         // if regular song was selected
-            MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls().skipToQueueItem(position);
-            //save current playing song position
-            currentPlayingSongPosition = position;
-            Log.i("current position (click)", currentPlayingSongPosition + "");
+        }
+        // if regular song was selected
+        else {
+            Toast.makeText(this, "Playing : " + musicSrv.getNowPlaying().getAlbumSongs().get(position).getTitle(), Toast.LENGTH_LONG).show();
+            musicSrv.jumpToSong(position);
+            musicSrv.playSong();
+            if (playbackPaused) {
+                setController();
+                playbackPaused = false;
+            }
             //put that song in the center of the screen
             mSongsFragment.scrollToPos(position, true);
             mSongsFragment.getRecycler().getAdapter().notifyDataSetChanged();
-            isPlaying = true;
-            updatePlayButton(playPauseView);
+            playbackPaused = false;
+            updatePlayButton();
         }
     }
 
     public void play_music(View view) {
-        play_music();
-    }
-
-    /**
-     * when using mudra, a tap on a Back view will redirect the user to the albums screen
-     */
-    public void play_music() {
-        if (nowPlaying.getAlbumSongs().get(currentPlayingSongPosition).getId() == constants.BACK_BUTTON_SONG_ID) {        // if back button was pressed
-            switchToAlbumView();
-            return;
-        }
-        if (!isPlaying) {
-            MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls().play();
-        } else {
-            MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls().pause();
-        }
-        isPlaying = !isPlaying;
-        updatePlayButton(playPauseView);
-        String msg = isPlaying ? "Playing" : "Paused";
-        Toast.makeText(mainContext, msg, Toast.LENGTH_SHORT).show();
-    }
-
-    /**
-     * With Mudra usage only
-     */
-    public void nextAlbum() {
-        int _albumsCount = mAlbumsFragment.getRecycler().getAdapter().getItemCount();
-        Log.i("Albums count", _albumsCount + "");
-        if (currentAlbumPosition < _albumsCount - 1) {
-            currentAlbumPosition += 1;
-
-            //put the next song in the center of the screen
-            mAlbumsFragment.scrollToPos(currentAlbumPosition, true);
-            Log.i("current position", currentAlbumPosition + "");
-            mAlbumsFragment.getRecycler().getAdapter().notifyDataSetChanged();
-
-        } else {
-            Log.i("current position", "reached the end");
-        }
-
-    }
-
-    /**
-     * With Mudra usage only
-     */
-    public void prevAlbum() {
-        if (currentAlbumPosition > 0) {
-            currentAlbumPosition -= 1;
-
-            //put the next song in the center of the screen
-            mAlbumsFragment.scrollToPos(currentAlbumPosition, true);
-            Log.i("current position", currentAlbumPosition + "");
-            mAlbumsFragment.getRecycler().getAdapter().notifyDataSetChanged();
-
-        } else {
-            Log.i("current position", "reached the beginning");
-        }
-
-    }
-
-    /**
-     * With Mudra usage only
-     */
-    public void clickAlbum() {
-        mAlbumsFragment.getRecycler().findViewHolderForAdapterPosition(mAlbumsFragment.getCurrentItem()).itemView.performClick();
+        play_music(!constants.USING_MUDRA);
     }
 
     public void nextSong(View view) {
         nextSong(!constants.USING_MUDRA);
-    }
 
-    private void nextSong(boolean usingMudra) {
-        if (nowPlaying == null)
-            return;
-        int _songsCount = nowPlaying.getAlbumSongs().size();
-        currentPlayingSongPosition = (currentPlayingSongPosition + 1) % _songsCount;
-        if (nowPlaying.getAlbumSongs().get(currentPlayingSongPosition).getId() == constants.BACK_BUTTON_SONG_ID) {
-            if (!usingMudra) {
-                currentPlayingSongPosition = (currentPlayingSongPosition + 1) % _songsCount;
-                skipToNextSong();
-            }
-        } else {
-            skipToNextSong();
-        }
-        mSongsFragment.scrollToPos(currentPlayingSongPosition, true);
-        Log.i("current position", currentPlayingSongPosition + "");
-        mSongsFragment.getRecycler().getAdapter().notifyDataSetChanged();
-    }
-
-    private void skipToNextSong() {
-        isPlaying = true;
-        updatePlayButton(playPauseView);
-        MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls().skipToQueueItem(currentPlayingSongPosition);
     }
 
     public void prevSong(View view) {
         prevSong(!constants.USING_MUDRA);
     }
 
-    private void prevSong(boolean usingMudra) {
-        MediaControllerCompat.getMediaController(MainActivity.this).getTransportControls().skipToPrevious();
-        isPlaying = true;
-        updatePlayButton(playPauseView);
-        if (nowPlaying == null)
-            return;
 
-        //check if we're inside the safe zone
-
-        if (currentPlayingSongPosition > 0) {
-            currentPlayingSongPosition -= 1;
-            //check if the current object is back and if we're no at the end of the list
-            if (!usingMudra && nowPlaying.getAlbumSongs().get(currentPlayingSongPosition).getId() == constants.BACK_BUTTON_SONG_ID && currentPlayingSongPosition > 0) {
-                currentPlayingSongPosition -= 1;
-            }
+    /**
+     * With Mudra usage only
+     */
+    private void nextAlbum() {
+        int _albumsCount = mAlbumsFragment.getRecycler().getAdapter().getItemCount();
+        Log.i("Albums count", _albumsCount + "");
+        if (currentAlbumPosition < _albumsCount - 1) {
+            currentAlbumPosition += 1;
             //put the next song in the center of the screen
-            mSongsFragment.scrollToPos(currentPlayingSongPosition, true);
-            Log.i("current position", currentPlayingSongPosition + "");
-            mSongsFragment.getRecycler().getAdapter().notifyDataSetChanged();
-
+            mAlbumsFragment.scrollToPos(currentAlbumPosition, true);
+            Log.i("current position", currentAlbumPosition + "");
+            mAlbumsFragment.getRecycler().getAdapter().notifyDataSetChanged();
         } else {
-            Log.i("current position", "reached the beginning");
+            Log.i("current position", "reached the end");
         }
-        //Toast.makeText(mainContext, "Prev", Toast.LENGTH_SHORT).show();
-    }
-
-    public void updatePlayButton(View v) {
-        v.invalidate();
-        v.setBackground(getDrawable(isPlaying ? R.drawable.pause_icon : R.drawable.play_icon));
     }
 
     /**
-     * Change playback volume
-     *
-     * @param direction -1 to lower, 1 to raise. Anything else will be discarded.
-     * @param flags     AudioManager.FLAGS (not used yet)
+     * With Mudra usage only
      */
-    @SuppressWarnings({"SameParameterValue", "unused"})
-    private void modifyVolume(int direction, int flags) {
-        //TODO show ui when state can be saved
-        //MediaControllerCompat.getMediaController(MainActivity.this).adjustVolume(direction, AudioManager.FLAG_SHOW_UI);
-        if (direction == -1 || direction == 1)
-            MediaControllerCompat.getMediaController(MainActivity.this).adjustVolume(direction, flags);
+    private void prevAlbum() {
+        if (currentAlbumPosition > 0) {
+            currentAlbumPosition -= 1;
+            //put the next song in the center of the screen
+            mAlbumsFragment.scrollToPos(currentAlbumPosition, true);
+            Log.i("current position", currentAlbumPosition + "");
+            mAlbumsFragment.getRecycler().getAdapter().notifyDataSetChanged();
+        } else {
+            Log.i("current position", "reached the beginning");
+        }
+
     }
 
+    /**
+     * With Mudra usage only
+     */
+    private void clickAlbum() {
+        mAlbumsFragment.getRecycler().findViewHolderForAdapterPosition(mAlbumsFragment.getCurrentItem()).itemView.performClick();
+    }
+
+    /**
+     * When using mudra, a tap on a Back view will redirect the user to the albums screen
+     *
+     * @param usingMudra
+     */
+    public void play_music(boolean usingMudra) {
+        // if back button was pressed
+        if (usingMudra && musicSrv.getNowPlaying().getAlbumSongs().get(musicSrv.getPlaylistPos()).getId() == constants.BACK_BUTTON_SONG_ID) {
+            switchToAlbumView();
+            return;
+        }
+        if (playbackPaused) {
+            musicSrv.go();
+        } else {
+            musicSrv.pausePlayer();
+        }
+        playbackPaused = !playbackPaused;
+        updatePlayButton();
+        String msg = !playbackPaused ? "Playing" : "Paused";
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+    }
 
     /**
      * Shop Play Pause Next Prev Buttons
@@ -683,56 +550,43 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
 
     }
 
-    /**
-     * Hide Play Pause Next Prev Buttons
-     */
-    public void hidePlayerButtons() {
-        /*Hide the list for now - for better paging (not the best thing yet)*/
-        //findViewById(R.id.songs_list_container).setVisibility(View.INVISIBLE);
-        //findViewById(R.id.songs_list_container).invalidate();
-        TextView albums_text = findViewById(R.id.player_albums_text);
-        ImageView player_prev = findViewById(R.id.player_prev);
-        ImageView player_play = findViewById(R.id.play_pause);
-        ImageView player_next = findViewById(R.id.player_next);
-        player_prev.setVisibility(View.INVISIBLE);
-        player_next.setVisibility(View.INVISIBLE);
-        player_play.setVisibility(View.INVISIBLE);
-        albums_text.setVisibility(View.VISIBLE);
-
-    }
-
-    /**
-     * Convert DP to pixels
-     *
-     * @param sizeInDP Element size in DP
-     * @return Element size in Pixels
-     */
-    public int dpToPx(int sizeInDP) {
-        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, sizeInDP, getResources().getDisplayMetrics());
-    }
 
     /**
      * Raise volume
      */
     @SuppressWarnings("SpellCheckingInspection")
-    private void jumpstartVolume(MediaControllerCompat cn) {
-        cn.adjustVolume(AudioManager.ADJUST_RAISE, 0);
-        cn.adjustVolume(AudioManager.ADJUST_RAISE, 0);
-        cn.adjustVolume(AudioManager.ADJUST_RAISE, 0);
-        cn.adjustVolume(AudioManager.ADJUST_RAISE, 0);
+    private void jumpstartVolume() {
+        musicSrv.adjustVolume(1, 0);
+        musicSrv.adjustVolume(1, 0);
+        musicSrv.adjustVolume(1, 0);
     }
 
-    public void prepareAlbumsScreen() {
-        FrameLayout fl = findViewById(R.id.songs_list_container);
-        FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) fl.getLayoutParams();
-        setMargins(fl, lp.leftMargin, dpToPx(constants.ALBUMS_LAYOUT_MARGIN), lp.rightMargin, lp.bottomMargin);
+    public void updatePlayButton() {
+        ImageView view = getPlayPauseView();
+        view.invalidate();
+        view.setBackground(getDrawable(!playbackPaused ? R.drawable.pause_icon : R.drawable.play_icon));
     }
 
-    public void prepareSongsScreen() {
-        FrameLayout fl = findViewById(R.id.songs_list_container);
-        FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) fl.getLayoutParams();
-        setMargins(fl, lp.leftMargin, dpToPx(constants.SONGS_LAYOUT_MARGIN), lp.rightMargin, lp.bottomMargin);
+    public ImageView getPlayPauseView() {
+        return findViewById(R.id.play_pause);
     }
+
+
+    View.OnTouchListener clickEffect = (v, event) -> {
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN: {
+                v.getBackground().setColorFilter(Color.parseColor("#3304FFFF"), PorterDuff.Mode.SRC_ATOP);
+                v.invalidate();
+                break;
+            }
+            case MotionEvent.ACTION_UP: {
+                v.getBackground().clearColorFilter();
+                v.invalidate();
+                break;
+            }
+        }
+        return false;
+    };
 
     public void switchToSongView(Album item) {
         showPlayerButtons();                                    // Show the player buttons
@@ -751,7 +605,13 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
 
     }
 
-    boolean albumsFragmentNotInitialized = true;
+    private void updateSongRecyclerPosition(int playlistPos) {
+        //put the next song in the center of the screen
+        mSongsFragment.getView().invalidate();
+        mSongsFragment.scrollToPos(playlistPos, true);
+        Log.i(TAG, "Playlist position: " + playlistPos);
+        mSongsFragment.getRecycler().getAdapter().notifyDataSetChanged();
+    }
 
     public void switchToAlbumView() {
         currentScreen = constants.VIEW_ALBUMS;
@@ -762,8 +622,8 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
             currentScreen = constants.VIEW_ALBUMS;
             android.app.FragmentManager fragmentManager = getFragmentManager();
             AlbumsFragment fragment = new AlbumsFragment();
+            //noinspection UnusedAssignment
             mAlbumsFragment = fragment;
-
             fragmentManager.beginTransaction().replace(R.id.songs_list_container, fragment).commit();
             getFragmentManager().executePendingTransactions();
             albumsFragmentNotInitialized = false;
@@ -773,29 +633,192 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         }
     }
 
-    @Override
-    public MediaBrowserCompat getMediaBrowser() {
-        return mMediaBrowser;
+    /**
+     * Hide Play Pause Next Prev Buttons
+     */
+    public void hidePlayerButtons() {
+        /*Hide the list for now - for better paging (not the best thing yet)*/
+        //findViewById(R.id.songs_list_container).setVisibility(View.INVISIBLE);
+        //findViewById(R.id.songs_list_container).invalidate();
+        TextView albums_text = findViewById(R.id.player_albums_text);
+        ImageView player_prev = findViewById(R.id.player_prev);
+        ImageView player_play = findViewById(R.id.play_pause);
+        ImageView player_next = findViewById(R.id.player_next);
+        player_prev.setVisibility(View.INVISIBLE);
+        player_next.setVisibility(View.INVISIBLE);
+        player_play.setVisibility(View.INVISIBLE);
+        albums_text.setVisibility(View.VISIBLE);
+
     }
 
-    View.OnTouchListener clickEffect = (v, event) -> {
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN: {
-                v.getBackground().setColorFilter(Color.parseColor("#3304FFFF"), PorterDuff.Mode.SRC_ATOP);
-                v.invalidate();
-                break;
-            }
-            case MotionEvent.ACTION_UP: {
-                v.getBackground().clearColorFilter();
-                v.invalidate();
-                break;
+    public void prepareAlbumsScreen() {
+        FrameLayout fl = findViewById(R.id.songs_list_container);
+        FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) fl.getLayoutParams();
+        setMargins(fl, lp.leftMargin, dpToPx(constants.ALBUMS_LAYOUT_MARGIN), lp.rightMargin, lp.bottomMargin);
+    }
+
+    public void prepareSongsScreen() {
+        FrameLayout fl = findViewById(R.id.songs_list_container);
+        FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) fl.getLayoutParams();
+        setMargins(fl, lp.leftMargin, dpToPx(constants.SONGS_LAYOUT_MARGIN), lp.rightMargin, lp.bottomMargin);
+    }
+
+    public void setMargins(View v, int l, int t, int r, int b) {
+        if (v.getLayoutParams() instanceof ViewGroup.MarginLayoutParams) {
+            ViewGroup.MarginLayoutParams p = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
+            p.setMargins(l, t, r, b);
+            v.requestLayout();
+        }
+    }
+
+    /**
+     * Convert DP to pixels
+     *
+     * @param sizeInDP Element size in DP
+     * @return Element size in Pixels
+     */
+    public int dpToPx(int sizeInDP) {
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, sizeInDP, getResources().getDisplayMetrics());
+    }
+
+    //#endregion
+
+    //#region Media controller and service
+
+    private ServiceConnection musicConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            TegraService.MusicBinder binder = (TegraService.MusicBinder) service;
+            musicSrv = binder.getService();
+            musicBound = true;
+            // If the music is playing we want to get back to the now playing screen
+            if (musicSrv != null) {
+                playbackPaused = !musicSrv.isPlaying();
+                if (musicSrv.getNowPlaying() != null && !playbackPaused) {
+                    switchToSongView(musicSrv.getNowPlaying());
+                    updateSongRecyclerPosition(musicSrv.getPlaylistPos());
+                }
             }
         }
-        return false;
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            musicBound = false;
+        }
     };
 
     //#endregion
 
+    //#region MediaPlayerControl implementation
+
+    private void setController() {
+        controller = new TegraController(this);
+        controller.setPrevNextListeners(v -> nextSong(), v -> prevSong());
+        controller.setMediaPlayer(this);
+        controller.setAnchorView(findViewById(R.id.main_screen));
+        controller.setEnabled(true);
+    }
+
+    public void prevSong(boolean usingMudra) {
+        if (playbackPaused) {
+            setController();
+            playbackPaused = false;
+        }
+        if (musicSrv.getNowPlaying() == null) {
+            return;
+        }
+        musicSrv.playPrev(usingMudra);
+        updateSongRecyclerPosition(musicSrv.getPlaylistPos());
+        updatePlayButton();
+        controller.hide();
+    }
 
 
+    public void nextSong(boolean usingMudra) {
+        if (playbackPaused) {
+            setController();
+            playbackPaused = false;
+        }
+        if (musicSrv.getNowPlaying() == null) {
+            return;
+        }
+        musicSrv.playNext(usingMudra);
+        updatePlayButton();
+        updateSongRecyclerPosition(musicSrv.getPlaylistPos());
+        controller.hide();
+    }
+
+    public void prevSong() {
+        prevSong(constants.USING_MUDRA);
+    }
+
+    public void nextSong() {
+        nextSong(!constants.USING_MUDRA);
+    }
+
+    @Override
+    public void start() {
+        play_music(!constants.USING_MUDRA);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        //Tegra testing persistent service
+        moveTaskToBack(true);
+    }
+
+    @Override
+    public void pause() {
+        play_music(!constants.USING_MUDRA);
+    }
+
+    @Override
+    public int getDuration() {
+        if (musicSrv != null && musicBound && musicSrv.isPlaying()) return musicSrv.getDur();
+        else
+            return 0;
+    }
+
+    @Override
+    public int getCurrentPosition() {
+        if (musicSrv != null && musicBound && musicSrv.isPlaying()) return musicSrv.getPosn();
+        else return 0;
+    }
+
+    @Override
+    public void seekTo(int pos) {
+        musicSrv.seek(pos);
+    }
+
+    @Override
+    public boolean isPlaying() {
+        return false;
+    }
+
+    @Override
+    public int getBufferPercentage() {
+        return 0;
+    }
+
+    @Override
+    public boolean canPause() {
+        return true;
+    }
+
+    @Override
+    public boolean canSeekBackward() {
+        return true;
+    }
+
+    @Override
+    public boolean canSeekForward() {
+        return true;
+    }
+
+    @Override
+    public int getAudioSessionId() {
+        return 0;
+    }
+    //#endregion
 }

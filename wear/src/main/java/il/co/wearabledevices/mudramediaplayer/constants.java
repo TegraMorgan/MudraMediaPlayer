@@ -28,7 +28,7 @@ public class constants {
     //#region All these should be configurable in the production release
     public static final int VOLUME_DIRECTION_FLIP_DELAY = 1000;
     // Higher values will slow down volume change speed
-    static final int MUDRA_SMOOTH_FACTOR = 5;
+    public static final int MUDRA_SMOOTH_FACTOR = 10;
     public static final String VIEW_ALBUMS = "Albums";
     public static final String VIEW_SONGS = "SongList";
     public static final boolean USING_MUDRA = true;
