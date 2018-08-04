@@ -13,6 +13,7 @@
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.BLUETOOTH"/>
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <uses-feature
         android:name="android.hardware.touchscreen"
@@ -38,11 +39,11 @@
         <!-- Set single support version for all support libraries -->
         <meta-data
             android:name="android.support.VERSION"
-            android:value="26.1.0"
+            android:value="27.1.1"
             tools:replace="android:value" />
 
         <activity
-            android:name=".MainActivity"
+            android:name=".activities.MainActivity"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -50,65 +51,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".ui.MusicPlayerActivity"
-            android:label="@string/app_name"
-            android:screenOrientation="portrait">
 
-            <!--
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-            -->
-            <!-- Use this intent filter to get voice searches, like "Play The Beatles" -->
-            <intent-filter>
-                <action android:name="android.media.action.MEDIA_PLAY_FROM_SEARCH" />
 
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
-        <!-- Placeholder activity for phone UI -->
-        <activity
-            android:name=".ui.PlaceholderActivity"
-            android:label="@string/app_name" />
-
-        <!--
-        Proxy activity that opens either the NowPlaying TV or the mobile UI, depending on
-        the current environment
-        -->
-        <activity
-            android:name=".ui.NowPlayingActivity"
-            android:icon="@drawable/ic_launcher" />
-
-        <service
-            android:name=".MusicService"
-            android:exported="true"
-            tools:ignore="ExportedService">
-            <intent-filter>
-                <action android:name="android.media.browse.MediaBrowserService" />
-            </intent-filter>
-        </service>
-
-        <!--              (REQUIRED) use this meta data to to declare the app OptionsProvider. -->
+        <!-- (REQUIRED) use this meta data to to declare the app OptionsProvider. -->
         <meta-data
             android:name="com.google.android.gms.cast.framework.OPTIONS_PROVIDER_CLASS_NAME"
             android:value="il.co.wearabledevices.mudramediaplayer.CastOptionsProvider" />
-
-        <!--
-             A full screen activity showing controls and a seek bar for
-             the current playing music
-        -->
-        <activity
-            android:name=".ui.FullScreenPlayerActivity"
-            android:label="@string/app_name"
-            android:launchMode="singleTop"
-            android:parentActivityName=".ui.MusicPlayerActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.MusicPlayerActivity" />
-        </activity>
 
         <!--
              A receiver that will receive media buttons and send as
@@ -123,8 +71,9 @@
         </receiver>
 
         <activity
-            android:name=".PermissionRequestActivity"
+            android:name=".activities.PermissionRequestActivity"
             android:theme="@style/MyWearTheme" />
+        <service android:name=".activities.MudraMusicService" />
     </application>
 
 </manifest>

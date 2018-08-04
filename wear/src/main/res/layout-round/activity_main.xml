@@ -9,7 +9,7 @@
     android:alpha="0.9"
     android:background="@drawable/mud1212"
     android:padding="@dimen/box_inset_layout_padding"
-    tools:context="il.co.wearabledevices.mudramediaplayer.MainActivity"
+    tools:context="il.co.wearabledevices.mudramediaplayer.activities.MainActivity"
     tools:deviceIds="wear">
 
     <FrameLayout

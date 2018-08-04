@@ -17,9 +17,6 @@ import java.util.concurrent.TimeUnit;
 
 import il.co.wearabledevices.mudramediaplayer.BuildConfig;
 import il.co.wearabledevices.mudramediaplayer.R;
-import il.co.wearabledevices.mudramediaplayer.constants;
-
-import static il.co.wearabledevices.mudramediaplayer.constants.BACK_BUTTON_INTERVAL;
 
 public class MediaLibrary {
     private static final int ACCEPTABLE_LENGTH = 20;
@@ -31,19 +28,16 @@ public class MediaLibrary {
     public static final ArrayMap<String, MediaMetadataCompat> metadata = new ArrayMap<>();
     private static final String EMPTY_GENRE = "";
     private static final String EMPTY_ART_FILENAME = "music_metal_molder_icon";
-    private static Context mContext;
 
-    public static void buildMediaLibrary(Context con) {
+    public static void buildMediaLibrary(ContentResolver con) {
         buildMediaLibrary(con, "/music/");
     }
 
-    public static void buildMediaLibrary(Context con, String rootPath) {
+    public static void buildMediaLibrary(ContentResolver contentResolver, String rootPath) {
         //retrieve song info
-        mContext = con;
         mCurrentState = State.INITIALIZING;
-        ContentResolver resolver = con.getContentResolver();
         Uri musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        Cursor cursor = resolver.query(musicUri, null, null, null, null);
+        Cursor cursor = contentResolver.query(musicUri, null, null, null, null);
         if (cursor != null && cursor.moveToFirst()) {
             //get columns
             int titleColumn = cursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
@@ -157,10 +151,6 @@ public class MediaLibrary {
             res = a.getAlbumSongs().get(0).getAlbumRes();
         }
         return res;
-    }
-
-    public static MediaMetadataCompat getMetadata(String mediaId) {
-        return getMetadata(mContext, mediaId);
     }
 
     public static MediaMetadataCompat getMetadata(Context context, String mediaId) {

@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="#1d688f"
     android:padding="0px"
-    tools:context=".PermissionRequestActivity">
+    tools:context=".activities.PermissionRequestActivity">
 
     <FrameLayout
         android:layout_width="match_parent"

@@ -1,9 +1,5 @@
 package il.co.wearabledevices.mudramediaplayer;
 
-/**
- * Created by User on 11/27/2017.
- */
-
 public class constants {
     public static final int DATA_TYPE_GESTURE = 0;
     public static final int DATA_TYPE_PROPORTIONAL = 1;
@@ -28,9 +24,9 @@ public class constants {
     public static final int BACK_BUTTON_INTERVAL = 3;
     public static final int BACK_BUTTON_DELAY = 1500;
     // 0<x<1 Higher values will demand more pressure to be applied
-    public static final double MUDRA_VOLUME_PRESSURE_SENSITIVITY = 0.6;
+    public static final double MUDRA_VOLUME_PRESSURE_SENSITIVITY = 0.5;
     // Higher values will slow down volume change speed
-    static final int MUDRA_SMOOTH_FACTOR = 5;
+    public static final int MUDRA_SMOOTH_FACTOR = 10;
     public static final String VIEW_ALBUMS = "Albums";
     public static final String VIEW_SONGS = "SongList";
     public static final boolean USING_MUDRA = true;

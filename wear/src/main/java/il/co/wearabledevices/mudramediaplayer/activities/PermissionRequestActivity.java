@@ -1,4 +1,4 @@
-package il.co.wearabledevices.mudramediaplayer;
+package il.co.wearabledevices.mudramediaplayer.activities;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
@@ -7,6 +7,8 @@ import android.support.annotation.NonNull;
 import android.support.v13.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+
+import il.co.wearabledevices.mudramediaplayer.R;
 
 import static il.co.wearabledevices.mudramediaplayer.constants.REQUEST_MEDIA_ACCESS;
 
