@@ -432,7 +432,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         musicSrv.enqueueAlbum(item.mItem);
         musicSrv.playSong();
 
-        jumpstartVolume();
+
     }
 
     @Override
@@ -554,16 +554,6 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
 
     }
 
-
-    /**
-     * Raise volume
-     */
-    @SuppressWarnings("SpellCheckingInspection")
-    private void jumpstartVolume() {
-        musicSrv.adjustVolume(1, 0);
-        musicSrv.adjustVolume(1, 0);
-        musicSrv.adjustVolume(1, 0);
-    }
 
     public void updatePlayButton() {
         ImageView view = getPlayPauseView();
@@ -702,6 +692,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
                     switchToSongView(musicSrv.getNowPlaying());
                     updateSongRecyclerPosition(musicSrv.getPlaylistPos());
                 }
+                musicSrv.jumpStartVolume();
             }
         }
 
@@ -726,30 +717,28 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     public void prevSong(boolean usingMudra) {
         if (playbackPaused) {
             setController();
-            playbackPaused = false;
         }
         if (musicSrv.getNowPlaying() == null) {
             return;
         }
         musicSrv.playPrev(usingMudra);
+        playbackPaused = !isPlaying();
         updateSongRecyclerPosition(musicSrv.getPlaylistPos());
         updatePlayButton();
-        controller.hide();
     }
 
 
     public void nextSong(boolean usingMudra) {
         if (playbackPaused) {
             setController();
-            playbackPaused = false;
         }
         if (musicSrv.getNowPlaying() == null) {
             return;
         }
         musicSrv.playNext(usingMudra);
+        playbackPaused = !isPlaying();
         updatePlayButton();
         updateSongRecyclerPosition(musicSrv.getPlaylistPos());
-        controller.hide();
     }
 
     public void prevSong() {

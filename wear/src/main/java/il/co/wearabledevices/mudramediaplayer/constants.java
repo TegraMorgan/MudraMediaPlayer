@@ -1,5 +1,7 @@
 package il.co.wearabledevices.mudramediaplayer;
 
+import android.media.AudioManager;
+
 public class constants {
     public static final int DATA_TYPE_GESTURE = 0;
     public static final int DATA_TYPE_PROPORTIONAL = 1;
@@ -32,4 +34,5 @@ public class constants {
     public static final String VIEW_ALBUMS = "Albums";
     public static final String VIEW_SONGS = "SongList";
     public static final boolean USING_MUDRA = true;
+    public static final int BACK_BUTTON_SOUND_EFFECT = AudioManager.FX_KEYPRESS_SPACEBAR;
 }

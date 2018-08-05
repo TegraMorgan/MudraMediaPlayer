@@ -131,13 +131,14 @@ public class MediaLibrary {
         for (int i = backCount; i > 0; i--) {
             songs.add(i * BACK_BUTTON_INTERVAL, backButton);
         }
+        if (backCount == 0) songs.add(backButton);
     }
 
-    public static Album getAlbum(String albumName) {
-        if (mCurrentState != State.INITIALIZED || !mAlbumListByName.containsKey(albumName)) {
+    public static Album getAlbum(int index) {
+        if (mCurrentState != State.INITIALIZED || mAlbumListByName.size() < index + 1) {
             return null;
         }
-        return mAlbumListByName.get(albumName);
+        return mAlbumListByName.valueAt(index);
     }
 
 

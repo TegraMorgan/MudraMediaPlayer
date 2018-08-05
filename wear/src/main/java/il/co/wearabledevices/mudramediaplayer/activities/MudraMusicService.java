@@ -148,6 +148,10 @@ public class MudraMusicService extends Service implements MediaPlayer.OnPrepared
         mMediaPlayer.prepareAsync();
     }
 
+    public void jumpStartVolume() {
+        mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC), 0);
+    }
+
     public void adjustVolume(int direction, int flags) {
         if (direction == -1 || direction == 1)
             //TODO show ui when state can be saved
@@ -198,6 +202,8 @@ public class MudraMusicService extends Service implements MediaPlayer.OnPrepared
             if (usingMudra) {
                 if (nowPlaying.getAlbumSongs().get(songNum).getId() != constants.BACK_BUTTON_SONG_ID) {
                     playSong();
+                } else {
+                    mAudioManager.playSoundEffect(constants.BACK_BUTTON_SOUND_EFFECT, 1f);
                 }
             } else {
                 if (nowPlaying.getAlbumSongs().get(songNum).getId() == constants.BACK_BUTTON_SONG_ID) {
@@ -215,6 +221,8 @@ public class MudraMusicService extends Service implements MediaPlayer.OnPrepared
         if (usingMudra) {
             if (nowPlaying.getAlbumSongs().get(songNum).getId() != constants.BACK_BUTTON_SONG_ID) {
                 playSong();
+            } else {
+                mAudioManager.playSoundEffect(constants.BACK_BUTTON_SOUND_EFFECT, 1f);
             }
         } else {
             if (nowPlaying.getAlbumSongs().get(songNum).getId() == constants.BACK_BUTTON_SONG_ID) {
