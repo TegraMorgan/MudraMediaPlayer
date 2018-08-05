@@ -51,7 +51,6 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final String DB = "Tegra";
     private static final boolean KEEP_PLAYING_AFTER_EXIT = true;
-
     //#region Variables
 
 
@@ -217,8 +216,6 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     //#region Mudra gesture functions
 
     public void mudraProportional(float[] data) {
-        Log.v("Tegra", "Proportional strength : " + String.valueOf(data[2]));
-        Log.i("Mudra interaction", "Proportional");
         if (data[2] > constants.MUDRA_VOLUME_PRESSURE_SENSITIVITY) {
             // Measure time from last proportional gesture
             long del = System.currentTimeMillis() - lastPressureOccurrence;
@@ -248,7 +245,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
             try {
                 Log.i("Mudra interaction", "Thumb " + currentScreen);
                 if (currentScreen.equals(constants.VIEW_SONGS))
-                    musicSrv.playPrev(constants.USING_MUDRA);
+                    prevSong(constants.USING_MUDRA);
                 else {
                     prevAlbum();
                 }
@@ -467,19 +464,17 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
 
     public void nextSong(View view) {
         nextSong(!constants.USING_MUDRA);
-
     }
 
     public void prevSong(View view) {
         prevSong(!constants.USING_MUDRA);
     }
 
-
     /**
      * With Mudra usage only
      */
-    private void nextAlbum() {
-        int _albumsCount = mAlbumsFragment.getRecycler().getAdapter().getItemCount();
+    public void nextAlbum() {
+        int _albumsCount = MediaLibrary.getAlbumsCount();
         Log.i("Albums count", _albumsCount + "");
         if (currentAlbumPosition < _albumsCount - 1) {
             currentAlbumPosition += 1;
@@ -495,7 +490,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     /**
      * With Mudra usage only
      */
-    private void prevAlbum() {
+    public void prevAlbum() {
         if (currentAlbumPosition > 0) {
             currentAlbumPosition -= 1;
             //put the next song in the center of the screen
@@ -511,8 +506,10 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     /**
      * With Mudra usage only
      */
-    private void clickAlbum() {
-        mAlbumsFragment.getRecycler().findViewHolderForAdapterPosition(mAlbumsFragment.getCurrentItem()).itemView.performClick();
+    public void clickAlbum() {
+        if (currentAlbumPosition == 0) mAlbumsFragment.getRecycler().getChildAt(0).performClick();
+        else mAlbumsFragment.getRecycler().getChildAt(1).performClick();
+
     }
 
     /**
@@ -800,7 +797,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
 
     @Override
     public boolean isPlaying() {
-        return false;
+        return musicSrv.isPlaying();
     }
 
     @Override
