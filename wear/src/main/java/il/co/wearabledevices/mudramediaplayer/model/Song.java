@@ -1,12 +1,9 @@
 package il.co.wearabledevices.mudramediaplayer.model;
 
-import android.content.ContentResolver;
-import android.support.v4.media.MediaMetadataCompat;
+import android.graphics.Bitmap;
 
 import java.io.Serializable;
-import java.util.concurrent.TimeUnit;
 
-import il.co.wearabledevices.mudramediaplayer.BuildConfig;
 import il.co.wearabledevices.mudramediaplayer.R;
 
 public class Song implements Serializable {
@@ -19,6 +16,7 @@ public class Song implements Serializable {
     private int albumRes;
     private String fileName;
     private String fullPath;
+    private Bitmap albumart;
 
     /**
      * @param songID     Resource ID
@@ -28,7 +26,7 @@ public class Song implements Serializable {
      * @param songDur    Duration in miliseconds
      * @param mFlNm      File name
      */
-    public Song(long songID, String songTitle, String songArtist, String songAlbum, long songDur, String mFlNm, String flPth) {
+    public Song(long songID, String songTitle, String songArtist, String songAlbum, long songDur, String mFlNm, String flPth, Bitmap alba) {
         /* this constructor will be deleted in the end */
         id = songID;
         title = songTitle;
@@ -38,6 +36,7 @@ public class Song implements Serializable {
         albumRes = EMPTY_ART_ID;
         fileName = mFlNm;
         fullPath = flPth;
+        albumart = alba;
     }
 
     @Override
@@ -103,10 +102,6 @@ public class Song implements Serializable {
         this.duration = duration;
     }
 
-    public MediaMetadataCompat getMetadata() {
-        return MediaLibrary.metadata.get(String.valueOf(this.id));
-    }
-
 
     public int getAlbumRes() {
         return albumRes;
@@ -126,5 +121,9 @@ public class Song implements Serializable {
 
     public String getFullPath() {
         return fullPath;
+    }
+
+    public Bitmap getAlbumart() {
+        return albumart;
     }
 }

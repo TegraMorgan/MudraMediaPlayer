@@ -28,11 +28,12 @@ public class constants {
     // 0<x<1 Higher values will demand more pressure to be applied
     public static final double MUDRA_VOLUME_PRESSURE_SENSITIVITY = 0.5;
     //#region All these should be configurable in the production release
-    public static final int VOLUME_DIRECTION_FLIP_DELAY = 1000;
+    public static final int VOLUME_DIRECTION_FLIP_DELAY = 2000;
     // Higher values will slow down volume change speed
     public static final int MUDRA_SMOOTH_FACTOR = 10;
     public static final String VIEW_ALBUMS = "Albums";
     public static final String VIEW_SONGS = "SongList";
     public static final boolean USING_MUDRA = true;
     public static final int BACK_BUTTON_SOUND_EFFECT = AudioManager.FX_KEYPRESS_SPACEBAR;
+    public static final int BACK_BUTTON_ICON = R.drawable.lb_ic_playback_loop;
 }

@@ -10,6 +10,7 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -343,7 +344,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
             //#region Initialize Media Library
             if (!MediaLibrary.isInitialized()) {
                 ContentResolver res = getContentResolver();
-                MediaLibrary.buildMediaLibrary(res);
+                MediaLibrary.buildMediaLibrary(this.getResources(), res);
                 /*new Thread(() -> MediaLibrary.buildMediaLibrary(res));*/
             }
             //#endregion
@@ -431,7 +432,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
 
         musicSrv.enqueueAlbum(item.mItem);
         musicSrv.playSong();
-
+        updateAlbumArt();
 
     }
 
@@ -455,6 +456,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
             mSongsFragment.getRecycler().getAdapter().notifyDataSetChanged();
             playbackPaused = false;
             updatePlayButton();
+            updateAlbumArt();
         }
     }
 
@@ -530,6 +532,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         }
         playbackPaused = !playbackPaused;
         updatePlayButton();
+        updateAlbumArt();
         String msg = !playbackPaused ? "Playing" : "Paused";
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
@@ -675,6 +678,10 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, sizeInDP, getResources().getDisplayMetrics());
     }
 
+    private void updateAlbumArt() {
+        findViewById(R.id.main_background).setBackground(new BitmapDrawable(getResources(), musicSrv.getCurrentSong().getAlbumart()));
+    }
+
     //#endregion
 
     //#region Media controller and service
@@ -722,7 +729,8 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
             return;
         }
         musicSrv.playPrev(usingMudra);
-        playbackPaused = !isPlaying();
+        playbackPaused = false;
+        updateAlbumArt();
         updateSongRecyclerPosition(musicSrv.getPlaylistPos());
         updatePlayButton();
     }
@@ -736,7 +744,8 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
             return;
         }
         musicSrv.playNext(usingMudra);
-        playbackPaused = !isPlaying();
+        playbackPaused = false;
+        updateAlbumArt();
         updatePlayButton();
         updateSongRecyclerPosition(musicSrv.getPlaylistPos());
     }

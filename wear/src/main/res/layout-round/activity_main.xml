@@ -8,6 +8,7 @@
     android:layout_height="match_parent"
     android:alpha="0.9"
     android:background="@drawable/mud1212"
+    android:id="@+id/main_background"
     android:padding="@dimen/box_inset_layout_padding"
     tools:context="il.co.wearabledevices.mudramediaplayer.activities.MainActivity"
     tools:deviceIds="wear">

@@ -1,18 +1,19 @@
 package il.co.wearabledevices.mudramediaplayer.model;
 
 import android.content.ContentResolver;
+import android.content.res.Resources;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.provider.MediaStore;
-import android.support.v4.media.MediaMetadataCompat;
 import android.util.ArrayMap;
 import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.concurrent.TimeUnit;
 
-import il.co.wearabledevices.mudramediaplayer.BuildConfig;
 import il.co.wearabledevices.mudramediaplayer.R;
 import il.co.wearabledevices.mudramediaplayer.constants;
 
@@ -24,16 +25,12 @@ public class MediaLibrary {
     private static final ArrayMap<String, Song> mMusicListById = new ArrayMap<>();
     private static final ArrayMap<String, Album> mAlbumListByName = new ArrayMap<>();
     private static volatile State mCurrentState = State.NON_INITIALIZED;
-    // Metadata
-    public static final ArrayMap<String, MediaMetadataCompat> metadata = new ArrayMap<>();
-    private static final String EMPTY_GENRE = "";
-    private static final String EMPTY_ART_FILENAME = "music_metal_molder_icon";
 
-    public static void buildMediaLibrary(ContentResolver con) {
-        buildMediaLibrary(con, "/music/");
+    public static void buildMediaLibrary(Resources res, ContentResolver con) {
+        buildMediaLibrary(res, con, "/music/");
     }
 
-    public static void buildMediaLibrary(ContentResolver contentResolver, String rootPath) {
+    public static void buildMediaLibrary(Resources res, ContentResolver contentResolver, String rootPath) {
         //retrieve song info
         mCurrentState = State.INITIALIZING;
         Uri musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
@@ -48,6 +45,7 @@ public class MediaLibrary {
             int albumColumn = cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM);
             int pathColumn = cursor.getColumnIndex(MediaStore.Audio.Media.DATA);
 
+            MediaMetadataRetriever mmr = new MediaMetadataRetriever();
             long thisID;
             String thisTitle;
             String thisArtist;
@@ -55,7 +53,9 @@ public class MediaLibrary {
             long thisDur;
             Song thisSong;
             String pathLowerCase;
-            MediaMetadataCompat thisMetadata;
+            Bitmap albumArt;
+            byte[] data;
+
             do {
                 pathLowerCase = cursor.getString(pathColumn).toLowerCase();
                 if (pathLowerCase.contains(rootPath)) {
@@ -90,10 +90,18 @@ public class MediaLibrary {
                     if (thisAlbum.length() > ACCEPTABLE_LENGTH)
                         thisAlbum = thisAlbum.substring(0, ACCEPTABLE_LENGTH - 1);
 
-                    thisSong = new Song(thisID, thisTitle, thisArtist, thisAlbum, thisDur, cursor.getString(fileNameColumn), cursor.getString(pathColumn));
+                    //region Icon extraction
+                    mmr.setDataSource(cursor.getString(pathColumn));
+                    data = mmr.getEmbeddedPicture();
+                    if (data != null) {
+                        albumArt = BitmapFactory.decodeByteArray(data, 0, data.length);
+                    } else {
+                        albumArt = BitmapFactory.decodeResource(res, R.drawable.music_metal_molder_icon);
+                    }
+                    //endregion
+
+                    thisSong = new Song(thisID, thisTitle, thisArtist, thisAlbum, thisDur, cursor.getString(fileNameColumn), cursor.getString(pathColumn), albumArt);
                     mMusicListById.put(String.valueOf(thisSong.getId()), thisSong);
-                    thisMetadata = createMediaMetadataCompat(String.valueOf(thisID), thisTitle, thisArtist, thisAlbum, EMPTY_GENRE, thisDur, TimeUnit.SECONDS, EMPTY_ART_FILENAME);
-                    metadata.put(String.valueOf(thisSong.getId()), thisMetadata);
                     addAlbumIf(mAlbumListByName, new Album(thisAlbum, thisArtist), thisSong);
                 /*
                 Log.v(TAG, "Song title : " + thisTitle);
@@ -109,7 +117,7 @@ public class MediaLibrary {
             //If the cursor was not null - we finished
             cursor.close();
             for (Album alb : mAlbumListByName.values()) {
-                inflateAlbumWithBackButtons(alb);
+                inflateAlbumWithBackButtons(res, alb);
             }
             mCurrentState = State.INITIALIZED;
         } else {
@@ -123,10 +131,10 @@ public class MediaLibrary {
      *
      * @param a album to inflate with back buttons
      */
-    private static void inflateAlbumWithBackButtons(Album a) {
+    private static void inflateAlbumWithBackButtons(Resources res, Album a) {
         ArrayList<Song> songs = a.getAlbumSongs();
         int songCount = a.getSongsCount();
-        Song backButton = new Song(constants.BACK_BUTTON_SONG_ID, "Back", "to album selection", "to album selection2", 0, "", "");
+        Song backButton = new Song(constants.BACK_BUTTON_SONG_ID, "Back", "to album selection", "to album selection2", 0, "", "", BitmapFactory.decodeResource(res, constants.BACK_BUTTON_ICON));
         int backCount = songCount / BACK_BUTTON_INTERVAL;
         for (int i = backCount; i > 0; i--) {
             songs.add(i * BACK_BUTTON_INTERVAL, backButton);
@@ -200,35 +208,6 @@ public class MediaLibrary {
 
     enum State {
         NON_INITIALIZED, INITIALIZING, INITIALIZED
-    }
-
-    private static MediaMetadataCompat createMediaMetadataCompat(String mediaId, String title, String artist, String album, String genre, long duration, TimeUnit durationUnit, String albumArtResName) {
-        return new MediaMetadataCompat.Builder()
-                .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, mediaId)
-                .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, album)
-                .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, artist)
-                .putLong(MediaMetadataCompat.METADATA_KEY_DURATION,
-                        TimeUnit.MILLISECONDS.convert(duration, durationUnit))
-                .putString(MediaMetadataCompat.METADATA_KEY_GENRE, genre)
-                .putString(
-                        MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI,
-                        getAlbumArtUri(albumArtResName))
-                .putString(
-                        MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON_URI,
-                        getAlbumArtUri(albumArtResName))
-                .putString(MediaMetadataCompat.METADATA_KEY_TITLE, title)
-                .build();
-    }
-
-    private static String getAlbumArtUri(String albumArtResName) {
-        String output;
-        if (albumArtResName.equals(EMPTY_ART_FILENAME)) {
-            output = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + BuildConfig.APPLICATION_ID + "/" + R.drawable.music_metal_molder_icon).toString();
-            return output;
-        } else {
-            output = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + BuildConfig.APPLICATION_ID + albumArtResName).toString();
-            return output;
-        }
     }
 
 }

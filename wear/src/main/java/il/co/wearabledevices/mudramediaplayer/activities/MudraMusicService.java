@@ -7,6 +7,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.ContentUris;
 import android.content.Intent;
+import android.graphics.drawable.Icon;
 import android.media.AudioAttributes;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
@@ -19,7 +20,6 @@ import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import il.co.wearabledevices.mudramediaplayer.R;
 import il.co.wearabledevices.mudramediaplayer.constants;
 import il.co.wearabledevices.mudramediaplayer.model.Album;
 import il.co.wearabledevices.mudramediaplayer.model.Song;
@@ -149,7 +149,8 @@ public class MudraMusicService extends Service implements MediaPlayer.OnPrepared
     }
 
     public void jumpStartVolume() {
-        mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC), 0);
+        //mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC), 0);
+        mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 10, 0);
     }
 
     public void adjustVolume(int direction, int flags) {
@@ -267,7 +268,7 @@ public class MudraMusicService extends Service implements MediaPlayer.OnPrepared
             builder = new Notification.Builder(this);
         }
         builder.setContentIntent(pendInt)
-                .setSmallIcon(R.drawable.music_metal_molder_icon)
+                .setSmallIcon(Icon.createWithBitmap(currentSong.getAlbumart()))
                 .setTicker(secondTitle)
                 .setOngoing(true)
                 .setContentTitle(mainTitle)
