@@ -67,7 +67,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     private int currentAlbumPosition = 0;
     private boolean isMudraBinded = false, mudraCallbackAdded = false, VolumeUp = false, albumsFragmentNotInitialized = true;
     private IMudraAPI mIMudraAPI = null;
-    private Long lastPressureOccurrence;
+    private Long lastPressureOccurrence, firstPressureOccurrence;
     private int mudraSmoother;
     private String currentScreen;
 
@@ -216,32 +216,34 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     //#region Mudra gesture functions
 
     public void mudraProportional(float[] data) {
-        Log.v("Tegra", "Proportional strength : " + String.valueOf(data[2]));
-        Log.i("Mudra interaction", "Proportional");
         if (data[2] > constants.MUDRA_VOLUME_PRESSURE_SENSITIVITY) {
             // Measure time from last proportional gesture
             long del = System.currentTimeMillis() - lastPressureOccurrence;
-            // If there was no gesture for a long time - reset smoother
-            if (del > constants.VOLUME_DIRECTION_FLIP_DELAY) {
-                if (isPlaying()) {
+            if (isPlaying()) {
+                if (del > constants.VOLUME_DIRECTION_FLIP_DELAY) {
+                    // If there was no gesture for a long time - reset smoother
                     mudraSmoother = 0;
+                    // Change volume direction
                     VolumeUp = !VolumeUp;
                     String msg = VolumeUp ? "Volume Up" : "Volume Down";
-                    Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
-                    //Measure the proportional strength
-                } else {
+                    //Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
+                    Log.v(DB, msg);
+                }
+                if (mudraSmoother % constants.MUDRA_SMOOTH_FACTOR == 0) {
+                    musicSrv.adjustVolume(VolumeUp ? 1 : -1, 0);
+                    Log.v(DB, "Volume:" + String.valueOf(musicSrv.getCurrentVolume()));
+                }
+                mudraSmoother = (mudraSmoother + 1) % constants.MUDRA_SMOOTH_FACTOR;
+            } else {
+                if (del > constants.VOLUME_DIRECTION_FLIP_DELAY) {
+                    firstPressureOccurrence = System.currentTimeMillis();
+                }
+                if (System.currentTimeMillis() - firstPressureOccurrence > 2 * constants.VOLUME_DIRECTION_FLIP_DELAY) {
                     switchToAlbumView();
-                    del = lastPressureOccurrence;
+                    firstPressureOccurrence = System.currentTimeMillis();
                 }
             }
-            /* Only one of three volume change commands works - change is too quick */
-            if (mudraSmoother % constants.MUDRA_SMOOTH_FACTOR == 0) {
-                Log.v("Tegra", "Time between pressures : " + String.valueOf(del));
-                int direction = VolumeUp ? 1 : -1;
-                musicSrv.adjustVolume(direction, 0);
-                lastPressureOccurrence = System.currentTimeMillis();
-            }
-            mudraSmoother = (mudraSmoother + 1) % constants.MUDRA_SMOOTH_FACTOR;
+            lastPressureOccurrence = System.currentTimeMillis();
         }
     }
 
@@ -252,7 +254,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
             try {
                 Log.i("Mudra interaction", "Thumb " + currentScreen);
                 if (currentScreen.equals(constants.VIEW_SONGS))
-                    musicSrv.playPrev(constants.USING_MUDRA);
+                    prevSong(constants.USING_MUDRA);
                 else {
                     prevAlbum();
                 }
@@ -474,7 +476,8 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
      * With Mudra usage only
      */
     public void nextAlbum() {
-        int _albumsCount = mAlbumsFragment.getRecycler().getChildCount();
+        int _albumsCount = MediaLibrary.getAlbumsCount();
+        Log.i("Albums count", _albumsCount + "");
         if (currentAlbumPosition < _albumsCount - 1) {
             currentAlbumPosition += 1;
             //put the next song in the center of the screen
@@ -506,7 +509,9 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
      * With Mudra usage only
      */
     public void clickAlbum() {
-        mAlbumsFragment.getRecycler().getChildAt(mAlbumsFragment.getCurrentItem()).performClick();
+        if (currentAlbumPosition == 0) mAlbumsFragment.getRecycler().getChildAt(0).performClick();
+        else mAlbumsFragment.getRecycler().getChildAt(1).performClick();
+
     }
 
     public void play_music() {

@@ -1,10 +1,7 @@
 package il.co.wearabledevices.mudramediaplayer.model;
 
 import android.content.ContentResolver;
-import android.content.Context;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v4.media.MediaMetadataCompat;
@@ -122,16 +119,12 @@ public class MediaLibrary {
         return mAlbumListByName.get(albumName);
     }
 
-    public static String getSongURI(String sid) {
-        return mMusicListById.get(sid).getFullPath();
-    }
 
     public static Collection<Album> getAlbums() {
         Collection<Album> res = new ArrayList<>();
         for (Album al : mAlbumListByName.values()) {
             res.add(al);
         }
-
         return res;
     }
 
@@ -139,9 +132,8 @@ public class MediaLibrary {
         return (ArrayList<Album>) getAlbums();
     }
 
-    public static Bitmap getAlbumBitmap(Context context, String mediaId) {
-        return BitmapFactory.decodeResource(context.getResources(),
-                getAlbumRes(mediaId));
+    public static int getAlbumsCount() {
+        return mAlbumListByName.size();
     }
 
     private static int getAlbumRes(String mediaId) {
@@ -151,34 +143,6 @@ public class MediaLibrary {
             res = a.getAlbumSongs().get(0).getAlbumRes();
         }
         return res;
-    }
-
-    public static MediaMetadataCompat getMetadata(Context context, String mediaId) {
-        MediaMetadataCompat meta = mMusicListById.get(mediaId).getMetadata();
-        Bitmap albumArt = getAlbumBitmap(context, mediaId);
-        // Since MediaMetadataCompat is immutable, we need to create a copy to set the album art.
-        // We don't set it initially on all items so that they don't take unnecessary memory.
-        MediaMetadataCompat.Builder builder = new MediaMetadataCompat.Builder();
-        for (String key :
-                new String[]{
-                        MediaMetadataCompat.METADATA_KEY_MEDIA_ID,
-                        MediaMetadataCompat.METADATA_KEY_ALBUM,
-                        MediaMetadataCompat.METADATA_KEY_ARTIST,
-                        MediaMetadataCompat.METADATA_KEY_GENRE,
-                        MediaMetadataCompat.METADATA_KEY_TITLE
-                }) {
-            builder.putString(key, meta.getString(key));
-        }
-
-        builder.putLong(
-                MediaMetadataCompat.METADATA_KEY_DURATION,
-                meta.getLong(MediaMetadataCompat.METADATA_KEY_DURATION));
-        builder.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, albumArt);
-        return builder.build();
-    }
-
-    public static long getMusicId(String mediaId) {
-        return mMusicListById.containsKey(mediaId) ? mMusicListById.get(mediaId).getId() : null;
     }
 
     private static void addAlbumIf(ArrayMap<String, Album> allAlbums, Album currentAlbum, Song song) {
@@ -243,9 +207,6 @@ public class MediaLibrary {
             output = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + BuildConfig.APPLICATION_ID + albumArtResName).toString();
             return output;
         }
-
-        /*return ContentResolver.SCHEME_ANDROID_RESOURCE + "://" +
-                BuildConfig.APPLICATION_ID + "/drawable-nodpi/" + albumArtResName;*/
     }
 
 }

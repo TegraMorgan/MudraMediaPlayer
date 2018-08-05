@@ -194,17 +194,7 @@ public class MudraMusicService extends Service implements MediaPlayer.OnPrepared
     public void playPrev(boolean usingMudra) {
         if (songNum > 0) {
             songNum--;
-            //check if the current object is back and if we're no at the end of the list
-            if (usingMudra) {
-                if (nowPlaying.getAlbumSongs().get(songNum).getId() != constants.BACK_BUTTON_SONG_ID) {
-                    playSong();
-                }
-            } else {
-                if (nowPlaying.getAlbumSongs().get(songNum).getId() == constants.BACK_BUTTON_SONG_ID) {
-                    songNum--;
-                }
-                playSong();
-            }
+            playSong();
         } else {
             Log.i("current position", "reached the beginning");
         }
@@ -212,16 +202,7 @@ public class MudraMusicService extends Service implements MediaPlayer.OnPrepared
 
     public void playNext(boolean usingMudra) {
         songNum = (songNum + 1) % nowPlaying.getSongsCount();
-        if (usingMudra) {
-            if (nowPlaying.getAlbumSongs().get(songNum).getId() != constants.BACK_BUTTON_SONG_ID) {
-                playSong();
-            }
-        } else {
-            if (nowPlaying.getAlbumSongs().get(songNum).getId() == constants.BACK_BUTTON_SONG_ID) {
-                songNum = (songNum + 1) % nowPlaying.getSongsCount();
-            }
-            playSong();
-        }
+        playSong();
     }
 
     @Override
