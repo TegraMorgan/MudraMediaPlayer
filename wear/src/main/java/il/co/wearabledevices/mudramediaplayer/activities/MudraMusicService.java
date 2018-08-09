@@ -153,6 +153,12 @@ public class MudraMusicService extends Service implements MediaPlayer.OnPrepared
         mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 10, 0);
     }
 
+    public void setVolume(int newVol) {
+        newVol = newVol < 0 ? 0 : newVol;
+        newVol = newVol > 15 ? 15 : newVol;
+        mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, newVol, 0);
+    }
+
     public void adjustVolume(int direction, int flags) {
         if (direction == -1 || direction == 1)
             //TODO show ui when state can be saved

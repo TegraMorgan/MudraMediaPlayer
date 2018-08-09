@@ -12,6 +12,7 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.v4.content.ContextCompat;
@@ -39,11 +40,19 @@ import il.co.wearabledevices.mudramediaplayer.ui.AlbumsAdapter;
 import il.co.wearabledevices.mudramediaplayer.ui.AlbumsFragment;
 import il.co.wearabledevices.mudramediaplayer.ui.SongsAdapter;
 import il.co.wearabledevices.mudramediaplayer.ui.SongsFragment;
+import il.co.wearabledevices.mudramediaplayer.utils.AnnotationVolume;
 import il.co.wearabledevices.mudramediaplayer.utils.CustomMediaController;
 
 import static il.co.wearabledevices.mudramediaplayer.constants.DATA_TYPE_GESTURE;
 import static il.co.wearabledevices.mudramediaplayer.constants.DATA_TYPE_PROPORTIONAL;
 import static il.co.wearabledevices.mudramediaplayer.constants.SERIALIZE_ALBUM;
+import static il.co.wearabledevices.mudramediaplayer.utils.AnnotationVolume.IDLE;
+import static il.co.wearabledevices.mudramediaplayer.utils.AnnotationVolume.P1;
+import static il.co.wearabledevices.mudramediaplayer.utils.AnnotationVolume.P2;
+import static il.co.wearabledevices.mudramediaplayer.utils.AnnotationVolume.P3;
+import static il.co.wearabledevices.mudramediaplayer.utils.AnnotationVolume.PM1;
+import static il.co.wearabledevices.mudramediaplayer.utils.AnnotationVolume.PM2;
+import static il.co.wearabledevices.mudramediaplayer.utils.AnnotationVolume.PM3;
 
 @SuppressWarnings("SpellCheckingInspection")
 public class MainActivity extends WearableActivity implements AlbumsFragment.OnAlbumsListFragmentInteractionListener
@@ -61,7 +70,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     private boolean musicBound = false;
     private boolean paused = false, playbackPaused = true;
 
-
+    private AnnotationVolume volState;
     private TextView mTextView;
     private AlbumsFragment mAlbumsFragment;
     private SongsFragment mSongsFragment;
@@ -71,6 +80,8 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     private Long lastPressureOccurrence;
     private int mudraSmoother;
     private String currentScreen;
+    private Handler mHandler;
+
 
     //#endregion
 
@@ -217,25 +228,41 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     //#region Mudra gesture functions
 
     public void mudraProportional(float[] data) {
-        if (data[2] > constants.MUDRA_VOLUME_PRESSURE_SENSITIVITY) {
-            // Measure time from last proportional gesture
-            long del = System.currentTimeMillis() - lastPressureOccurrence;
-            // If there was no gesture for a long time - reset smoother
-            if (del > constants.VOLUME_DIRECTION_FLIP_DELAY) {
-                mudraSmoother = 0;
-                VolumeUp = !VolumeUp;
-                String msg = VolumeUp ? "Volume Up" : "Volume Down";
-                Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
-                //Measure the proportional strength
-            }
-            /* Only one of three volume change commands works - change is too quick */
-            if (mudraSmoother % constants.MUDRA_SMOOTH_FACTOR == 0) {
-                Log.v("Tegra", "Time between pressures : " + String.valueOf(del));
-                int direction = VolumeUp ? 1 : -1;
-                musicSrv.adjustVolume(direction, 0);
-                lastPressureOccurrence = System.currentTimeMillis();
-            }
-            mudraSmoother = (mudraSmoother + 1) % constants.MUDRA_SMOOTH_FACTOR;
+        float a = data[2];
+        Log.v("Mudra proportional", "Volume state : " + String.valueOf(volState.state));
+        lastPressureOccurrence = System.currentTimeMillis();
+        if (volState.state == IDLE && a > constants.MUDRA_VOLUME_PRESSURE_SENSITIVITY) {
+            volState.state = P1;
+            mHandler.postDelayed(volumePoll, constants.mInterval);
+        }
+        switch (volState.state) {
+            case P1:
+                if (a > 0.6) volState.state = P2;
+                else if (a < 0.4) volState.state = PM1;
+                break;
+            case P2:
+                if (a > 0.7) volState.state = P3;
+                else if (a < 0.6) volState.state = P1;
+                break;
+            case P3:
+                if (a < 0.6) volState.state = P2;
+                break;
+            case PM1:
+                if (a > 0.5) volState.state = P1;
+                else if (a < 0.3) volState.state = PM2;
+                break;
+            case PM2:
+                if (a < 0.2) volState.state = PM3;
+                else if (a > 0.4) volState.state = PM1;
+                break;
+            case PM3:
+                if (a < 0.1) {
+                    volState.state = IDLE;
+                    Log.v("Mudra proportional", "volume state reset");
+                } else if (a > 0.3) volState.state = PM2;
+                break;
+            default:
+                break;
         }
     }
 
@@ -289,6 +316,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         lastPressureOccurrence = System.currentTimeMillis();
         setContentView(R.layout.activity_main);
         ImageView playPauseView = getPlayPauseView();
@@ -305,12 +333,15 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         intent.setAction(IMudraAPI.class.getName());
         intent.setComponent(new ComponentName("com.wearable.android.ble", "com.wearable.android.ble.service.BluetoothLeService"));
         getApplicationContext().bindService(intent, mMudraConnection, Context.BIND_AUTO_CREATE);
+        volState = new AnnotationVolume(IDLE);
+        mHandler = new Handler();
+        startRepeatingTask();
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        Log.v(TAG, "Starting on Resume");
 
         //#region Rebind mudra
         if (!isMudraBinded) {
@@ -386,7 +417,6 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         super.onPause();
     }
 
-
     @Override
     protected void onDestroy() {
         if (musicBound) {
@@ -407,6 +437,39 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         }
         super.onDestroy();
     }
+
+    void startRepeatingTask() {
+        volumePoll.run();
+    }
+
+    void stopRepeatingTask() {
+        mHandler.removeCallbacks(volumePoll);
+    }
+
+    Runnable volumePoll = new Runnable() {
+        @Override
+        public void run() {
+            try {
+                int curr;
+                curr = musicSrv.getCurrentVolume();
+                if (System.currentTimeMillis() - lastPressureOccurrence > constants.mInterval) {
+                    volState.state = IDLE;
+                    Log.v("volumePoll", "volume state reset");
+                }
+                Log.v("volumePoll", "Volume state : " + String.valueOf(volState.state));
+                if (volState.state != IDLE) {
+                    Log.v("volumePoll", "New volume is : " + String.valueOf(curr + volState.state));
+                    musicSrv.setVolume(curr + volState.state);
+                }
+            } catch (Exception e) {
+                if (e.getClass() != NullPointerException.class) throw e;
+            } finally {
+                if (volState.state != IDLE)
+                    mHandler.postDelayed(volumePoll, constants.mInterval);
+            }
+        }
+    };
+
 
     //#endregion
 
