@@ -11,14 +11,14 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="0px"
+        android:paddingTop="20dp"
         app:boxedEdges="all">
 
         <TextView
             android:id="@+id/PermissionExplanation"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="top"
+            android:layout_gravity="center_horizontal|top"
             android:padding="0px"
             android:text="@string/PermissionExplanation"
             android:textAlignment="center"
@@ -26,12 +26,22 @@
 
         <Button
             android:id="@+id/GivePermissions"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_gravity="center_horizontal|bottom"
+            android:layout_margin="2dp"
+            android:background="@drawable/button_bg_round"
+            android:onClick="requestTime"
+            android:text="@string/btOk" />
+        <!--
+        <Button
+            android:id="@+id/GivePermissions"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal|bottom"
             android:onClick="requestTime"
             android:padding="0px"
-            android:text="@string/btOk" />
+            android:text="@string/btOk" />-->
 
     </FrameLayout>
 </android.support.wear.widget.BoxInsetLayout>
