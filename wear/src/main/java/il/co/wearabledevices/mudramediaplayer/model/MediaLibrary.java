@@ -20,10 +20,11 @@ import il.co.wearabledevices.mudramediaplayer.constants;
 import static il.co.wearabledevices.mudramediaplayer.constants.BACK_BUTTON_INTERVAL;
 
 public class MediaLibrary {
-    private static final int ACCEPTABLE_LENGTH = 20;
     private static final String TAG = "Media Library";
     private static final ArrayMap<String, Song> mMusicListById = new ArrayMap<>();
     private static final ArrayMap<String, Album> mAlbumListByName = new ArrayMap<>();
+    private static final ArrayMap<String, Playlist> mPlaylists = new ArrayMap<>();
+
     private static volatile State mCurrentState = State.NON_INITIALIZED;
 
     public static void buildMediaLibrary(Resources res, ContentResolver con) {
@@ -67,16 +68,12 @@ public class MediaLibrary {
                         thisTitle = "Unknown song";
                     }
                     thisTitle = thisTitle.trim();
-                    if (thisTitle.length() > ACCEPTABLE_LENGTH)
-                        thisTitle = thisTitle.substring(0, ACCEPTABLE_LENGTH - 1);
 
                     thisArtist = cursor.getString(artistColumn);
                     if (thisArtist.compareTo("<unknown>") == 0) {
                         thisArtist = "Unknown artist";
                     }
                     thisArtist = thisArtist.trim();
-                    if (thisArtist.length() > ACCEPTABLE_LENGTH)
-                        thisArtist = thisArtist.substring(0, ACCEPTABLE_LENGTH - 1);
 
 
                     thisDur = (int) cursor.getLong(durationColumn);
@@ -87,8 +84,6 @@ public class MediaLibrary {
                         thisAlbum = "Unknown album";
                     }
                     thisAlbum = thisAlbum.trim();
-                    if (thisAlbum.length() > ACCEPTABLE_LENGTH)
-                        thisAlbum = thisAlbum.substring(0, ACCEPTABLE_LENGTH - 1);
 
                     //region Icon extraction
                     mmr.setDataSource(cursor.getString(pathColumn));
@@ -166,15 +161,6 @@ public class MediaLibrary {
         return mAlbumListByName.size();
     }
 
-    private static int getAlbumRes(String mediaId) {
-        int res = 0;
-        if (mAlbumListByName.containsKey(mediaId)) {
-            Album a = mAlbumListByName.get(mediaId);
-            res = a.getAlbumSongs().get(0).getAlbumRes();
-        }
-        return res;
-    }
-
     private static void addAlbumIf(ArrayMap<String, Album> allAlbums, Album currentAlbum, Song song) {
 
         String can = currentAlbum.getAlbumName();
@@ -204,6 +190,10 @@ public class MediaLibrary {
 
     public static boolean isInitialized() {
         return mCurrentState == State.INITIALIZED;
+    }
+
+    public static String trim(String s) {
+        return s.substring(0, constants.ACCEPTABLE_LENGTH - 1);
     }
 
     enum State {

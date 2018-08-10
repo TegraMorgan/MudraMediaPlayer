@@ -1,53 +1,65 @@
 package il.co.wearabledevices.mudramediaplayer.model;
 
+import android.graphics.Bitmap;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import il.co.wearabledevices.mudramediaplayer.constants;
+
 public class Playlist implements Serializable {
-    public ArrayList<Song> songs;
-    public int position;
+    private static final long serialVersionUID = 1L;
+    private String pName;
+    private String displayName;
+    private Bitmap albumArt;
+    private ArrayList<Song> songs;
 
     public Playlist() {
-        songs = new ArrayList<>();
-        position = 0;
+
+    }
+
+    public Playlist(String nm, ArrayList<Song> sngs, Bitmap albumArt) {
+        this.pName = nm;
+        this.displayName = nm.substring(0, constants.ACCEPTABLE_LENGTH - 1);
+        this.songs = sngs;
+        this.albumArt = albumArt;
+    }
+
+    public void addSong(Song s) {
+        this.songs.add(s);
+    }
+
+    public void setRandomAlbumArt() {
+        int select = (int) (songs.size() * Math.random());
+        albumArt = songs.get(select).getAlbumart();
+    }
+
+    public void addSongAt(Song s, int position) {
+        this.songs.add(position, s);
     }
 
     public Playlist(Album al) {
         songs = al.getAlbumSongs();
-        position = 0;
     }
 
     public Playlist(ArrayList<Song> sngs) {
         songs = sngs;
-        position = 0;
     }
 
     public Playlist(Song sng) {
         songs = new ArrayList<>();
         songs.add(sng);
-        position = 0;
     }
 
-    public Song getCurrent() {
-        if (songs.size() == 0) return null;
-        return songs.get(position);
+    public String getpName() {
+        return pName;
     }
 
-    public Song skipNext() {
-        if (songs.size() == 0) return null;
-        if (position++ == songs.size()) position = 0;
-        return songs.get(position);
+    public Bitmap getAlbumArt() {
+        return albumArt;
     }
 
-    public Song skipPrev() {
-        if (songs.size() == 0) return null;
-        if (position-- < 0) position = 0;
-        return songs.get(position);
-    }
-
-    public void setPosition(int pos) {
-        if (songs.size() == 0) position = 0;
-        if (songs.size() >= pos) position = songs.size() - 1;
-        position = pos;
+    public ArrayList<Song> getSongs() {
+        return songs;
     }
 }

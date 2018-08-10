@@ -12,8 +12,10 @@ public class Song implements Serializable {
     private String title;
     private String artist;
     private String album;
+    private String displayTitle;
+    private String displayArtist;
+    private String displayAlbum;
     private long duration;
-    private int albumRes;
     private String fileName;
     private String fullPath;
     private Bitmap albumart;
@@ -27,13 +29,14 @@ public class Song implements Serializable {
      * @param mFlNm      File name
      */
     public Song(long songID, String songTitle, String songArtist, String songAlbum, long songDur, String mFlNm, String flPth, Bitmap alba) {
-        /* this constructor will be deleted in the end */
         id = songID;
         title = songTitle;
         artist = songArtist;
         album = songAlbum;
+        displayTitle = MediaLibrary.trim(title);
+        displayArtist = MediaLibrary.trim(artist);
+        displayAlbum = MediaLibrary.trim(album);
         duration = songDur;
-        albumRes = EMPTY_ART_ID;
         fileName = mFlNm;
         fullPath = flPth;
         albumart = alba;
@@ -102,15 +105,6 @@ public class Song implements Serializable {
         this.duration = duration;
     }
 
-
-    public int getAlbumRes() {
-        return albumRes;
-    }
-
-    public void setAlbumRes(int albumRes) {
-        this.albumRes = albumRes;
-    }
-
     public String getFileName() {
         return fileName;
     }
@@ -125,5 +119,17 @@ public class Song implements Serializable {
 
     public Bitmap getAlbumart() {
         return albumart;
+    }
+
+    public String getDisplayTitle() {
+        return displayTitle;
+    }
+
+    public String getDisplayArtist() {
+        return displayArtist;
+    }
+
+    public String getDisplayAlbum() {
+        return displayAlbum;
     }
 }
