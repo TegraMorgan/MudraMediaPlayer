@@ -137,5 +137,7 @@ public class Song implements Serializable {
         return trackNo;
     }
 
-
+    public void setTrackNo(int trackNo) {
+        this.trackNo = trackNo;
+    }
 }

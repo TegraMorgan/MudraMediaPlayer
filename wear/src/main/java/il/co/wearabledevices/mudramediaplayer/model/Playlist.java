@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import il.co.wearabledevices.mudramediaplayer.constants;
 
@@ -11,29 +12,22 @@ import il.co.wearabledevices.mudramediaplayer.constants;
 public class Playlist implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private String pName;
-    private String displayName;
+    //region Variables
+
+    private String playlistName;
+    private String playlistDisplayName;
     private Bitmap albumArt;
     private ArrayList<Song> songs;
 
+    //endregion
+
+    //region Constructors
+
     public Playlist(String newPlaylistName, ArrayList<Song> songList, Bitmap albumArt) {
-        this.pName = newPlaylistName;
-        this.displayName = newPlaylistName.substring(0, constants.ACCEPTABLE_LENGTH - 1);
+        this.playlistName = newPlaylistName;
+        this.playlistDisplayName = newPlaylistName.substring(0, constants.ACCEPTABLE_LENGTH - 1);
         this.songs = songList;
         this.albumArt = albumArt;
-    }
-
-    public void addSong(Song s) {
-        this.songs.add(s);
-    }
-
-    public void setRandomAlbumArt() {
-        int select = (int) (songs.size() * Math.random());
-        albumArt = songs.get(select).getAlbumArt();
-    }
-
-    public void addSongAt(Song s, int position) {
-        this.songs.add(position, s);
     }
 
     public Playlist(Album album) {
@@ -49,8 +43,49 @@ public class Playlist implements Serializable {
         songs.add(song);
     }
 
-    public String getpName() {
-        return pName;
+    //endregion
+
+    //region Helper functions
+
+    public void addSong(Song s) {
+        this.songs.add(s);
+    }
+
+    public void setRandomAlbumArt() {
+        int select = (int) (songs.size() * Math.random());
+        albumArt = songs.get(select).getAlbumArt();
+    }
+
+    public void addSongAt(Song s, int position) {
+        this.songs.add(position, s);
+    }
+
+    public void setTrackNumbers() {
+        int j = songs.size();
+        int i = 0;
+        sort();
+        for (Song s : songs) {
+            if (s.getTrackNo() == 0) s.setTrackNo(j--);
+            if (s.getTrackNo() != 0) s.setTrackNo(i++);
+        }
+        sort();
+    }
+
+    private void sort() {
+        Collections.sort(songs, (song, otherSong) -> Integer.compare(song.getTrackNo(), otherSong.getTrackNo()));
+    }
+
+    public boolean contains(String name) {
+        for (Song s : songs) if (s.getTitle().equals(name)) return true;
+        return false;
+    }
+
+    //endregion
+
+    //region Getters and Setters
+
+    public String getPlaylistName() {
+        return playlistName;
     }
 
     public Bitmap getAlbumArt() {
@@ -61,15 +96,9 @@ public class Playlist implements Serializable {
         return songs;
     }
 
-    public String getDisplayName() {
-        return displayName;
+    public String getPlaylistDisplayName() {
+        return playlistDisplayName;
     }
 
-    public void sort() {
-        ArrayList<Song> h = new ArrayList<Song>(songs.size());
-        for (Song s : songs) {
-            h.add(s.getTrackNo(), s);
-        }
-        songs = h;
-    }
+    //endregion
 }

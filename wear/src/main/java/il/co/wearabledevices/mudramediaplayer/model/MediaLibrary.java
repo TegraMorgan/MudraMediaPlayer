@@ -21,7 +21,6 @@ import static il.co.wearabledevices.mudramediaplayer.constants.BACK_BUTTON_INTER
 
 public class MediaLibrary {
     private static final String TAG = "Media Library";
-    private static final ArrayMap<String, Song> mMusicListById = new ArrayMap<>();
     private static final ArrayMap<String, Album> mAlbumListByName = new ArrayMap<>();
     private static final ArrayMap<String, Playlist> mPlaylists = new ArrayMap<>();
 
@@ -52,6 +51,7 @@ public class MediaLibrary {
             String thisTitle;
             String thisArtist;
             String thisAlbum;
+            String thisPlaylistName;
             long thisDur;
             Song thisSong;
             int thisTrackNo;
@@ -83,6 +83,7 @@ public class MediaLibrary {
                         thisAlbum = "Unknown album";
                     }
                     thisAlbum = thisAlbum.trim();
+                    thisPlaylistName = parseDirectoryToAlbum(cursor.getString(pathColumn)).trim();
                     thisTrackNo = cursor.getInt(trackNoColumn);
 
                     //region Icon extraction
@@ -94,19 +95,16 @@ public class MediaLibrary {
                         albumArt = BitmapFactory.decodeResource(res, R.drawable.music_metal_molder_icon);
                     }
                     //endregion
-
+                    // Create song object
                     thisSong = new Song(thisID, thisTitle, thisArtist, thisAlbum, thisTrackNo, thisDur, cursor.getString(fileNameColumn), cursor.getString(pathColumn), albumArt);
-                    mMusicListById.put(String.valueOf(thisSong.getId()), thisSong);
+                    // Add it to album
                     addAlbumIf(mAlbumListByName, new Album(thisAlbum, thisArtist), thisSong);
-                /*
-                Log.v(TAG, "Song title : " + thisTitle);
-                Log.v(TAG, "Artist : " + thisArtist);
-                Log.v(TAG, "Album : " + thisAlbum);
-                */
+                    // Add it to Playlist
+                    addPlaylistIf(mPlaylists, thisSong, thisPlaylistName);
                 }
             } while (cursor.moveToNext());
         } else {
-            Log.v(TAG, "No cursor or no data in cursor!!!");
+            Log.v(TAG, "No cursor or no data in cursor");
         }
         if (cursor != null) {
             //If the cursor was not null - we finished
@@ -114,11 +112,21 @@ public class MediaLibrary {
             for (Album alb : mAlbumListByName.values()) {
                 inflateAlbumWithBackButtons(res, alb);
             }
+            for (String key : mPlaylists.keySet()) {
+                mPlaylists.get(key).setRandomAlbumArt();
+                mPlaylists.get(key).setTrackNumbers();
+            }
             mCurrentState = State.INITIALIZED;
         } else {
             //If the cursor is null - something was wrong
             mCurrentState = State.NON_INITIALIZED;
         }
+    }
+
+    private static void addPlaylistIf(ArrayMap<String, Playlist> pl, Song s, String nm) {
+        Playlist a = pl.get(nm);
+        if (a != null) a.addSong(s);
+        else pl.put(nm, new Playlist(s));
     }
 
     /**
@@ -162,7 +170,6 @@ public class MediaLibrary {
     }
 
     private static void addAlbumIf(ArrayMap<String, Album> allAlbums, Album currentAlbum, Song song) {
-
         String can = currentAlbum.getAlbumName();
         if (allAlbums.containsKey(can)) {
             allAlbums.get(can).getAlbumSongs().add(song);
