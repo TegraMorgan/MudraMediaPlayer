@@ -45,6 +45,7 @@ public class MediaLibrary {
             int durationColumn = cursor.getColumnIndex(MediaStore.Audio.Media.DURATION);
             int albumColumn = cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM);
             int pathColumn = cursor.getColumnIndex(MediaStore.Audio.Media.DATA);
+            int trackNoColumn = cursor.getColumnIndex(MediaStore.Audio.Media.TRACK);
 
             MediaMetadataRetriever mmr = new MediaMetadataRetriever();
             long thisID;
@@ -53,9 +54,10 @@ public class MediaLibrary {
             String thisAlbum;
             long thisDur;
             Song thisSong;
+            int thisTrackNo;
             String pathLowerCase;
             Bitmap albumArt;
-            byte[] data;
+            byte[] binaryDataAlbumArt;
 
             do {
                 pathLowerCase = cursor.getString(pathColumn).toLowerCase();
@@ -68,14 +70,11 @@ public class MediaLibrary {
                         thisTitle = "Unknown song";
                     }
                     thisTitle = thisTitle.trim();
-
                     thisArtist = cursor.getString(artistColumn);
                     if (thisArtist.compareTo("<unknown>") == 0) {
                         thisArtist = "Unknown artist";
                     }
                     thisArtist = thisArtist.trim();
-
-
                     thisDur = (int) cursor.getLong(durationColumn);
                     thisAlbum = cursor.getString(albumColumn);
                     if (thisAlbum == null || thisAlbum.isEmpty())
@@ -84,18 +83,19 @@ public class MediaLibrary {
                         thisAlbum = "Unknown album";
                     }
                     thisAlbum = thisAlbum.trim();
+                    thisTrackNo = cursor.getInt(trackNoColumn);
 
                     //region Icon extraction
                     mmr.setDataSource(cursor.getString(pathColumn));
-                    data = mmr.getEmbeddedPicture();
-                    if (data != null) {
-                        albumArt = BitmapFactory.decodeByteArray(data, 0, data.length);
+                    binaryDataAlbumArt = mmr.getEmbeddedPicture();
+                    if (binaryDataAlbumArt != null) {
+                        albumArt = BitmapFactory.decodeByteArray(binaryDataAlbumArt, 0, binaryDataAlbumArt.length);
                     } else {
                         albumArt = BitmapFactory.decodeResource(res, R.drawable.music_metal_molder_icon);
                     }
                     //endregion
 
-                    thisSong = new Song(thisID, thisTitle, thisArtist, thisAlbum, thisDur, cursor.getString(fileNameColumn), cursor.getString(pathColumn), albumArt);
+                    thisSong = new Song(thisID, thisTitle, thisArtist, thisAlbum, thisTrackNo, thisDur, cursor.getString(fileNameColumn), cursor.getString(pathColumn), albumArt);
                     mMusicListById.put(String.valueOf(thisSong.getId()), thisSong);
                     addAlbumIf(mAlbumListByName, new Album(thisAlbum, thisArtist), thisSong);
                 /*
@@ -129,7 +129,7 @@ public class MediaLibrary {
     private static void inflateAlbumWithBackButtons(Resources res, Album a) {
         ArrayList<Song> songs = a.getAlbumSongs();
         int songCount = a.getSongsCount();
-        Song backButton = new Song(constants.BACK_BUTTON_SONG_ID, "Back", "to album selection", "to album selection2", 0, "", "", BitmapFactory.decodeResource(res, constants.BACK_BUTTON_ICON));
+        Song backButton = new Song(constants.BACK_BUTTON_SONG_ID, "Back", "to album selection", "to album selection2", 0, 0, "", "", BitmapFactory.decodeResource(res, constants.BACK_BUTTON_ICON));
         int backCount = songCount / BACK_BUTTON_INTERVAL;
         for (int i = backCount; i > 0; i--) {
             songs.add(i * BACK_BUTTON_INTERVAL, backButton);

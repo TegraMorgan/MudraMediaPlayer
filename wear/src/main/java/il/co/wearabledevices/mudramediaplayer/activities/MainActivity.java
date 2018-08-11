@@ -742,7 +742,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     }
 
     private void updateAlbumArt() {
-        findViewById(R.id.main_background).setBackground(new BitmapDrawable(getResources(), musicSrv.getCurrentSong().getAlbumart()));
+        findViewById(R.id.main_background).setBackground(new BitmapDrawable(getResources(), musicSrv.getCurrentSong().getAlbumArt()));
     }
 
     //#endregion

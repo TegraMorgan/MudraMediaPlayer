@@ -4,10 +4,9 @@ import android.graphics.Bitmap;
 
 import java.io.Serializable;
 
-import il.co.wearabledevices.mudramediaplayer.R;
-
 public class Song implements Serializable {
-    private static final int EMPTY_ART_ID = R.drawable.music_metal_molder_icon;
+    private static final long serialVersionUID = 1L;
+
     private long id;
     private String title;
     private String artist;
@@ -18,7 +17,8 @@ public class Song implements Serializable {
     private long duration;
     private String fileName;
     private String fullPath;
-    private Bitmap albumart;
+    private Bitmap albumArt;
+    private int trackNo;
 
     /**
      * @param songID     Resource ID
@@ -28,7 +28,7 @@ public class Song implements Serializable {
      * @param songDur    Duration in miliseconds
      * @param mFlNm      File name
      */
-    public Song(long songID, String songTitle, String songArtist, String songAlbum, long songDur, String mFlNm, String flPth, Bitmap alba) {
+    public Song(long songID, String songTitle, String songArtist, String songAlbum, int traNo, long songDur, String mFlNm, String flPth, Bitmap alba) {
         id = songID;
         title = songTitle;
         artist = songArtist;
@@ -39,7 +39,7 @@ public class Song implements Serializable {
         duration = songDur;
         fileName = mFlNm;
         fullPath = flPth;
-        albumart = alba;
+        albumArt = alba;
     }
 
     @Override
@@ -117,8 +117,8 @@ public class Song implements Serializable {
         return fullPath;
     }
 
-    public Bitmap getAlbumart() {
-        return albumart;
+    public Bitmap getAlbumArt() {
+        return albumArt;
     }
 
     public String getDisplayTitle() {
@@ -132,4 +132,10 @@ public class Song implements Serializable {
     public String getDisplayAlbum() {
         return displayAlbum;
     }
+
+    public int getTrackNo() {
+        return trackNo;
+    }
+
+
 }

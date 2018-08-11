@@ -274,7 +274,7 @@ public class MudraMusicService extends Service implements MediaPlayer.OnPrepared
             builder = new Notification.Builder(this);
         }
         builder.setContentIntent(pendInt)
-                .setSmallIcon(Icon.createWithBitmap(currentSong.getAlbumart()))
+                .setSmallIcon(Icon.createWithBitmap(currentSong.getAlbumArt()))
                 .setTicker(secondTitle)
                 .setOngoing(true)
                 .setContentTitle(mainTitle)
