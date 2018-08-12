@@ -37,4 +37,5 @@ public class constants {
     public static final int BACK_BUTTON_SOUND_EFFECT = AudioManager.FX_KEYPRESS_SPACEBAR;
     public static final int BACK_BUTTON_ICON = R.drawable.lb_ic_playback_loop;
     public static final int mInterval = 300; // miliseconds
+    public static final int ACCEPTABLE_LENGTH = 20;
 }

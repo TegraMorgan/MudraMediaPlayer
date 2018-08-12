@@ -20,11 +20,14 @@ import il.co.wearabledevices.mudramediaplayer.constants;
 import static il.co.wearabledevices.mudramediaplayer.constants.BACK_BUTTON_INTERVAL;
 
 public class MediaLibrary {
-    private static final int ACCEPTABLE_LENGTH = 20;
     private static final String TAG = "Media Library";
-    private static final ArrayMap<String, Song> mMusicListById = new ArrayMap<>();
     private static final ArrayMap<String, Album> mAlbumListByName = new ArrayMap<>();
-    private static volatile State mCurrentState = State.NON_INITIALIZED;
+    private static final ArrayMap<String, Playlist> mPlaylists = new ArrayMap<>();
+    private static final ArrayMap<String, MusicActivity> mActivities = new ArrayMap<>();
+
+    private static String mCurrentState = "NON_INITIALIZED";
+
+    //region Build Media Library functions
 
     public static void buildMediaLibrary(Resources res, ContentResolver con) {
         buildMediaLibrary(res, con, "/music/");
@@ -32,7 +35,7 @@ public class MediaLibrary {
 
     public static void buildMediaLibrary(Resources res, ContentResolver contentResolver, String rootPath) {
         //retrieve song info
-        mCurrentState = State.INITIALIZING;
+        mCurrentState = "INITIALIZING";
         Uri musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         Cursor cursor = contentResolver.query(musicUri, null, null, null, null);
         if (cursor != null && cursor.moveToFirst()) {
@@ -44,17 +47,20 @@ public class MediaLibrary {
             int durationColumn = cursor.getColumnIndex(MediaStore.Audio.Media.DURATION);
             int albumColumn = cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM);
             int pathColumn = cursor.getColumnIndex(MediaStore.Audio.Media.DATA);
+            int trackNoColumn = cursor.getColumnIndex(MediaStore.Audio.Media.TRACK);
 
             MediaMetadataRetriever mmr = new MediaMetadataRetriever();
             long thisID;
             String thisTitle;
             String thisArtist;
             String thisAlbum;
+            String thisPlaylistName;
             long thisDur;
             Song thisSong;
+            int thisTrackNo;
             String pathLowerCase;
             Bitmap albumArt;
-            byte[] data;
+            byte[] binaryDataAlbumArt;
 
             do {
                 pathLowerCase = cursor.getString(pathColumn).toLowerCase();
@@ -67,18 +73,11 @@ public class MediaLibrary {
                         thisTitle = "Unknown song";
                     }
                     thisTitle = thisTitle.trim();
-                    if (thisTitle.length() > ACCEPTABLE_LENGTH)
-                        thisTitle = thisTitle.substring(0, ACCEPTABLE_LENGTH - 1);
-
                     thisArtist = cursor.getString(artistColumn);
                     if (thisArtist.compareTo("<unknown>") == 0) {
                         thisArtist = "Unknown artist";
                     }
                     thisArtist = thisArtist.trim();
-                    if (thisArtist.length() > ACCEPTABLE_LENGTH)
-                        thisArtist = thisArtist.substring(0, ACCEPTABLE_LENGTH - 1);
-
-
                     thisDur = (int) cursor.getLong(durationColumn);
                     thisAlbum = cursor.getString(albumColumn);
                     if (thisAlbum == null || thisAlbum.isEmpty())
@@ -87,31 +86,29 @@ public class MediaLibrary {
                         thisAlbum = "Unknown album";
                     }
                     thisAlbum = thisAlbum.trim();
-                    if (thisAlbum.length() > ACCEPTABLE_LENGTH)
-                        thisAlbum = thisAlbum.substring(0, ACCEPTABLE_LENGTH - 1);
+                    thisPlaylistName = parseDirectoryToAlbum(cursor.getString(pathColumn)).trim();
+                    thisTrackNo = cursor.getInt(trackNoColumn);
 
                     //region Icon extraction
                     mmr.setDataSource(cursor.getString(pathColumn));
-                    data = mmr.getEmbeddedPicture();
-                    if (data != null) {
-                        albumArt = BitmapFactory.decodeByteArray(data, 0, data.length);
+                    binaryDataAlbumArt = mmr.getEmbeddedPicture();
+                    if (binaryDataAlbumArt != null) {
+                        albumArt = BitmapFactory.decodeByteArray(binaryDataAlbumArt, 0, binaryDataAlbumArt.length);
                     } else {
                         albumArt = BitmapFactory.decodeResource(res, R.drawable.music_metal_molder_icon);
                     }
                     //endregion
 
-                    thisSong = new Song(thisID, thisTitle, thisArtist, thisAlbum, thisDur, cursor.getString(fileNameColumn), cursor.getString(pathColumn), albumArt);
-                    mMusicListById.put(String.valueOf(thisSong.getId()), thisSong);
+                    // Create song object
+                    thisSong = new Song(thisID, thisTitle, thisArtist, thisAlbum, thisTrackNo, thisDur, cursor.getString(fileNameColumn), cursor.getString(pathColumn), albumArt);
+                    // Add it to album
                     addAlbumIf(mAlbumListByName, new Album(thisAlbum, thisArtist), thisSong);
-                /*
-                Log.v(TAG, "Song title : " + thisTitle);
-                Log.v(TAG, "Artist : " + thisArtist);
-                Log.v(TAG, "Album : " + thisAlbum);
-                */
+                    // Add it to Playlist
+                    addPlaylistIf(mPlaylists, thisSong, thisPlaylistName);
                 }
             } while (cursor.moveToNext());
         } else {
-            Log.v(TAG, "No cursor or no data in cursor!!!");
+            Log.v(TAG, "No cursor or no data in cursor");
         }
         if (cursor != null) {
             //If the cursor was not null - we finished
@@ -119,11 +116,43 @@ public class MediaLibrary {
             for (Album alb : mAlbumListByName.values()) {
                 inflateAlbumWithBackButtons(res, alb);
             }
-            mCurrentState = State.INITIALIZED;
+            for (String key : mPlaylists.keySet()) {
+                mPlaylists.get(key).setRandomAlbumArt();
+                mPlaylists.get(key).setTrackNumbers();
+            }
+            PrepareMusicActivities(res);
+            mCurrentState = "INITIALIZED";
         } else {
             //If the cursor is null - something was wrong
-            mCurrentState = State.NON_INITIALIZED;
+            mCurrentState = "NON_INITIALIZED";
         }
+    }
+
+    private static void PrepareMusicActivities(Resources res) {
+        /* For now MusicActivities are hand made */
+        MusicActivity act = new MusicActivity("Run", BitmapFactory.decodeResource(res, R.drawable.Running));
+        act.addPlaylist(mPlaylists.get("Walk On The Beach"));
+        act.addPlaylist(mPlaylists.get("Motivation Mix"));
+        act.addPlaylist(mPlaylists.get("Zumba Beats"));
+        act.addPlaylist(mPlaylists.get("Give it all"));
+        mActivities.put(act.getActivityFullName(), act);
+        act = new MusicActivity("Gym", BitmapFactory.decodeResource(res, R.drawable.Gym));
+        act.addPlaylist(mPlaylists.get("Beast Mode"));
+        act.addPlaylist(mPlaylists.get("Hype"));
+        act.addPlaylist(mPlaylists.get("Power Workout"));
+        act.addPlaylist(mPlaylists.get("Give it all"));
+        mActivities.put(act.getActivityFullName(), act);
+        act = new MusicActivity("Biking", BitmapFactory.decodeResource(res, R.drawable.Biking));
+        act.addPlaylist(mPlaylists.get("Beast Mode"));
+        act.addPlaylist(mPlaylists.get("Motivation Mix"));
+        act.addPlaylist(mPlaylists.get("Give it all"));
+        mActivities.put(act.getActivityFullName(), act);
+    }
+
+    private static void addPlaylistIf(ArrayMap<String, Playlist> pl, Song s, String nm) {
+        Playlist a = pl.get(nm);
+        if (a != null) a.addSong(s);
+        else pl.put(nm, new Playlist(s));
     }
 
     /**
@@ -134,7 +163,7 @@ public class MediaLibrary {
     private static void inflateAlbumWithBackButtons(Resources res, Album a) {
         ArrayList<Song> songs = a.getAlbumSongs();
         int songCount = a.getSongsCount();
-        Song backButton = new Song(constants.BACK_BUTTON_SONG_ID, "Back", "to album selection", "to album selection2", 0, "", "", BitmapFactory.decodeResource(res, constants.BACK_BUTTON_ICON));
+        Song backButton = new Song(constants.BACK_BUTTON_SONG_ID, "Back", "to album selection", "to album selection2", 0, 0, "", "", BitmapFactory.decodeResource(res, constants.BACK_BUTTON_ICON));
         int backCount = songCount / BACK_BUTTON_INTERVAL;
         for (int i = backCount; i > 0; i--) {
             songs.add(i * BACK_BUTTON_INTERVAL, backButton);
@@ -142,41 +171,7 @@ public class MediaLibrary {
         if (backCount == 0) songs.add(backButton);
     }
 
-    public static Album getAlbum(int index) {
-        if (mCurrentState != State.INITIALIZED || mAlbumListByName.size() < index + 1) {
-            return null;
-        }
-        return mAlbumListByName.valueAt(index);
-    }
-
-
-    public static Collection<Album> getAlbums() {
-        Collection<Album> res = new ArrayList<>();
-        for (Album al : mAlbumListByName.values()) {
-            res.add(al);
-        }
-        return res;
-    }
-
-    public static ArrayList<Album> getmAlbums() {
-        return (ArrayList<Album>) getAlbums();
-    }
-
-    public static int getAlbumsCount() {
-        return mAlbumListByName.size();
-    }
-
-    private static int getAlbumRes(String mediaId) {
-        int res = 0;
-        if (mAlbumListByName.containsKey(mediaId)) {
-            Album a = mAlbumListByName.get(mediaId);
-            res = a.getAlbumSongs().get(0).getAlbumRes();
-        }
-        return res;
-    }
-
     private static void addAlbumIf(ArrayMap<String, Album> allAlbums, Album currentAlbum, Song song) {
-
         String can = currentAlbum.getAlbumName();
         if (allAlbums.containsKey(can)) {
             allAlbums.get(can).getAlbumSongs().add(song);
@@ -202,12 +197,40 @@ public class MediaLibrary {
         return res.toString();
     }
 
+    public static String trim(String s) {
+        return s.substring(0, constants.ACCEPTABLE_LENGTH - 1);
+    }
+
+    //endregion
+
+    //region Getters
+
+    public static Album getAlbum(int index) {
+        if (!mCurrentState.equals("INITIALIZED") || mAlbumListByName.size() < index + 1) {
+            return null;
+        }
+        return mAlbumListByName.valueAt(index);
+    }
+
+    public static Collection<Album> getAlbums() {
+        return new ArrayList<>(mAlbumListByName.values());
+    }
+
+    public static int getAlbumsCount() {
+        return mAlbumListByName.size();
+    }
+
     public static boolean isInitialized() {
-        return mCurrentState == State.INITIALIZED;
+        return mCurrentState.equals("INITIALIZED");
     }
 
-    enum State {
-        NON_INITIALIZED, INITIALIZING, INITIALIZED
+    public static ArrayMap<String, Playlist> getPlaylists() {
+        return mPlaylists;
     }
 
+    public static ArrayMap<String, MusicActivity> getMusicActivities() {
+        return mActivities;
+    }
+
+    //endregion
 }

@@ -7,12 +7,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-
 import java.util.List;
 
 import il.co.wearabledevices.mudramediaplayer.R;
 import il.co.wearabledevices.mudramediaplayer.model.Song;
-import il.co.wearabledevices.mudramediaplayer.ui.dummy.SongsDummyContent;
 
 public class SongsAdapter extends WearableRecyclerView.Adapter<SongsAdapter.SongsViewHolder> {
 
@@ -39,8 +37,8 @@ public class SongsAdapter extends WearableRecyclerView.Adapter<SongsAdapter.Song
     @Override
     public void onBindViewHolder(final SongsViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
-        holder.mIdView.setText(mValues.get(position).getTitle());
-        holder.mContentView.setText(mValues.get(position).getArtist());
+        holder.mIdView.setText(mValues.get(position).getDisplayTitle());
+        holder.mContentView.setText(mValues.get(position).getDisplayArtist());
         holder.getAdapterPosition();
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override

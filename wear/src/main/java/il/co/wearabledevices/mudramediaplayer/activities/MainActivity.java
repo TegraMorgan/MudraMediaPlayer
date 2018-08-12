@@ -78,7 +78,6 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     private boolean isMudraBinded = false, mudraCallbackAdded = false, VolumeUp = false, albumsFragmentNotInitialized = true;
     private IMudraAPI mIMudraAPI = null;
     private Long lastPressureOccurrence;
-    private int mudraSmoother;
     private String currentScreen;
     private Handler mHandler;
 
@@ -742,7 +741,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     }
 
     private void updateAlbumArt() {
-        findViewById(R.id.main_background).setBackground(new BitmapDrawable(getResources(), musicSrv.getCurrentSong().getAlbumart()));
+        findViewById(R.id.main_background).setBackground(new BitmapDrawable(getResources(), musicSrv.getCurrentSong().getAlbumArt()));
     }
 
     //#endregion

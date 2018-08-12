@@ -4,19 +4,21 @@ import android.graphics.Bitmap;
 
 import java.io.Serializable;
 
-import il.co.wearabledevices.mudramediaplayer.R;
-
 public class Song implements Serializable {
-    private static final int EMPTY_ART_ID = R.drawable.music_metal_molder_icon;
+    private static final long serialVersionUID = 1L;
+
     private long id;
     private String title;
     private String artist;
     private String album;
+    private String displayTitle;
+    private String displayArtist;
+    private String displayAlbum;
     private long duration;
-    private int albumRes;
     private String fileName;
     private String fullPath;
-    private Bitmap albumart;
+    private Bitmap albumArt;
+    private int trackNo;
 
     /**
      * @param songID     Resource ID
@@ -26,17 +28,18 @@ public class Song implements Serializable {
      * @param songDur    Duration in miliseconds
      * @param mFlNm      File name
      */
-    public Song(long songID, String songTitle, String songArtist, String songAlbum, long songDur, String mFlNm, String flPth, Bitmap alba) {
-        /* this constructor will be deleted in the end */
+    public Song(long songID, String songTitle, String songArtist, String songAlbum, int traNo, long songDur, String mFlNm, String flPth, Bitmap alba) {
         id = songID;
         title = songTitle;
         artist = songArtist;
         album = songAlbum;
+        displayTitle = MediaLibrary.trim(title);
+        displayArtist = MediaLibrary.trim(artist);
+        displayAlbum = MediaLibrary.trim(album);
         duration = songDur;
-        albumRes = EMPTY_ART_ID;
         fileName = mFlNm;
         fullPath = flPth;
-        albumart = alba;
+        albumArt = alba;
     }
 
     @Override
@@ -102,15 +105,6 @@ public class Song implements Serializable {
         this.duration = duration;
     }
 
-
-    public int getAlbumRes() {
-        return albumRes;
-    }
-
-    public void setAlbumRes(int albumRes) {
-        this.albumRes = albumRes;
-    }
-
     public String getFileName() {
         return fileName;
     }
@@ -123,7 +117,27 @@ public class Song implements Serializable {
         return fullPath;
     }
 
-    public Bitmap getAlbumart() {
-        return albumart;
+    public Bitmap getAlbumArt() {
+        return albumArt;
+    }
+
+    public String getDisplayTitle() {
+        return displayTitle;
+    }
+
+    public String getDisplayArtist() {
+        return displayArtist;
+    }
+
+    public String getDisplayAlbum() {
+        return displayAlbum;
+    }
+
+    public int getTrackNo() {
+        return trackNo;
+    }
+
+    public void setTrackNo(int trackNo) {
+        this.trackNo = trackNo;
     }
 }
