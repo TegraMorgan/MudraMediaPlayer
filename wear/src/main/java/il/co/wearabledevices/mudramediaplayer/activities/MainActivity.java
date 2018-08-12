@@ -80,7 +80,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
      * This variable saves the position of a selector at a given menu depth
      */
     private int[] cursorAtDepth = new int[3];
-    private boolean isMudraBinded = false, mudraCallbackAdded = false, VolumeUp = false, albumsFragmentNotInitialized = true;
+    private boolean isMudraBinded = false, mudraCallbackAdded = false, albumsFragmentNotInitialized = true;
     private IMudraAPI mIMudraAPI = null;
     private Long lastPressureOccurrence;
     private String currentScreen;
