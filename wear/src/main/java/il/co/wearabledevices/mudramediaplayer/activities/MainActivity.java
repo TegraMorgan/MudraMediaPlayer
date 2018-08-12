@@ -78,7 +78,6 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     private boolean isMudraBinded = false, mudraCallbackAdded = false, VolumeUp = false, albumsFragmentNotInitialized = true;
     private IMudraAPI mIMudraAPI = null;
     private Long lastPressureOccurrence;
-    private int mudraSmoother;
     private String currentScreen;
     private Handler mHandler;
 
