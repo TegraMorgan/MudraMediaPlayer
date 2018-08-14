@@ -130,19 +130,19 @@ public class MediaLibrary {
 
     private static void PrepareMusicActivities(Resources res) {
         /* For now MusicActivities are hand made */
-        MusicActivity act = new MusicActivity("Run", BitmapFactory.decodeResource(res, R.drawable.Running));
+        MusicActivity act = new MusicActivity("Run", BitmapFactory.decodeResource(res, R.drawable.running));
         act.addPlaylist(mPlaylists.get("Walk On The Beach"));
         act.addPlaylist(mPlaylists.get("Motivation Mix"));
         act.addPlaylist(mPlaylists.get("Zumba Beats"));
         act.addPlaylist(mPlaylists.get("Give it all"));
         mActivities.put(act.getActivityFullName(), act);
-        act = new MusicActivity("Gym", BitmapFactory.decodeResource(res, R.drawable.Gym));
+        act = new MusicActivity("Gym", BitmapFactory.decodeResource(res, R.drawable.gym));
         act.addPlaylist(mPlaylists.get("Beast Mode"));
         act.addPlaylist(mPlaylists.get("Hype"));
         act.addPlaylist(mPlaylists.get("Power Workout"));
         act.addPlaylist(mPlaylists.get("Give it all"));
         mActivities.put(act.getActivityFullName(), act);
-        act = new MusicActivity("Biking", BitmapFactory.decodeResource(res, R.drawable.Biking));
+        act = new MusicActivity("Biking", BitmapFactory.decodeResource(res, R.drawable.biking));
         act.addPlaylist(mPlaylists.get("Beast Mode"));
         act.addPlaylist(mPlaylists.get("Motivation Mix"));
         act.addPlaylist(mPlaylists.get("Give it all"));
@@ -198,6 +198,7 @@ public class MediaLibrary {
     }
 
     public static String trim(String s) {
+        if (s.length() <= constants.ACCEPTABLE_LENGTH) return s;
         return s.substring(0, constants.ACCEPTABLE_LENGTH - 1);
     }
 
