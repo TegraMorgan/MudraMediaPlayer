@@ -85,7 +85,7 @@ public class SongsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_song_list, container, false);
+        View view = inflater.inflate(R.layout.fragment_album_list, container, false);
         Bundle bdl = getArguments();
         if (getArguments() != null) {
             mColumnCount = bdl.getInt(ARG_COLUMN_COUNT);
@@ -250,10 +250,13 @@ public class SongsFragment extends Fragment {
 
             child.setScaleX(1 - mProgressToCenter);
             child.setScaleY(1 - mProgressToCenter);
-            child.setAlpha(0.5f);
+//            child.setAlpha(0.5f);
 
             /**Item highlighting upon focus*/
-            child.setBackgroundColor(Color.DKGRAY * (int) (1 - mProgressToCenter));
+            if((int)1-mProgressToCenter == 1)
+                child.setBackgroundColor((int)R.color.black);
+            else
+                child.setBackgroundColor(0);
         }
     }
 

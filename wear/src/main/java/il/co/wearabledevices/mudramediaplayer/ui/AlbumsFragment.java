@@ -217,10 +217,10 @@ public class AlbumsFragment extends Fragment {
 
             child.setScaleX(1 - mProgressToCenter);
             child.setScaleY(1 - mProgressToCenter);
-            child.setAlpha(0.5f);
+            //child.setAlpha(0.5f);
 
             /**Item highlighting upon focus*/
-            child.setBackgroundColor(Color.DKGRAY * (int) (1 - mProgressToCenter + 0.2));
+            child.setBackgroundColor(R.color.black * (int) (1 - mProgressToCenter + 0.2));
         }
     }
 
