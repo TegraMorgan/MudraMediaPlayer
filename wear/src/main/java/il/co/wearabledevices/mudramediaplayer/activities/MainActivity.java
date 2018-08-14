@@ -74,8 +74,13 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     private TextView mTextView;
     private AlbumsFragment mAlbumsFragment;
     private SongsFragment mSongsFragment;
-    private int currentAlbumPosition = 0;
-    private boolean isMudraBinded = false, mudraCallbackAdded = false, VolumeUp = false, albumsFragmentNotInitialized = true;
+    private int currentDepth = 0;
+
+    /**
+     * This variable saves the position of a selector at a given menu depth
+     */
+    private int[] cursorAtDepth = new int[3];
+    private boolean isMudraBinded = false, mudraCallbackAdded = false, albumsFragmentNotInitialized = true;
     private IMudraAPI mIMudraAPI = null;
     private Long lastPressureOccurrence;
     private String currentScreen;
@@ -220,7 +225,6 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
             }
         }
     };
-
 
     //#endregion
 
@@ -540,11 +544,11 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     public void nextAlbum() {
         int _albumsCount = MediaLibrary.getAlbumsCount();
         Log.i("Albums count", _albumsCount + "");
-        if (currentAlbumPosition < _albumsCount - 1) {
-            currentAlbumPosition += 1;
+        if (cursorAtDepth[0] < _albumsCount - 1) {
+            cursorAtDepth[0] += 1;
             //put the next song in the center of the screen
-            mAlbumsFragment.scrollToPos(currentAlbumPosition, true);
-            Log.i("current position", currentAlbumPosition + "");
+            mAlbumsFragment.scrollToPos(cursorAtDepth[0], true);
+            Log.i("current position", cursorAtDepth[0] + "");
             mAlbumsFragment.getRecycler().getAdapter().notifyDataSetChanged();
         } else {
             Log.i("current position", "reached the end");
@@ -555,11 +559,11 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
      * With Mudra usage only
      */
     public void prevAlbum() {
-        if (currentAlbumPosition > 0) {
-            currentAlbumPosition -= 1;
+        if (cursorAtDepth[0] > 0) {
+            cursorAtDepth[0] -= 1;
             //put the next song in the center of the screen
-            mAlbumsFragment.scrollToPos(currentAlbumPosition, true);
-            Log.i("current position", currentAlbumPosition + "");
+            mAlbumsFragment.scrollToPos(cursorAtDepth[0], true);
+            Log.i("current position", cursorAtDepth[0] + "");
             mAlbumsFragment.getRecycler().getAdapter().notifyDataSetChanged();
         } else {
             Log.i("current position", "reached the beginning");
@@ -571,7 +575,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
      * With Mudra usage only
      */
     public void clickAlbum() {
-        if (currentAlbumPosition == 0) mAlbumsFragment.getRecycler().getChildAt(0).performClick();
+        if (cursorAtDepth[0] == 0) mAlbumsFragment.getRecycler().getChildAt(0).performClick();
         else mAlbumsFragment.getRecycler().getChildAt(1).performClick();
 
     }
@@ -675,7 +679,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     public void switchToAlbumView() {
         currentScreen = constants.VIEW_ALBUMS;
         hidePlayerButtons();
-        currentAlbumPosition = 0;
+        cursorAtDepth[0] = 0;
         if (albumsFragmentNotInitialized) {
             prepareAlbumsScreen();
             currentScreen = constants.VIEW_ALBUMS;
