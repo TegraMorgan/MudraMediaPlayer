@@ -59,7 +59,6 @@ public class MusicActivityFragment extends Fragment {
     }
 
 
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -208,7 +207,9 @@ public class MusicActivityFragment extends Fragment {
     }
 
     public class CustomScrollingLayoutCallback3 extends WearableLinearLayoutManager.LayoutCallback {
-        /** How much should we scale the icon at most. */
+        /**
+         * How much should we scale the icon at most.
+         */
         private static final float MAX_ICON_PROGRESS = 0.65f;
 
         private float mProgressToCenter;

@@ -42,7 +42,7 @@ public class AlbumsAdapter extends WearableRecyclerView.Adapter<AlbumsAdapter.Vi
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues[position];
-        String aTitle = mValues[position].getAlbumName().length() > 19 ? mValues[position].getAlbumName().substring(0,19):mValues[position].getAlbumName();
+        String aTitle = mValues[position].getAlbumName().length() > 19 ? mValues[position].getAlbumName().substring(0, 19) : mValues[position].getAlbumName();
         holder.mIdView.setText(aTitle);
         holder.mContentView.setText(mValues[position].getaArtist());
 
@@ -52,7 +52,7 @@ public class AlbumsAdapter extends WearableRecyclerView.Adapter<AlbumsAdapter.Vi
                 if (null != mListener) {
                     // Notify the active callbacks interface (the activity, if the
                     // fragment is attached to one) that an item has been selected.
-                    mListener.onAlbumsListFragmentInteraction(holder,position);
+                    mListener.onAlbumsListFragmentInteraction(holder, position);
                 }
             }
         });

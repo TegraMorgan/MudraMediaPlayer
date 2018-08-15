@@ -21,7 +21,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import il.co.wearabledevices.mudramediaplayer.constants;
-import il.co.wearabledevices.mudramediaplayer.model.Album;
+import il.co.wearabledevices.mudramediaplayer.model.Playlist;
 import il.co.wearabledevices.mudramediaplayer.model.Song;
 
 public class MudraMusicService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener, AudioManager.OnAudioFocusChangeListener {
@@ -40,7 +40,8 @@ public class MudraMusicService extends Service implements MediaPlayer.OnPrepared
     /**
      * Current playlist
      */
-    private Album nowPlaying;
+    private Playlist nowPlaying;
+
     /**
      * Current song
      */
@@ -84,8 +85,8 @@ public class MudraMusicService extends Service implements MediaPlayer.OnPrepared
         }
     }
 
-    public void enqueueAlbum(Album album) {
-        nowPlaying = album;
+    public void enqueuePlaylist(Playlist pl) {
+        nowPlaying = pl;
         songNum = 0;
     }
 
@@ -137,7 +138,7 @@ public class MudraMusicService extends Service implements MediaPlayer.OnPrepared
 
     public void playSong() {
         mMediaPlayer.reset();
-        currentSong = nowPlaying.getAlbumSongs().get(songNum);
+        currentSong = nowPlaying.getSongs().get(songNum);
         long currSongId = currentSong.getId();
         Uri trackUri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, currSongId);
         try {
@@ -178,11 +179,11 @@ public class MudraMusicService extends Service implements MediaPlayer.OnPrepared
         songNum = i;
     }
 
-    public int getPosn() {
+    public int getPositionInSong() {
         return mMediaPlayer.getCurrentPosition();
     }
 
-    public int getDur() {
+    public int getDuration() {
         return mMediaPlayer.getDuration();
     }
 
@@ -198,7 +199,7 @@ public class MudraMusicService extends Service implements MediaPlayer.OnPrepared
         mMediaPlayer.seekTo(posn);
     }
 
-    public void go() {
+    public void startPlayer() {
         mMediaPlayer.start();
     }
 
@@ -207,13 +208,13 @@ public class MudraMusicService extends Service implements MediaPlayer.OnPrepared
             songNum--;
             //check if the current object is back and if we're no at the end of the list
             if (usingMudra) {
-                if (nowPlaying.getAlbumSongs().get(songNum).getId() != constants.BACK_BUTTON_SONG_ID) {
+                if (nowPlaying.getSongs().get(songNum).getId() != constants.BACK_BUTTON_SONG_ID) {
                     playSong();
                 } else {
                     mAudioManager.playSoundEffect(constants.BACK_BUTTON_SOUND_EFFECT, 1f);
                 }
             } else {
-                if (nowPlaying.getAlbumSongs().get(songNum).getId() == constants.BACK_BUTTON_SONG_ID) {
+                if (nowPlaying.getSongs().get(songNum).getId() == constants.BACK_BUTTON_SONG_ID) {
                     songNum--;
                 }
                 playSong();
@@ -226,13 +227,13 @@ public class MudraMusicService extends Service implements MediaPlayer.OnPrepared
     public void playNext(boolean usingMudra) {
         songNum = (songNum + 1) % nowPlaying.getSongsCount();
         if (usingMudra) {
-            if (nowPlaying.getAlbumSongs().get(songNum).getId() != constants.BACK_BUTTON_SONG_ID) {
+            if (nowPlaying.getSongs().get(songNum).getId() != constants.BACK_BUTTON_SONG_ID) {
                 playSong();
             } else {
                 mAudioManager.playSoundEffect(constants.BACK_BUTTON_SOUND_EFFECT, 1f);
             }
         } else {
-            if (nowPlaying.getAlbumSongs().get(songNum).getId() == constants.BACK_BUTTON_SONG_ID) {
+            if (nowPlaying.getSongs().get(songNum).getId() == constants.BACK_BUTTON_SONG_ID) {
                 songNum = (songNum + 1) % nowPlaying.getSongsCount();
             }
             playSong();
@@ -274,7 +275,7 @@ public class MudraMusicService extends Service implements MediaPlayer.OnPrepared
             builder = new Notification.Builder(this);
         }
         builder.setContentIntent(pendInt)
-                .setSmallIcon(Icon.createWithBitmap(currentSong.getAlbumArt()))
+                .setSmallIcon(Icon.createWithBitmap(currentSong.getAlbumArt(getApplicationContext())))
                 .setTicker(secondTitle)
                 .setOngoing(true)
                 .setContentTitle(mainTitle)
@@ -294,7 +295,7 @@ public class MudraMusicService extends Service implements MediaPlayer.OnPrepared
         super.onDestroy();
     }
 
-    public Album getNowPlaying() {
+    public Playlist getNowPlaying() {
         return nowPlaying;
     }
 

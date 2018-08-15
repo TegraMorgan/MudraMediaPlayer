@@ -5,24 +5,17 @@ package il.co.wearabledevices.mudramediaplayer.ui;
  * Created by Baselscs on 15/08/2018.
  */
 
-import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.ArrayMap;
-import android.view.ViewGroup;
-
-import il.co.wearabledevices.mudramediaplayer.model.MusicActivity;
-
 import android.support.wear.widget.WearableRecyclerView;
+import android.util.ArrayMap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.util.Collection;
-
 import il.co.wearabledevices.mudramediaplayer.R;
-import il.co.wearabledevices.mudramediaplayer.model.Album;
+import il.co.wearabledevices.mudramediaplayer.model.MusicActivity;
 import il.co.wearabledevices.mudramediaplayer.ui.dummy.AlbumsDummyContent;
 
 /**
@@ -35,7 +28,7 @@ public class MusicActivityAdapter extends WearableRecyclerView.Adapter<MusicActi
     private final MusicActivityFragment.OnMusicActivityFragmentInteractionListener mListener;
 
 
-    public MusicActivityAdapter(ArrayMap<String,MusicActivity> items,
+    public MusicActivityAdapter(ArrayMap<String, MusicActivity> items,
                                 MusicActivityFragment.OnMusicActivityFragmentInteractionListener listener) {
         //this.setEdgeItemsCenteringEnabled(true);
 
@@ -64,7 +57,7 @@ public class MusicActivityAdapter extends WearableRecyclerView.Adapter<MusicActi
                 if (null != mListener) {
                     // Notify the active callbacks interface (the activity, if the
                     // fragment is attached to one) that an item has been selected.
-                    mListener.onMusicActivityFragmentInteraction(holder,position);
+                    mListener.onMusicActivityFragmentInteraction(holder, position);
                 }
             }
         });
@@ -95,7 +88,6 @@ public class MusicActivityAdapter extends WearableRecyclerView.Adapter<MusicActi
             return super.toString() + " '" + mContentView.getText() + "'";
         }
     }
-
 
 
 }

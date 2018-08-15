@@ -7,7 +7,6 @@ package il.co.wearabledevices.mudramediaplayer.ui;
 import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
-import android.provider.SyncStateContract;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PagerSnapHelper;
 import android.support.v7.widget.RecyclerView;
@@ -61,11 +60,10 @@ public class PlayListFragment extends Fragment {
     }
 
 
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(getArguments() != null){
+        if (getArguments() != null) {
             mMusicActivity = (MusicActivity) getArguments().getSerializable(constants.MUSIC_ACTIVITY);
             Log.d("Basel", "onCreate: " + mMusicActivity.getSize());
         }
@@ -213,7 +211,9 @@ public class PlayListFragment extends Fragment {
     }
 
     public class CustomScrollingLayoutCallback3 extends WearableLinearLayoutManager.LayoutCallback {
-        /** How much should we scale the icon at most. */
+        /**
+         * How much should we scale the icon at most.
+         */
         private static final float MAX_ICON_PROGRESS = 0.65f;
 
         private float mProgressToCenter;

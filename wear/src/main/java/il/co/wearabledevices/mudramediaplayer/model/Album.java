@@ -47,7 +47,7 @@ public class Album implements Serializable {
         this.aArtist = aArtist;
     }
 
-    public ArrayList<Song> getAlbumSongs() {
+    public ArrayList<Song> getSongs() {
         return aSongs;
     }
 

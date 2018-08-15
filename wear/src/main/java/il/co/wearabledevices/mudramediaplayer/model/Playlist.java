@@ -1,12 +1,11 @@
 package il.co.wearabledevices.mudramediaplayer.model;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
-
-import il.co.wearabledevices.mudramediaplayer.constants;
 
 @SuppressWarnings("unused")
 public class Playlist implements Serializable {
@@ -16,38 +15,32 @@ public class Playlist implements Serializable {
 
     private String playlistName;
     private String playlistDisplayName;
-    private Bitmap albumArt;
+    private int albArt;
     private ArrayList<Song> songs;
 
     //endregion
 
     //region Constructors
 
-    public Playlist(String newPlaylistName, ArrayList<Song> songList, Bitmap albumArt) {
-        setPlaylistNames(newPlaylistName);
+    public Playlist(String nm, ArrayList<Song> songList) {
+        setPlaylistName(nm);
         this.songs = songList;
-        this.albumArt = albumArt;
     }
 
     public Playlist(Album album) {
-        songs = album.getAlbumSongs();
-        setPlaylistNames(album.getAlbumName());
+        songs = album.getSongs();
+        setPlaylistName(album.getAlbumName());
     }
 
-    public Playlist(ArrayList<Song> songs,String nm) {
-        this.songs = songs;
-        setPlaylistNames(nm);
-    }
-
-    private void setPlaylistNames(String nm) {
-        this.playlistName=nm;
-        this.playlistDisplayName= MediaLibrary.trim(this.playlistName);
-    }
-
-    public Playlist(Song song,String nm) {
+    public Playlist(Song song, String nm) {
         songs = new ArrayList<>();
         songs.add(song);
-        setPlaylistNames(nm);
+        setPlaylistName(nm);
+    }
+
+    private void setPlaylistName(String nm) {
+        this.playlistName = nm;
+        this.playlistDisplayName = MediaLibrary.trim(this.playlistName);
     }
 
     //endregion
@@ -59,8 +52,7 @@ public class Playlist implements Serializable {
     }
 
     public void setRandomAlbumArt() {
-        int select = (int) (songs.size() * Math.random());
-        albumArt = songs.get(select).getAlbumArt();
+        albArt = (int) (songs.size() * Math.random());
     }
 
     public void addSongAt(Song s, int position) {
@@ -95,8 +87,8 @@ public class Playlist implements Serializable {
         return playlistName;
     }
 
-    public Bitmap getAlbumArt() {
-        return albumArt;
+    public Bitmap getAlbumArt(Context con) {
+        return songs.get(albArt).getAlbumArt(con);
     }
 
     public ArrayList<Song> getSongs() {
@@ -105,6 +97,10 @@ public class Playlist implements Serializable {
 
     public String getPlaylistDisplayName() {
         return playlistDisplayName;
+    }
+
+    public int getSongsCount() {
+        return songs.size();
     }
 
     //endregion

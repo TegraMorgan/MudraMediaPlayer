@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
@@ -36,8 +37,8 @@ import com.wearable.android.ble.interfaces.IMudraDeviceStatuslListener;
 
 import il.co.wearabledevices.mudramediaplayer.R;
 import il.co.wearabledevices.mudramediaplayer.constants;
-import il.co.wearabledevices.mudramediaplayer.model.Album;
 import il.co.wearabledevices.mudramediaplayer.model.MediaLibrary;
+import il.co.wearabledevices.mudramediaplayer.model.MusicActivity;
 import il.co.wearabledevices.mudramediaplayer.model.Playlist;
 import il.co.wearabledevices.mudramediaplayer.ui.AlbumsAdapter;
 import il.co.wearabledevices.mudramediaplayer.ui.AlbumsFragment;
@@ -52,7 +53,6 @@ import il.co.wearabledevices.mudramediaplayer.utils.CustomMediaController;
 
 import static il.co.wearabledevices.mudramediaplayer.constants.DATA_TYPE_GESTURE;
 import static il.co.wearabledevices.mudramediaplayer.constants.DATA_TYPE_PROPORTIONAL;
-import static il.co.wearabledevices.mudramediaplayer.constants.SERIALIZE_ALBUM;
 import static il.co.wearabledevices.mudramediaplayer.utils.AnnotationVolume.IDLE;
 import static il.co.wearabledevices.mudramediaplayer.utils.AnnotationVolume.P1;
 import static il.co.wearabledevices.mudramediaplayer.utils.AnnotationVolume.P2;
@@ -65,7 +65,7 @@ import static il.co.wearabledevices.mudramediaplayer.utils.AnnotationVolume.PM3;
 public class MainActivity extends WearableActivity implements AlbumsFragment.OnAlbumsListFragmentInteractionListener
         , SongsFragment.OnSongsListFragmentInteractionListener, MediaController.MediaPlayerControl,
         MusicActivityFragment.OnMusicActivityFragmentInteractionListener,
-        PlayListFragment.OnPlayListFragmentInteractionListener{
+        PlayListFragment.OnPlayListFragmentInteractionListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final String DB = "Tegra";
@@ -400,11 +400,11 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
             if (musicBound && musicSrv.getNowPlaying() != null && musicSrv.isPlaying()) {
                 playbackPaused = !musicSrv.isPlaying();
                 if (musicSrv.getNowPlaying() != null && !playbackPaused) {
-                    switchToSongView(musicSrv.getNowPlaying());
+                    switchToSongListView(musicSrv.getNowPlaying());
                     updateSongRecyclerPosition(musicSrv.getPlaylistPos());
                 }
             } else {
-                switchToAlbumView();
+                switchToActivityView();
             }
             //#endregion
         }
@@ -491,100 +491,45 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
      * Fires when user selects album to play
      *
      * @param item Album the user has selected
+     * @deprecated this method will be deleted eventually
      */
     @Override
     public void onAlbumsListFragmentInteraction(AlbumsAdapter.ViewHolder item, int position) {
-        /* --- Local variables preparation and update --- */
-        if (playbackPaused) {
-            setController();
-            playbackPaused = false;
-        }
-
-        switchToSongView(item.mItem);
-        updatePlayButton();
-
-        /* --- Music Service controls --- */
-
-        musicSrv.enqueueAlbum(item.mItem);
-        musicSrv.playSong();
-        updateAlbumArt();
-
+        // This will be deleted in the end Tegra
     }
-
-//    @Override
-//    public void onSongsListFragmentInteraction(SongsAdapter.SongsViewHolder item, int position) {
-//        // if back button was pressed
-//        if (musicSrv.getNowPlaying().getAlbumSongs().get(position).getId() == constants.BACK_BUTTON_SONG_ID) {
-//            switchToAlbumView();
-//        }
-//        // if regular song was selected
-//        else {
-//            Toast.makeText(this, "Playing : " + musicSrv.getNowPlaying().getAlbumSongs().get(position).getTitle(), Toast.LENGTH_LONG).show();
-//            musicSrv.jumpToSong(position);
-//            musicSrv.playSong();
-//            if (playbackPaused) {
-//                setController();
-//                playbackPaused = false;
-//            }
-//            //put that song in the center of the screen
-//            mSongsFragment.scrollToPos(position, true);
-//            mSongsFragment.getRecycler().getAdapter().notifyDataSetChanged();
-//            playbackPaused = false;
-//            updatePlayButton();
-//            updateAlbumArt();
-//        }
-//    }
-    @Override
-    public void onSongsListFragmentInteraction(SongsAdapter.SongsViewHolder item, int position) {
-
-            Toast.makeText(this, "Playing : " + item.mItem.getDisplayTitle(), Toast.LENGTH_LONG).show();
-            if(!musicSrv.isPlaying())
-                musicSrv.playSong();
-            else{
-                musicSrv.jumpToSong(position);
-                musicSrv.playSong();
-                if (playbackPaused) {
-                    setController();
-                    playbackPaused = false;
-                }
-                //put that song in the center of the screen
-                mSongsFragment.scrollToPos(position, true);
-                mSongsFragment.getRecycler().getAdapter().notifyDataSetChanged();
-                playbackPaused = false;
-                updatePlayButton();
-                updateAlbumArt();
-
-            }
-
-    }
-
 
     @Override
     public void onMusicActivityFragmentInteraction(MusicActivityAdapter.ViewHolder item, int position) {
         //Toast.makeText(this,item.mItem.getActivityDisplayName(),Toast.LENGTH_SHORT).show();
-        TextView tv = findViewById(R.id.top_fragment_text);
-        tv.setText("Playlists");
-        FragmentManager fm = getFragmentManager();
-        PlayListFragment plf = new PlayListFragment();
-        Bundle bdl = new Bundle();
-        bdl.putSerializable(constants.MUSIC_ACTIVITY,item.mItem);
-        plf.setArguments(bdl);
-        fm.beginTransaction().replace(R.id.songs_list_container, plf).addToBackStack(null).commit();
-
+        hidePlayerButtons();
+        switchToPlaylistsView(item.mItem);
+        setMainActivityBackground(item.mItem.getActivityIcon());
     }
 
     @Override
     public void onPlayListFragmentInteraction(PlayListAdapter.ViewHolder item, int position) {
-        TextView tv = findViewById(R.id.top_fragment_text);
-        tv.setText("Songs");
-        FragmentManager fm = getFragmentManager();
-        Bundle bdl = new Bundle();
-        bdl.putSerializable(constants.PLAY_LIST,item.mItem);
-        SongsFragment sf = new SongsFragment();
-        mSongsFragment = sf;
-        sf.setArguments(bdl);
-        fm.beginTransaction().replace(R.id.songs_list_container,sf).addToBackStack(null).commit();
-        showPlayerButtons();
+        switchToSongListView(item.mItem);
+        musicSrv.enqueuePlaylist(item.mItem);
+        musicSrv.playSong();
+        updateMainActivityBackgroundWithSongAlbumArt();
+    }
+
+    @Override
+    public void onSongsListFragmentInteraction(SongsAdapter.SongsViewHolder item, int position) {
+        Toast.makeText(this, "Playing : " + item.mItem.getDisplayTitle(), Toast.LENGTH_LONG).show();
+        musicSrv.jumpToSong(position);
+        musicSrv.playSong();
+        if (playbackPaused) {
+            setController();
+        }
+        playbackPaused = false;
+        //put that song in the center of the screen
+        mSongsFragment.scrollToPos(position, true);
+        mSongsFragment.getRecycler().getAdapter().notifyDataSetChanged();
+        updatePlayButton();
+        updateMainActivityBackgroundWithSongAlbumArt();
+
+
     }
 
     public void play_music(View view) {
@@ -648,18 +593,18 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
      */
     public void play_music(boolean usingMudra) {
         // if back button was pressed
-        if (usingMudra && musicSrv.getNowPlaying().getAlbumSongs().get(musicSrv.getPlaylistPos()).getId() == constants.BACK_BUTTON_SONG_ID) {
-            switchToAlbumView();
+        if (usingMudra && musicSrv.getNowPlaying().getSongs().get(musicSrv.getPlaylistPos()).getId() == constants.BACK_BUTTON_SONG_ID) {
+            switchToActivityView();
             return;
         }
         if (playbackPaused) {
-            musicSrv.go();
+            musicSrv.startPlayer();
         } else {
             musicSrv.pausePlayer();
         }
         playbackPaused = !playbackPaused;
         updatePlayButton();
-        updateAlbumArt();
+        updateMainActivityBackgroundWithSongAlbumArt();
         String msg = !playbackPaused ? "Playing" : "Paused";
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
@@ -686,7 +631,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         FrameLayout mainLayout = findViewById(R.id.upper_container);
         mainLayout.removeAllViews();
         LayoutInflater inflater =
-                (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         currentUpperView = inflater.inflate(R.layout.top_fragment_player, mainLayout, true);
 
     }
@@ -719,31 +664,21 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         return false;
     };
 
-    public void switchToSongView(Album item) {
-        showPlayerButtons();                                    // Show the player buttons
-        prepareSongsScreen();                                   // Change elements size for song list
-        currentScreen = constants.VIEW_SONGS;
-        android.app.FragmentManager fm = getFragmentManager();
-        SongsFragment fragment = new SongsFragment();
-        mSongsFragment = fragment;
-        Bundle albumBundle = new Bundle();                      // Create Bundle to be sent to Song List Fragment
-        albumBundle.putSerializable(SERIALIZE_ALBUM, item);     // Put album object in it
-        fragment.setArguments(albumBundle);                     // Assign bundle to fragment
-        fm.beginTransaction().replace(R.id.songs_list_container, fragment).addToBackStack(null).commit();
-        getFragmentManager().executePendingTransactions();
-        findViewById(R.id.songs_list_container).setVisibility(ViewGroup.VISIBLE); //Show the list again
-        findViewById(R.id.songs_list_container).invalidate();                     // Tegra - I think this line can be removed
-
-    }
-
     private void updateSongRecyclerPosition(int playlistPos) {
         //put the next song in the center of the screen
-        mSongsFragment.getView().invalidate();
-        mSongsFragment.scrollToPos(playlistPos, true);
-        Log.i(TAG, "Playlist position: " + playlistPos);
-        mSongsFragment.getRecycler().getAdapter().notifyDataSetChanged();
+        try {
+            mSongsFragment.getView().invalidate();
+            mSongsFragment.scrollToPos(playlistPos, true);
+            Log.i(TAG, "Playlist position: " + playlistPos);
+            mSongsFragment.getRecycler().getAdapter().notifyDataSetChanged();
+        } catch (NullPointerException e) {
+            Log.e(TAG, "updateSongRecyclerPosition:", e);
+        }
     }
 
+    /**
+     * @deprecated use switchToActivityView() or switchToPlaylistsView() instead, and later delete this method
+     */
     public void switchToAlbumView() {
         currentScreen = constants.VIEW_ALBUMS;
         hidePlayerButtons();
@@ -765,7 +700,40 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         /************** ACTIVITY_FRAGMENT ***************/
         MusicActivityFragment maf = new MusicActivityFragment();
         android.app.FragmentManager fragmentManager = getFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.songs_list_container,maf).commit();
+        fragmentManager.beginTransaction().replace(R.id.songs_list_container, maf).commit();
+    }
+
+    /** */
+    public void switchToActivityView() {
+        currentScreen = constants.VIEW_ACTIVITIES;
+        hidePlayerButtons();
+        MusicActivityFragment maf = new MusicActivityFragment();
+        android.app.FragmentManager fragmentManager = getFragmentManager();
+        fragmentManager.beginTransaction().replace(R.id.songs_list_container, maf).commit();
+    }
+
+    public void switchToPlaylistsView(MusicActivity a) {
+        currentScreen = constants.VIEW_PLAYLISTS;
+        TextView tv = findViewById(R.id.top_fragment_text);
+        tv.setText(constants.LABEL_PLAYLISTS);
+        if (tv == null) Log.d(TAG, "switchToPlaylistsView: top fragment not found");
+        FragmentManager fm = getFragmentManager();
+        PlayListFragment plf = new PlayListFragment();
+        Bundle bdl = new Bundle();
+        bdl.putSerializable(constants.MUSIC_ACTIVITY, a);
+        plf.setArguments(bdl);
+        fm.beginTransaction().replace(R.id.songs_list_container, plf).addToBackStack(null).commit();
+        // This was copied from other methods, maybe can be deleted.
+        hidePlayerButtons();
+
+    }
+
+    public void switchToSongListView(Playlist item) {
+        findViewById(R.id.songs_list_container).setVisibility(ViewGroup.VISIBLE); //Show the list again
+        showPlayerButtons();                                        // Show the player buttons
+        prepareSongsScreen(item);                                   // Change elements size for song list
+        currentScreen = constants.VIEW_SONGS;
+        updatePlayButton();
     }
 
     /**
@@ -773,6 +741,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
      */
 
     View currentUpperView = null;
+
     public void hidePlayerButtons() {
         /*Hide the list for now - for better paging (not the best thing yet)*/
         //findViewById(R.id.songs_list_container).setVisibility(View.INVISIBLE);
@@ -790,21 +759,26 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         FrameLayout mainLayout = findViewById(R.id.upper_container);
         mainLayout.removeAllViews();
         LayoutInflater inflater =
-                (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         currentUpperView = inflater.inflate(R.layout.top_fragment_albums, mainLayout, true);
 
     }
 
-    public void prepareAlbumsScreen() {
-        FrameLayout fl = findViewById(R.id.songs_list_container);
-        FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) fl.getLayoutParams();
-        setMargins(fl, lp.leftMargin, dpToPx(constants.ALBUMS_LAYOUT_MARGIN), lp.rightMargin, lp.bottomMargin);
+    public void preparePlaylistScreen() {
+
     }
 
-    public void prepareSongsScreen() {
-        FrameLayout fl = findViewById(R.id.songs_list_container);
-        FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) fl.getLayoutParams();
-        setMargins(fl, lp.leftMargin, dpToPx(constants.SONGS_LAYOUT_MARGIN), lp.rightMargin, lp.bottomMargin);
+    public void prepareSongsScreen(Playlist pl) {
+        TextView tv = findViewById(R.id.top_fragment_text);
+        tv.setText(constants.LABEL_SONGS);
+        FragmentManager fm = getFragmentManager();
+        Bundle bdl = new Bundle();
+        bdl.putSerializable(constants.PLAY_LIST, pl);
+        SongsFragment sf = new SongsFragment();
+        mSongsFragment = sf;
+        sf.setArguments(bdl);
+        fm.beginTransaction().replace(R.id.songs_list_container, sf).addToBackStack(null).commit();
+        fm.executePendingTransactions();
     }
 
     public void setMargins(View v, int l, int t, int r, int b) {
@@ -825,8 +799,15 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, sizeInDP, getResources().getDisplayMetrics());
     }
 
-    private void updateAlbumArt() {
-        findViewById(R.id.main_background).setBackground(new BitmapDrawable(getResources(), musicSrv.getCurrentSong().getAlbumArt()));
+    /**
+     * Changes main activity background to current song's album art
+     */
+    private void updateMainActivityBackgroundWithSongAlbumArt() {
+        findViewById(R.id.main_background).setBackground(new BitmapDrawable(getResources(), musicSrv.getCurrentSong().getAlbumArt(getApplicationContext())));
+    }
+
+    private void setMainActivityBackground(Bitmap bit) {
+        findViewById(R.id.main_background).setBackground(new BitmapDrawable(getResources(), bit));
     }
 
     //#endregion
@@ -843,7 +824,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
             if (musicSrv != null) {
                 playbackPaused = !musicSrv.isPlaying();
                 if (musicSrv.getNowPlaying() != null && !playbackPaused) {
-                    switchToSongView(musicSrv.getNowPlaying());
+                    switchToSongListView(musicSrv.getNowPlaying());
                     updateSongRecyclerPosition(musicSrv.getPlaylistPos());
                 }
                 musicSrv.jumpStartVolume();
@@ -877,7 +858,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         }
         musicSrv.playPrev(usingMudra);
         playbackPaused = false;
-        updateAlbumArt();
+        updateMainActivityBackgroundWithSongAlbumArt();
         updateSongRecyclerPosition(musicSrv.getPlaylistPos());
         updatePlayButton();
     }
@@ -892,7 +873,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         }
         musicSrv.playNext(usingMudra);
         playbackPaused = false;
-        updateAlbumArt();
+        updateMainActivityBackgroundWithSongAlbumArt();
         updatePlayButton();
         updateSongRecyclerPosition(musicSrv.getPlaylistPos());
     }
@@ -924,14 +905,15 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
 
     @Override
     public int getDuration() {
-        if (musicSrv != null && musicBound && musicSrv.isPlaying()) return musicSrv.getDur();
+        if (musicSrv != null && musicBound && musicSrv.isPlaying()) return musicSrv.getDuration();
         else
             return 0;
     }
 
     @Override
     public int getCurrentPosition() {
-        if (musicSrv != null && musicBound && musicSrv.isPlaying()) return musicSrv.getPosn();
+        if (musicSrv != null && musicBound && musicSrv.isPlaying())
+            return musicSrv.getPositionInSong();
         else return 0;
     }
 

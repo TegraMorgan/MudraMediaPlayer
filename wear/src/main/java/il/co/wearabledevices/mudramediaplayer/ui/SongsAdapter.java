@@ -1,7 +1,6 @@
 package il.co.wearabledevices.mudramediaplayer.ui;
 
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.support.wear.widget.WearableRecyclerView;
 import android.view.LayoutInflater;
@@ -40,10 +39,11 @@ public class SongsAdapter extends WearableRecyclerView.Adapter<SongsAdapter.Song
 
     @Override
     public void onBindViewHolder(final SongsViewHolder holder, int position) {
+        Context con = holder.mView.getContext();
         holder.mItem = mValues.get(position);
         holder.mIdView.setText(mValues.get(position).getDisplayTitle());
         holder.mContentView.setText(mValues.get(position).getDisplayArtist());
-        holder.mIconView.setImageBitmap(holder.mItem.getAlbumArt());
+        holder.mIconView.setImageBitmap(holder.mItem.getAlbumArt(con));
         holder.getAdapterPosition();
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -51,7 +51,7 @@ public class SongsAdapter extends WearableRecyclerView.Adapter<SongsAdapter.Song
                 if (null != mListener) {
                     // Notify the active callbacks interface (the activity, if the
                     // fragment is attached to one) that an item has been selected.
-                    mListener.onSongsListFragmentInteraction(holder,position);
+                    mListener.onSongsListFragmentInteraction(holder, position);
                 }
             }
         });

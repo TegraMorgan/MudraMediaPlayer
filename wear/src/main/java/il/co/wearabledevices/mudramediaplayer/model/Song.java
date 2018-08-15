@@ -1,8 +1,14 @@
 package il.co.wearabledevices.mudramediaplayer.model;
 
+import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.MediaMetadataRetriever;
+import android.net.Uri;
 
 import java.io.Serializable;
+
+import il.co.wearabledevices.mudramediaplayer.R;
 
 public class Song implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -17,7 +23,6 @@ public class Song implements Serializable {
     private long duration;
     private String fileName;
     private String fullPath;
-    private Bitmap albumArt;
     private int trackNo;
 
     /**
@@ -28,7 +33,7 @@ public class Song implements Serializable {
      * @param songDur    Duration in miliseconds
      * @param mFlNm      File name
      */
-    public Song(long songID, String songTitle, String songArtist, String songAlbum, int traNo, long songDur, String mFlNm, String flPth, Bitmap alba) {
+    public Song(long songID, String songTitle, String songArtist, String songAlbum, int traNo, long songDur, String mFlNm, String flPth) {
         id = songID;
         title = songTitle;
         artist = songArtist;
@@ -39,7 +44,7 @@ public class Song implements Serializable {
         duration = songDur;
         fileName = mFlNm;
         fullPath = flPth;
-        albumArt = alba;
+        trackNo = traNo;
     }
 
     @Override
@@ -117,10 +122,6 @@ public class Song implements Serializable {
         return fullPath;
     }
 
-    public Bitmap getAlbumArt() {
-        return albumArt;
-    }
-
     public String getDisplayTitle() {
         return displayTitle;
     }
@@ -135,6 +136,27 @@ public class Song implements Serializable {
 
     public int getTrackNo() {
         return trackNo;
+    }
+
+    /**
+     * Extracts songs album art using song full path and provided context
+     *
+     * @param context Application context
+     * @return A Bitmap object
+     */
+    public Bitmap getAlbumArt(Context context) {
+        Bitmap albumArt;
+        MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+        mmr.setDataSource(context, new Uri.Builder().path(this.fullPath).build());
+        byte[] binaryDataAlbumArt = mmr.getEmbeddedPicture();
+        if (this.id == -1) {
+            albumArt = BitmapFactory.decodeResource(context.getResources(), R.drawable.baseline_arrow_back_black_18dp);
+        } else if (binaryDataAlbumArt != null) {
+            albumArt = BitmapFactory.decodeByteArray(binaryDataAlbumArt, 0, binaryDataAlbumArt.length);
+        } else {
+            albumArt = BitmapFactory.decodeResource(context.getResources(), R.drawable.music_metal_molder_icon);
+        }
+        return albumArt;
     }
 
     public void setTrackNo(int trackNo) {

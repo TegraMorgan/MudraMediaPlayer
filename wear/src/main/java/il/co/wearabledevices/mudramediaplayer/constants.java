@@ -35,10 +35,15 @@ public class constants {
     // Higher values will slow down volume change speed
     public static final int MUDRA_SMOOTH_FACTOR = 10;
     public static final String VIEW_ALBUMS = "Albums";
+    public static final String VIEW_ACTIVITIES = "ActivitieList";
+    public static final String VIEW_PLAYLISTS = "PlaylistList";
     public static final String VIEW_SONGS = "SongList";
+
     public static final boolean USING_MUDRA = true;
     public static final int BACK_BUTTON_SOUND_EFFECT = AudioManager.FX_KEYPRESS_SPACEBAR;
     public static final int BACK_BUTTON_ICON = R.drawable.lb_ic_playback_loop;
     public static final int mInterval = 300; // miliseconds
     public static final int ACCEPTABLE_LENGTH = 20;
+    public static final String LABEL_PLAYLISTS = "Playlists";
+    public static final String LABEL_SONGS = "Songs";
 }

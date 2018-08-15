@@ -2,29 +2,20 @@ package il.co.wearabledevices.mudramediaplayer.ui;
 
 import android.app.Fragment;
 import android.content.Context;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PagerSnapHelper;
 import android.support.v7.widget.RecyclerView;
 import android.support.wear.widget.WearableLinearLayoutManager;
 import android.support.wear.widget.WearableRecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-
 import il.co.wearabledevices.mudramediaplayer.R;
 import il.co.wearabledevices.mudramediaplayer.constants;
-import il.co.wearabledevices.mudramediaplayer.model.Album;
 import il.co.wearabledevices.mudramediaplayer.model.Playlist;
-import il.co.wearabledevices.mudramediaplayer.model.Song;
-
-import static il.co.wearabledevices.mudramediaplayer.constants.SERIALIZE_ALBUM;
 
 
 /**
@@ -42,7 +33,7 @@ public class SongsFragment extends Fragment {
     private static Playlist mPlayList;
     private WearableRecyclerView mRecyclerView;
 
-   private OnSongsListFragmentInteractionListener mListener;
+    private OnSongsListFragmentInteractionListener mListener;
 
 
     /**
@@ -75,7 +66,7 @@ public class SongsFragment extends Fragment {
         if (getArguments() != null) {
             //mColumnCount = bdl.getInt(ARG_COLUMN_COUNT);
             mPlayList = (Playlist) bdl.getSerializable(constants.PLAY_LIST);
-            //mSongs = album.getAlbumSongs();
+            //mSongs = album.getSongs();
             //Log.d("Is there any songs", (mSongs.isEmpty() ? "Yes" : "No"));
 
         }
@@ -91,7 +82,7 @@ public class SongsFragment extends Fragment {
             //mColumnCount = bdl.getInt(ARG_COLUMN_COUNT);
             //album = (Album) bdl.getSerializable(SERIALIZE_ALBUM);
 //            if (mSongs.isEmpty()) {
-//                mSongs = album.getAlbumSongs();
+//                mSongs = album.getSongs();
 //                Log.d("Is there any songs2", (mSongs.isEmpty() ? "Yes" : "No"));
 //            }
             mPlayList = (Playlist) getArguments().getSerializable(constants.PLAY_LIST);
@@ -118,7 +109,7 @@ public class SongsFragment extends Fragment {
             snapHelper.attachToRecyclerView(recyclerView);
             mRecyclerView = recyclerView;
 
-                        mRecyclerView.invalidate();
+            mRecyclerView.invalidate();
         }
         return view;
     }
@@ -232,7 +223,9 @@ public class SongsFragment extends Fragment {
     }
 
     public class CustomScrollingLayoutCallback2 extends WearableLinearLayoutManager.LayoutCallback {
-        /** How much should we scale the icon at most. */
+        /**
+         * How much should we scale the icon at most.
+         */
         private static final float MAX_ICON_PROGRESS = 0.65f;
 
         private float mProgressToCenter;
@@ -254,8 +247,8 @@ public class SongsFragment extends Fragment {
 //            child.setAlpha(0.5f);
 
             /**Item highlighting upon focus*/
-            if((int)1-mProgressToCenter == 1)
-                child.setBackgroundColor((int)R.color.black);
+            if ((int) 1 - mProgressToCenter == 1)
+                child.setBackgroundColor((int) R.color.black);
             else
                 child.setBackgroundColor(0);
         }
