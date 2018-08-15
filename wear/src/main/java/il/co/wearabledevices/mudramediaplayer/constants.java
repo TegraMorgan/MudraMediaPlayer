@@ -11,6 +11,9 @@ public class constants {
     public static final int DATA_TYPE_UIACTION = 5;
 
     public static final String SERIALIZE_ALBUM = "serialize_album";
+    public static final String SERIALIZE_MUSIC_ACTIVITY = "serilaize_music_activity";
+    public static final String MUSIC_ACTIVITY = "music_activity";
+    public static final String PLAY_LIST = "play_list";
     public static final int REQUEST_MEDIA_ACCESS = 4769;
     public static final String ENQUEUE_ALBUM = "play_album";
 

@@ -54,5 +54,8 @@
     <string name="PermissionExplanation">We need your permission to read media files to access your music</string>
 
     <string name="albums">Albums</string>
+    <string name="musicActivity">Activities</string>
+    <string name="playlists">Playlists</string>
+    <string name="Songs">Songs</string>
 
 </resources>

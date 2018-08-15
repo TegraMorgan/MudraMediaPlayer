@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<GridLayout android:id="@+id/songs_upper_layout"
+    android:layout_width="match_parent"
+    android:layout_height="61dp"
+    android:layout_gravity="top"
+
+    android:layout_marginLeft="27dp"
+    android:layout_marginRight="27dp"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+
+    <ImageView
+        android:id="@+id/player_prev"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_column="1"
+        android:layout_gravity="top|left"
+        android:layout_row="1"
+        android:onClick="prevSong"
+        android:background="@drawable/prev_layer"
+        android:contentDescription="prev"
+        android:visibility="visible"
+        tools:ignore="RtlHardcoded" />
+
+    <ImageView
+        android:id="@+id/play_pause"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_column="2"
+        android:layout_gravity="top|center_horizontal"
+        android:layout_marginTop="0dp"
+        android:layout_row="1"
+        android:background="@drawable/pause_icon"
+        android:contentDescription="play"
+        android:onClick="play_music"
+        android:visibility="visible" />
+
+    <ImageView
+        android:id="@+id/player_next"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_column="3"
+        android:layout_gravity=""
+        android:layout_row="1"
+        android:onClick="nextSong"
+        android:background="@drawable/next_layer"
+        android:contentDescription="next"
+        android:visibility="visible" />
+</GridLayout>

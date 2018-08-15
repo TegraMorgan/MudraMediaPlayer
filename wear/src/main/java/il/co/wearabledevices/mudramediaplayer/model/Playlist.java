@@ -24,23 +24,30 @@ public class Playlist implements Serializable {
     //region Constructors
 
     public Playlist(String newPlaylistName, ArrayList<Song> songList, Bitmap albumArt) {
-        this.playlistName = newPlaylistName;
-        this.playlistDisplayName = newPlaylistName.substring(0, constants.ACCEPTABLE_LENGTH - 1);
+        setPlaylistNames(newPlaylistName);
         this.songs = songList;
         this.albumArt = albumArt;
     }
 
     public Playlist(Album album) {
         songs = album.getAlbumSongs();
+        setPlaylistNames(album.getAlbumName());
     }
 
-    public Playlist(ArrayList<Song> songs) {
+    public Playlist(ArrayList<Song> songs,String nm) {
         this.songs = songs;
+        setPlaylistNames(nm);
     }
 
-    public Playlist(Song song) {
+    private void setPlaylistNames(String nm) {
+        this.playlistName=nm;
+        this.playlistDisplayName= MediaLibrary.trim(this.playlistName);
+    }
+
+    public Playlist(Song song,String nm) {
         songs = new ArrayList<>();
         songs.add(song);
+        setPlaylistNames(nm);
     }
 
     //endregion

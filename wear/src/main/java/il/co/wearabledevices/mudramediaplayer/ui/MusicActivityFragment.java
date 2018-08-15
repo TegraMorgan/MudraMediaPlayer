@@ -1,84 +1,70 @@
 package il.co.wearabledevices.mudramediaplayer.ui;
 
+/**
+ * Created by Baselscs on 15/08/2018.
+ */
+
 import android.app.Fragment;
 import android.content.Context;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PagerSnapHelper;
 import android.support.v7.widget.RecyclerView;
 import android.support.wear.widget.WearableLinearLayoutManager;
 import android.support.wear.widget.WearableRecyclerView;
-import android.util.Log;
+import android.util.ArrayMap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-
 import il.co.wearabledevices.mudramediaplayer.R;
-import il.co.wearabledevices.mudramediaplayer.constants;
 import il.co.wearabledevices.mudramediaplayer.model.Album;
-import il.co.wearabledevices.mudramediaplayer.model.Playlist;
-import il.co.wearabledevices.mudramediaplayer.model.Song;
-
-import static il.co.wearabledevices.mudramediaplayer.constants.SERIALIZE_ALBUM;
+import il.co.wearabledevices.mudramediaplayer.model.MediaLibrary;
+import il.co.wearabledevices.mudramediaplayer.model.MusicActivity;
 
 
 /**
  * A fragment representing a list of Items.
  * <p/>
- * Activities containing this fragment MUST implement the {@link OnSongsListFragmentInteractionListener}
+ * Activities containing this fragment MUST implement the {@link }
  * interface.
  */
-public class SongsFragment extends Fragment {
+public class MusicActivityFragment extends Fragment {
 
     private static final String TAG = SongsFragment.class.getSimpleName();
-    // TODO: Customize parameter argument names
-    private static final String ARG_COLUMN_COUNT = "column-count";
-    private static final String LIST_TYPE = "songs";
-    private static Playlist mPlayList;
+    private static ArrayMap<String, MusicActivity> mMusicAtivities;
     private WearableRecyclerView mRecyclerView;
-
-   private OnSongsListFragmentInteractionListener mListener;
+    // TODO: Customize parameters
+    private OnMusicActivityFragmentInteractionListener mListener;
 
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
-    public SongsFragment() {
+    public MusicActivityFragment() {
     }
 
     // TODO: Customize parameter initialization
     @SuppressWarnings("unused")
-    public static SongsFragment newInstance(int columnCount, Playlist playList) {
-        SongsFragment fragment = new SongsFragment();
-        Bundle args = new Bundle();
-        args.putSerializable(constants.PLAY_LIST, playList);
-        args.putInt(ARG_COLUMN_COUNT, columnCount);
-        fragment.setArguments(args);
-        mPlayList = playList;
+    public static MusicActivityFragment newInstance(int columnCount, Album album) {
+        MusicActivityFragment fragment = new MusicActivityFragment();
+//        Bundle args = new Bundle();
+//        args.putSerializable(SERIALIZE_MUSIC_ACTIVITY, mMusicAtivities);
+//        args.putInt(ARG_COLUMN_COUNT, columnCount);
+//        fragment.setArguments(args);
+        mMusicAtivities = MediaLibrary.getMusicActivities();
         return fragment;
     }
 
-//    public Album getAlbum() {
-//        return album;
-//    }
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Bundle bdl = getArguments();
-        if (getArguments() != null) {
-            //mColumnCount = bdl.getInt(ARG_COLUMN_COUNT);
-            mPlayList = (Playlist) bdl.getSerializable(constants.PLAY_LIST);
-            //mSongs = album.getAlbumSongs();
-            //Log.d("Is there any songs", (mSongs.isEmpty() ? "Yes" : "No"));
+        mMusicAtivities = MediaLibrary.getMusicActivities();
 
-        }
 
     }
 
@@ -86,17 +72,7 @@ public class SongsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_album_list, container, false);
-        Bundle bdl = getArguments();
-        if (getArguments() != null) {
-            //mColumnCount = bdl.getInt(ARG_COLUMN_COUNT);
-            //album = (Album) bdl.getSerializable(SERIALIZE_ALBUM);
-//            if (mSongs.isEmpty()) {
-//                mSongs = album.getAlbumSongs();
-//                Log.d("Is there any songs2", (mSongs.isEmpty() ? "Yes" : "No"));
-//            }
-            mPlayList = (Playlist) getArguments().getSerializable(constants.PLAY_LIST);
 
-        }
         // Set the adapter
         if (view instanceof WearableRecyclerView) {
             Context context = view.getContext();
@@ -108,17 +84,17 @@ public class SongsFragment extends Fragment {
 
 
             /**using custom scrolling for selection*/
-            CustomScrollingLayoutCallback2 customScrollingLayoutCallback =
-                    new CustomScrollingLayoutCallback2();
+            CustomScrollingLayoutCallback3 customScrollingLayoutCallback =
+                    new CustomScrollingLayoutCallback3();
             recyclerView.setLayoutManager(
                     new WearableLinearLayoutManager(context, customScrollingLayoutCallback));
-            recyclerView.setAdapter(new SongsAdapter(mPlayList.getSongs(), mListener));
+            recyclerView.setAdapter(new MusicActivityAdapter(mMusicAtivities, mListener));
             /**using snap helper for better scrolling experience*/
             PagerSnapHelper snapHelper = new PagerSnapHelper();
             snapHelper.attachToRecyclerView(recyclerView);
             mRecyclerView = recyclerView;
 
-                        mRecyclerView.invalidate();
+            mRecyclerView.invalidate();
         }
         return view;
     }
@@ -196,8 +172,8 @@ public class SongsFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnSongsListFragmentInteractionListener) {
-            mListener = (OnSongsListFragmentInteractionListener) context;
+        if (context instanceof OnMusicActivityFragmentInteractionListener) {
+            mListener = (OnMusicActivityFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnListFragmentInteractionListener");
@@ -226,12 +202,12 @@ public class SongsFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
 
-    public interface OnSongsListFragmentInteractionListener {
+    public interface OnMusicActivityFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onSongsListFragmentInteraction(SongsAdapter.SongsViewHolder item, int position);
+        void onMusicActivityFragmentInteraction(MusicActivityAdapter.ViewHolder item, int position);
     }
 
-    public class CustomScrollingLayoutCallback2 extends WearableLinearLayoutManager.LayoutCallback {
+    public class CustomScrollingLayoutCallback3 extends WearableLinearLayoutManager.LayoutCallback {
         /** How much should we scale the icon at most. */
         private static final float MAX_ICON_PROGRESS = 0.65f;
 
@@ -248,16 +224,12 @@ public class SongsFragment extends Fragment {
             mProgressToCenter = Math.abs(0.5f - yRelativeToCenterOffset);
             // Adjust to the maximum scale
             mProgressToCenter = Math.min(mProgressToCenter, MAX_ICON_PROGRESS);
-
             child.setScaleX(1 - mProgressToCenter);
             child.setScaleY(1 - mProgressToCenter);
-//            child.setAlpha(0.5f);
+            //child.setAlpha(0.5f);
 
             /**Item highlighting upon focus*/
-            if((int)1-mProgressToCenter == 1)
-                child.setBackgroundColor((int)R.color.black);
-            else
-                child.setBackgroundColor(0);
+            child.setBackgroundColor(R.color.black * (int) (1 - mProgressToCenter + 0.2));
         }
     }
 

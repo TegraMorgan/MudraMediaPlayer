@@ -129,6 +129,9 @@ public class MediaLibrary {
     }
 
     private static void PrepareMusicActivities(Resources res) {
+        for (String key : mPlaylists.keySet()) {
+            Log.d("PlayList key", "PrepareMusicActivities: " + key);
+        }
         /* For now MusicActivities are hand made */
         MusicActivity act = new MusicActivity("Run", BitmapFactory.decodeResource(res, R.drawable.running));
         act.addPlaylist(mPlaylists.get("Walk On The Beach"));
@@ -152,7 +155,7 @@ public class MediaLibrary {
     private static void addPlaylistIf(ArrayMap<String, Playlist> pl, Song s, String nm) {
         Playlist a = pl.get(nm);
         if (a != null) a.addSong(s);
-        else pl.put(nm, new Playlist(s));
+        else pl.put(nm, new Playlist(s,nm));
     }
 
     /**
@@ -184,7 +187,7 @@ public class MediaLibrary {
     private static String parseDirectoryToAlbum(String path) {
         String res;
         String[] a = path.split("/");
-        res = a[a.length - 1];
+        res = a[a.length - 2];
         return res;
     }
 

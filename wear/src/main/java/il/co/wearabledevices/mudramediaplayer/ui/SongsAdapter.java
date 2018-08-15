@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import il.co.wearabledevices.mudramediaplayer.R;
@@ -21,7 +22,7 @@ public class SongsAdapter extends WearableRecyclerView.Adapter<SongsAdapter.Song
     private final SongsFragment.OnSongsListFragmentInteractionListener mListener;
 
 
-    public SongsAdapter(List<Song> items,
+    public SongsAdapter(ArrayList<Song> items,
                         SongsFragment.OnSongsListFragmentInteractionListener listener) {
         //this.setEdgeItemsCenteringEnabled(true);
 
