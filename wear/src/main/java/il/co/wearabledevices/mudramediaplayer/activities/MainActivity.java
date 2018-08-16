@@ -501,7 +501,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     @Override
     public void onMusicActivityFragmentInteraction(MusicActivityAdapter.ViewHolder item, int position) {
         //Toast.makeText(this,item.mItem.getActivityDisplayName(),Toast.LENGTH_SHORT).show();
-        hidePlayerButtons();
+        //hidePlayerButtons();
         switchToPlaylistsView(item.mItem);
         setMainActivityBackground(item.mItem.getActivityIcon());
     }
@@ -716,7 +716,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         currentScreen = constants.VIEW_PLAYLISTS;
         TextView tv = findViewById(R.id.top_fragment_text);
         tv.setText(constants.LABEL_PLAYLISTS);
-        if (tv == null) Log.d(TAG, "switchToPlaylistsView: top fragment not found");
+        //if (tv == null) Log.d(TAG, "switchToPlaylistsView: top fragment not found");
         FragmentManager fm = getFragmentManager();
         PlayListFragment plf = new PlayListFragment();
         Bundle bdl = new Bundle();
@@ -724,16 +724,16 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         plf.setArguments(bdl);
         fm.beginTransaction().replace(R.id.songs_list_container, plf).addToBackStack(null).commit();
         // This was copied from other methods, maybe can be deleted.
-        hidePlayerButtons();
+        //hidePlayerButtons();
 
     }
 
     public void switchToSongListView(Playlist item) {
         findViewById(R.id.songs_list_container).setVisibility(ViewGroup.VISIBLE); //Show the list again
-        showPlayerButtons();                                        // Show the player buttons
+        //showPlayerButtons();                                        // Show the player buttons
         prepareSongsScreen(item);                                   // Change elements size for song list
         currentScreen = constants.VIEW_SONGS;
-        updatePlayButton();
+        //updatePlayButton();
     }
 
     /**

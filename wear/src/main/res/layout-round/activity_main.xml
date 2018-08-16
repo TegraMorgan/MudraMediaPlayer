@@ -31,7 +31,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="top"
             android:layout_marginLeft="0dp"
-            android:layout_marginTop="22dp" />
+            android:layout_marginTop="10dp" />
 
 
         <FrameLayout
@@ -40,7 +40,7 @@
             android:layout_height="match_parent"
             android:layout_gravity="bottom"
             android:layout_marginLeft="0dp"
-            android:layout_marginTop="74dp" />
+            android:layout_marginTop="60dp" />
 
     </FrameLayout>
 </android.support.wear.widget.BoxInsetLayout>
