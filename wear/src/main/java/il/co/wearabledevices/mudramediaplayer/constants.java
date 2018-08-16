@@ -46,4 +46,6 @@ public class constants {
     public static final int ACCEPTABLE_LENGTH = 20;
     public static final String LABEL_PLAYLISTS = "Playlists";
     public static final String LABEL_SONGS = "Songs";
+    public static final String SONG_TITLE = "song_title";
+    public static final String SONG_ARTIST = "song_artist";
 }

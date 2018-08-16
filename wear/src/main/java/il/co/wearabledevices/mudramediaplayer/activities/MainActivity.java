@@ -46,6 +46,7 @@ import il.co.wearabledevices.mudramediaplayer.ui.MusicActivityAdapter;
 import il.co.wearabledevices.mudramediaplayer.ui.MusicActivityFragment;
 import il.co.wearabledevices.mudramediaplayer.ui.PlayListAdapter;
 import il.co.wearabledevices.mudramediaplayer.ui.PlayListFragment;
+import il.co.wearabledevices.mudramediaplayer.ui.PlayerFragment;
 import il.co.wearabledevices.mudramediaplayer.ui.SongsAdapter;
 import il.co.wearabledevices.mudramediaplayer.ui.SongsFragment;
 import il.co.wearabledevices.mudramediaplayer.utils.AnnotationVolume;
@@ -529,7 +530,14 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         //updatePlayButton();
         updateMainActivityBackgroundWithSongAlbumArt();
 
-
+        //show player screen
+        FragmentManager fm = getFragmentManager();
+        PlayerFragment pf = new PlayerFragment();
+        Bundle bdl = new Bundle();
+        bdl.putString(constants.SONG_ARTIST,item.mItem.getDisplayTitle());
+        bdl.putString(constants.SONG_TITLE,item.mItem.getDisplayArtist());
+        pf.setArguments(bdl);
+        fm.beginTransaction().replace(R.id.main_background,pf).addToBackStack(null).commit();
     }
 
     public void play_music(View view) {
