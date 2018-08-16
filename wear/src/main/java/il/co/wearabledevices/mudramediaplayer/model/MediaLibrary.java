@@ -125,7 +125,7 @@ public class MediaLibrary {
             Log.d("PlayList key", "PrepareMusicActivities: " + key);
         }
         /* For now MusicActivities are hand made */
-        MusicActivity act = new MusicActivity("Run", BitmapFactory.decodeResource(res, R.drawable.running));
+        MusicActivity act = new MusicActivity("Run", BitmapFactory.decodeResource(res, R.drawable.run_rio));
         act.addPlaylist(mPlaylists.get("Walk On The Beach"));
         act.addPlaylist(mPlaylists.get("Motivation Mix"));
         act.addPlaylist(mPlaylists.get("Zumba Beats"));

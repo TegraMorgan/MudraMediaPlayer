@@ -247,10 +247,8 @@ public class SongsFragment extends Fragment {
 //            child.setAlpha(0.5f);
 
             /**Item highlighting upon focus*/
-            if ((int) 1 - mProgressToCenter == 1)
-                child.setBackgroundColor((int) R.color.black);
-            else
-                child.setBackgroundColor(0);
+            child.setBackgroundColor(R.color.semitransparent_grey * (int) (1 - mProgressToCenter + 0.2));
+
         }
     }
 

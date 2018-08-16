@@ -526,7 +526,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         //put that song in the center of the screen
         mSongsFragment.scrollToPos(position, true);
         mSongsFragment.getRecycler().getAdapter().notifyDataSetChanged();
-        updatePlayButton();
+        //updatePlayButton();
         updateMainActivityBackgroundWithSongAlbumArt();
 
 

@@ -230,7 +230,7 @@ public class MusicActivityFragment extends Fragment {
             //child.setAlpha(0.5f);
 
             /**Item highlighting upon focus*/
-            child.setBackgroundColor(R.color.black * (int) (1 - mProgressToCenter + 0.2));
+            child.setBackgroundColor(R.color.semitransparent_grey * (int) (1 - mProgressToCenter + 0.2));
         }
     }
 
