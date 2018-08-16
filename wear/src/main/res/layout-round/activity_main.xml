@@ -3,26 +3,33 @@
 <android.support.wear.widget.BoxInsetLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
+    android:id="@+id/box_inset"
 
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:alpha="0.9"
+    android:alpha="1"
     android:background="@color/black"
-    android:id="@+id/main_background"
     android:padding="@dimen/box_inset_layout_padding"
     tools:context="il.co.wearabledevices.mudramediaplayer.activities.MainActivity"
     tools:deviceIds="wear">
 
-    <FrameLayout
+    <ImageView
+        android:id="@+id/main_background"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:alpha="0.5"
+        android:background="@color/black" />
 
+    <FrameLayout
+        android:id="@+id/main_screen"
+        android:layout_width="match_parent"
+
+        android:layout_height="match_parent"
         android:layout_marginBottom="-47px"
         android:layout_marginLeft="-47px"
         android:layout_marginRight="-47px"
         android:layout_marginTop="-47px"
         android:orientation="horizontal"
-        android:id="@+id/main_screen"
         app:boxedEdges="all">
 
         <FrameLayout
