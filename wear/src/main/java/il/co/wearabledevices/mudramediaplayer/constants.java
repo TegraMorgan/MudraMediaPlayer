@@ -1,5 +1,6 @@
 package il.co.wearabledevices.mudramediaplayer;
 
+import android.graphics.Color;
 import android.media.AudioManager;
 
 public class constants {
@@ -48,4 +49,5 @@ public class constants {
     public static final String LABEL_SONGS = "Songs";
     public static final String SONG_TITLE = "song_title";
     public static final String SONG_ARTIST = "song_artist";
+    public static final int SELECTOR_COLOR_GREY = Color.rgb(0x80,0x80,0x80);
 }

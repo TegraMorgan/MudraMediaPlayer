@@ -6,6 +6,7 @@ package il.co.wearabledevices.mudramediaplayer.ui;
 
 import android.app.Fragment;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PagerSnapHelper;
@@ -19,6 +20,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import il.co.wearabledevices.mudramediaplayer.R;
+import il.co.wearabledevices.mudramediaplayer.constants;
 import il.co.wearabledevices.mudramediaplayer.model.Album;
 import il.co.wearabledevices.mudramediaplayer.model.MediaLibrary;
 import il.co.wearabledevices.mudramediaplayer.model.MusicActivity;
@@ -230,7 +232,7 @@ public class MusicActivityFragment extends Fragment {
             //child.setAlpha(0.5f);
 
             /**Item highlighting upon focus*/
-            child.setBackgroundColor(R.color.black * (int) (1 - mProgressToCenter + 0.2));
+            child.setBackgroundColor(constants.SELECTOR_COLOR_GREY * (int) (1 - mProgressToCenter + 0.2));
         }
     }
 

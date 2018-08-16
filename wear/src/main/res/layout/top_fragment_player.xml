@@ -18,14 +18,14 @@
         android:layout_column="1"
         android:layout_gravity="top|left"
         android:layout_row="1"
-        android:onClick="prevSong"
+        android:onClick="prevSong2"
         android:background="@drawable/prev_layer"
         android:contentDescription="prev"
         android:visibility="visible"
         tools:ignore="RtlHardcoded" />
 
     <ImageView
-        android:id="@+id/play_pause"
+        android:id="@+id/play_pause2"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_column="2"
@@ -44,7 +44,7 @@
         android:layout_column="3"
         android:layout_gravity=""
         android:layout_row="1"
-        android:onClick="nextSong"
+        android:onClick="nextSong2"
         android:background="@drawable/next_layer"
         android:contentDescription="next"
         android:visibility="visible" />

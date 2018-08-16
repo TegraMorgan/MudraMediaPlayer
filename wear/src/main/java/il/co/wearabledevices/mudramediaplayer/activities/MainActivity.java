@@ -533,16 +533,23 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         updateMainActivityBackgroundWithSongAlbumArt();
 
         //show player screen
+        findViewById(R.id.songs_list_container).setVisibility(View.INVISIBLE);
+
         FragmentManager fm = getFragmentManager();
         PlayerFragment pf = new PlayerFragment();
         Bundle bdl = new Bundle();
         bdl.putString(constants.SONG_ARTIST,item.mItem.getDisplayTitle());
         bdl.putString(constants.SONG_TITLE,item.mItem.getDisplayArtist());
         pf.setArguments(bdl);
-        fm.beginTransaction().replace(R.id.songs_list_container,pf).addToBackStack(null).commit();
+        fm.beginTransaction().replace(R.id.upper_container,pf).addToBackStack(null).commit();
+
     }
 
     public void play_music(View view) {
+        play_music(!constants.USING_MUDRA);
+    }
+
+    public void play_music2(View view) {
         play_music(!constants.USING_MUDRA);
     }
 
@@ -650,7 +657,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     public void updatePlayButton() {
         ImageView view = getPlayPauseView();
         view.invalidate();
-        view.setBackground(getDrawable(!playbackPaused ? R.drawable.pause_icon : R.drawable.play_icon));
+        view.setBackground(getDrawable(!playbackPaused ? R.drawable.uamp_ic_pause_white_48dp : R.drawable.uamp_ic_play_arrow_white_48dp));
     }
 
     public ImageView getPlayPauseView() {
@@ -966,6 +973,8 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     public void onFragmentInteraction(Uri uri) {
         Toast.makeText(this,"Player",Toast.LENGTH_SHORT).show();
     }
+
+
 
     //#endregion
 }

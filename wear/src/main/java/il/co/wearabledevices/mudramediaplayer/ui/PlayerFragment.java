@@ -66,7 +66,7 @@ public class PlayerFragment extends Fragment {
         tv.setText(this.songTitle);
         TextView tv2 = v.findViewById(R.id.song_artist);
         tv2.setText(this.songArtist);
-        getView().findViewById(R.id.upper_container).setVisibility(View.INVISIBLE);
+
         return v;
     }
 
