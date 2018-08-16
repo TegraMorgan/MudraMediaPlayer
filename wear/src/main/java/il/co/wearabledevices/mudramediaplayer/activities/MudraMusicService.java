@@ -18,6 +18,7 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
+import android.support.v4.media.session.MediaSessionCompat;
 import android.util.Log;
 
 import il.co.wearabledevices.mudramediaplayer.constants;
@@ -32,6 +33,7 @@ public class MudraMusicService extends Service implements MediaPlayer.OnPrepared
 
     private AudioManager mAudioManager;
     private MediaPlayer mMediaPlayer;
+    private MediaSessionCompat mMediaSession;
 
     /**
      * Notification manager
@@ -59,6 +61,17 @@ public class MudraMusicService extends Service implements MediaPlayer.OnPrepared
         mMediaPlayer = new MediaPlayer();
         notMan = this.getSystemService(NotificationManager.class);
         mAudioManager = this.getSystemService(AudioManager.class);
+        mMediaSession = new MediaSessionCompat(getApplicationContext(), "TEST");
+        mMediaSession.setCallback(new MediaSessionCompat.Callback() {
+            @Override
+            public boolean onMediaButtonEvent(Intent mediaButtonEvent) {
+                //super.onMediaButtonEvent(mediaButtonEvent);
+                String action = mediaButtonEvent.getAction();
+                Log.d(TAG, "onMediaButtonEvent: " + action);
+                return true;
+            }
+        });
+
         initMusicPlayer();
     }
 
