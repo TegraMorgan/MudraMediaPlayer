@@ -62,10 +62,11 @@ public class PlayerFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_player, container, false);
-        TextView tv = container.findViewById(R.id.song_title);
+        TextView tv = v.findViewById(R.id.song_title);
         tv.setText(this.songTitle);
-        TextView tv2 = container.findViewById(R.id.song_artist);
+        TextView tv2 = v.findViewById(R.id.song_artist);
         tv2.setText(this.songArtist);
+        getView().findViewById(R.id.upper_container).setVisibility(View.INVISIBLE);
         return v;
     }
 

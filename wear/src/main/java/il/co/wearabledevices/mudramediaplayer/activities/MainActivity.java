@@ -13,6 +13,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -66,7 +67,8 @@ import static il.co.wearabledevices.mudramediaplayer.utils.AnnotationVolume.PM3;
 public class MainActivity extends WearableActivity implements AlbumsFragment.OnAlbumsListFragmentInteractionListener
         , SongsFragment.OnSongsListFragmentInteractionListener, MediaController.MediaPlayerControl,
         MusicActivityFragment.OnMusicActivityFragmentInteractionListener,
-        PlayListFragment.OnPlayListFragmentInteractionListener {
+        PlayListFragment.OnPlayListFragmentInteractionListener,
+        PlayerFragment.OnFragmentInteractionListener{
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final String DB = "Tegra";
@@ -537,7 +539,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         bdl.putString(constants.SONG_ARTIST,item.mItem.getDisplayTitle());
         bdl.putString(constants.SONG_TITLE,item.mItem.getDisplayArtist());
         pf.setArguments(bdl);
-        fm.beginTransaction().replace(R.id.main_background,pf).addToBackStack(null).commit();
+        fm.beginTransaction().replace(R.id.songs_list_container,pf).addToBackStack(null).commit();
     }
 
     public void play_music(View view) {
@@ -958,6 +960,11 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     @Override
     public int getAudioSessionId() {
         return 0;
+    }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+        Toast.makeText(this,"Player",Toast.LENGTH_SHORT).show();
     }
 
     //#endregion

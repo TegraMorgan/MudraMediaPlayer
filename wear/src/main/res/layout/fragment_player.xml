@@ -28,6 +28,7 @@
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:text="Pink Floyd"
+            android:textColor="@color/white"
             android:textSize="20dp" />
         <TextView
             android:id="@+id/song_title"
@@ -38,7 +39,8 @@
             android:layout_marginTop="5dp"
             android:layout_marginLeft="14dp"
             android:layout_marginRight="14dp"
-            android:text="Shine on you crazy diamond" />
+            android:text=" "
+            android:textColor="@color/white"/>
 
         <ImageView
             android:layout_width="40dp"
