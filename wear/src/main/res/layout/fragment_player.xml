@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/semitransparent_grey"
+    android:background="#00000000"
     android:id="@+id/main_player_background"
     tools:context="il.co.wearabledevices.mudramediaplayer.activities.MainActivity"
     tools:deviceIds="wear">
@@ -37,6 +37,13 @@
             android:layout_marginRight="14dp"
             android:text=" "
             android:textColor="@color/white"/>
+
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="20dp"
+            android:background="@drawable/ic_skip_previous_white_48dp"
+            android:layout_gravity="start"
+            android:onClick="back_nowPlaying"/>
 
         <ImageView
             android:layout_width="40dp"
