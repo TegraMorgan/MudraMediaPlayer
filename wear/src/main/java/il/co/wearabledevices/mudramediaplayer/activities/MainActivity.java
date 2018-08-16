@@ -13,6 +13,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -68,7 +69,8 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         , SongsFragment.OnSongsListFragmentInteractionListener, MediaController.MediaPlayerControl,
         MusicActivityFragment.OnMusicActivityFragmentInteractionListener,
         PlayListFragment.OnPlayListFragmentInteractionListener,
-        PlayerFragment.OnFragmentInteractionListener{
+        PlayerFragment.OnFragmentInteractionListener,
+        MediaPlayer.OnCompletionListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final String DB = "Tegra";
@@ -432,26 +434,29 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         super.onPause();
     }
 
-    @Override
-    protected void onDestroy() {
-        if (musicBound) {
-            unbindService(musicConnection);
+    private ServiceConnection musicConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            MudraMusicService.MusicBinder binder = (MudraMusicService.MusicBinder) service;
+            musicSrv = binder.getService();
+            binder.setCallback(MainActivity.this);
+            musicBound = true;
+            // If the music is playing we want to get back to the now playing screen
+            if (musicSrv != null) {
+                playbackPaused = !musicSrv.isPlaying();
+                if (musicSrv.getNowPlaying() != null && !playbackPaused) {
+                    switchToSongListView(musicSrv.getNowPlaying());
+                    updateSongRecyclerPosition(musicSrv.getPlaylistPos());
+                }
+                musicSrv.jumpStartVolume();
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
             musicBound = false;
         }
-        if (!KEEP_PLAYING_AFTER_EXIT || !musicSrv.isPlaying()) {
-            stopService(playIntent);
-            musicSrv = null;
-            /* only release mudra if the music is not playing */
-            releaseMudra();
-            if (isMudraBinded) {
-                isMudraBinded = false;
-                getApplicationContext().unbindService(mMudraConnection);
-            }
-            finish();
-            System.exit(0);
-        }
-        super.onDestroy();
-    }
+    };
 
     void startRepeatingTask() {
         volumePoll.run();
@@ -840,28 +845,38 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
 
     //#region Media controller and service
 
-    private ServiceConnection musicConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            MudraMusicService.MusicBinder binder = (MudraMusicService.MusicBinder) service;
-            musicSrv = binder.getService();
-            musicBound = true;
-            // If the music is playing we want to get back to the now playing screen
-            if (musicSrv != null) {
-                playbackPaused = !musicSrv.isPlaying();
-                if (musicSrv.getNowPlaying() != null && !playbackPaused) {
-                    switchToSongListView(musicSrv.getNowPlaying());
-                    updateSongRecyclerPosition(musicSrv.getPlaylistPos());
-                }
-                musicSrv.jumpStartVolume();
-            }
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
+    @Override
+    protected void onDestroy() {
+        if (musicBound) {
+            musicSrv.beforeMainActivityUnbind();
+            unbindService(musicConnection);
             musicBound = false;
         }
-    };
+        if (!KEEP_PLAYING_AFTER_EXIT || !musicSrv.isPlaying()) {
+            stopService(playIntent);
+            musicSrv = null;
+            /* only release mudra if the music is not playing */
+            releaseMudra();
+            if (isMudraBinded) {
+                isMudraBinded = false;
+                getApplicationContext().unbindService(mMudraConnection);
+            }
+            finish();
+            System.exit(0);
+        }
+        super.onDestroy();
+    }
+
+    @Override
+    public void onCompletion(MediaPlayer mp) {
+        // Update graphics here
+        Log.d(TAG, "onCompletion: MainActivity");
+        musicSrv.onCompletion(mp);
+        updateMainActivityBackgroundWithSongAlbumArt();
+        if (currentScreen.equals(constants.VIEW_NOW_PLAYING)) {
+
+        }
+    }
 
     //#endregion
 
@@ -984,9 +999,6 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     public void onFragmentInteraction(Uri uri) {
         Toast.makeText(this,"Player",Toast.LENGTH_SHORT).show();
     }
-
-
-
 
     //#endregion
 }

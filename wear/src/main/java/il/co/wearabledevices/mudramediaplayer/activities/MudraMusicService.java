@@ -1,5 +1,6 @@
 package il.co.wearabledevices.mudramediaplayer.activities;
 
+import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -97,6 +98,7 @@ public class MudraMusicService extends Service implements MediaPlayer.OnPrepared
         switch (focusChange) {
             case AudioManager.AUDIOFOCUS_GAIN:
                 //Focus gained - if not playing resume playing
+                mMediaPlayer.setVolume(1f, 1f);
                 break;
             case AudioManager.AUDIOFOCUS_LOSS:
                 //Focus lost because there is another music app running - no resume
@@ -106,6 +108,7 @@ public class MudraMusicService extends Service implements MediaPlayer.OnPrepared
                 break;
             case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
                 //Focus lost so lower the volume
+                mMediaPlayer.setVolume(0.3f, 0.3f);
                 break;
             default:
                 break;
@@ -113,10 +116,8 @@ public class MudraMusicService extends Service implements MediaPlayer.OnPrepared
 
     }
 
-    public class MusicBinder extends Binder {
-        MudraMusicService getService() {
-            return MudraMusicService.this;
-        }
+    public void beforeMainActivityUnbind() {
+        mMediaPlayer.setOnCompletionListener(this);
     }
 
     @Nullable
@@ -132,9 +133,20 @@ public class MudraMusicService extends Service implements MediaPlayer.OnPrepared
 
     @Override
     public void onCompletion(MediaPlayer mp) {
+        Log.d(TAG, "onCompletion: MusicService");
         if (mMediaPlayer.getCurrentPosition() > 0) {
-            mp.reset();
             playNext(!constants.USING_MUDRA);
+        }
+    }
+
+    public class MusicBinder extends Binder {
+        MudraMusicService getService() {
+            return MudraMusicService.this;
+        }
+
+        void setCallback(MediaPlayer.OnCompletionListener lis) {
+            mMediaPlayer.setOnCompletionListener(lis);
+
         }
     }
 

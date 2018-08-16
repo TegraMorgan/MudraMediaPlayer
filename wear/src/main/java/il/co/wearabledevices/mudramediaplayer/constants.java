@@ -39,6 +39,7 @@ public class constants {
     public static final String VIEW_ACTIVITIES = "ActivitieList";
     public static final String VIEW_PLAYLISTS = "PlaylistList";
     public static final String VIEW_SONGS = "SongList";
+    public static final String VIEW_NOW_PLAYING = "NowPlaying";
 
     public static final boolean USING_MUDRA = true;
     public static final int BACK_BUTTON_SOUND_EFFECT = AudioManager.FX_KEYPRESS_SPACEBAR;
@@ -50,4 +51,5 @@ public class constants {
     public static final String SONG_TITLE = "song_title";
     public static final String SONG_ARTIST = "song_artist";
     public static final int SELECTOR_COLOR_GREY = Color.rgb(0x80,0x80,0x80);
+
 }
