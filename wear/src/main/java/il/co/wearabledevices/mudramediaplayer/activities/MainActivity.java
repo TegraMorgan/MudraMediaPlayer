@@ -513,6 +513,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         //hidePlayerButtons();
         switchToPlaylistsView(item.mItem);
         setMainActivityBackground(item.mItem.getActivityIcon());
+        showGeneralBackButton();
     }
 
     @Override
@@ -520,7 +521,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         switchToSongListView(item.mItem);
         musicSrv.enqueuePlaylist(item.mItem);
         musicSrv.playSong();
-        showPlayerScreen(musicSrv.getCurrentSong());
+        showNowPlaying(musicSrv.getCurrentSong());
         updateMainActivityBackgroundWithSongAlbumArt();
     }
 
@@ -540,12 +541,11 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         updateMainActivityBackgroundWithSongAlbumArt();
 
         //show player screen
-        showPlayerScreen(item.mItem);
+        showNowPlaying(item.mItem);
     }
 
-    private void showPlayerScreen(Song song){
+    private void showNowPlaying(Song song){
         findViewById(R.id.songs_list_container).setVisibility(View.INVISIBLE);
-
         FragmentManager fm = getFragmentManager();
         PlayerFragment pf = new PlayerFragment();
         Bundle bdl = new Bundle();
@@ -554,7 +554,19 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         pf.setArguments(bdl);
         fm.beginTransaction().replace(R.id.upper_container,pf).addToBackStack(null).commit();
         findViewById(R.id.top_fragment_text).setVisibility(View.INVISIBLE);
+        findViewById(R.id.general_back_button).setVisibility(View.INVISIBLE);
+        currentScreen = constants.VIEW_NOW_PLAYING;
+
     }
+
+    public void showGeneralBackButton(){
+        findViewById(R.id.general_back_button).setVisibility(View.VISIBLE);
+    }
+
+    public void hideGeneralBackButton(){
+        findViewById(R.id.general_back_button).setVisibility(View.INVISIBLE);
+    }
+
     public void play_music(View view) {
         play_music(!constants.USING_MUDRA);
     }
@@ -761,6 +773,9 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         //showPlayerButtons();                                        // Show the player buttons
         prepareSongsScreen(item);                                   // Change elements size for song list
         currentScreen = constants.VIEW_SONGS;
+        if(musicSrv.isPlaying())
+            updateMainActivityBackgroundWithSongAlbumArt();
+
         //updatePlayButton();
     }
 
@@ -799,6 +814,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     public void prepareSongsScreen(Playlist pl) {
         TextView tv = findViewById(R.id.top_fragment_text);
         tv.setText(constants.LABEL_SONGS);
+        findViewById(R.id.general_back_button).setVisibility(View.VISIBLE);
         FragmentManager fm = getFragmentManager();
         Bundle bdl = new Bundle();
         bdl.putSerializable(constants.PLAY_LIST, pl);
@@ -840,11 +856,13 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
 
     public void back_nowPlaying(View view) {
         switchToSongsScreen();
+        currentScreen = constants.VIEW_SONGS;
         findViewById(R.id.songs_list_container).setVisibility(View.VISIBLE);
+        showGeneralBackButton();
     }
 
     private void switchToSongsScreen(){
-        getFragmentManager().popBackStack();
+        getFragmentManager().popBackStackImmediate();
         findViewById(R.id.top_fragment_text).setVisibility(View.VISIBLE);
     }
     //#endregion
@@ -1006,5 +1024,34 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         Toast.makeText(this,"Player",Toast.LENGTH_SHORT).show();
     }
 
+    public void previousScreen(View view) {
+        Log.d(TAG, "previousScreen: ");
+        String prevScreen = getPreviousScreen();
+        Log.d(TAG, "previousScreen: " + prevScreen);
+        if(prevScreen!= null){
+            getFragmentManager().popBackStack();
+            ((TextView)findViewById(R.id.top_fragment_text)).setText(getPreviousLabel());
+            currentScreen = prevScreen;
+            if(currentScreen == constants.VIEW_ACTIVITIES)
+                hideGeneralBackButton();
+        }
+
+
+    }
+
+    public String getPreviousScreen(){
+        switch(currentScreen){
+            case constants.VIEW_SONGS: return constants.VIEW_PLAYLISTS;
+            case constants.VIEW_PLAYLISTS: return constants.VIEW_ACTIVITIES;
+            default: return null;
+        }
+    }
+    public String getPreviousLabel(){
+        switch(currentScreen){
+            case constants.VIEW_SONGS: return constants.LABEL_PLAYLISTS;
+            case constants.VIEW_PLAYLISTS: return constants.LABEL_ACTIVITIES;
+            default: return null;
+        }
+    }
     //#endregion
 }

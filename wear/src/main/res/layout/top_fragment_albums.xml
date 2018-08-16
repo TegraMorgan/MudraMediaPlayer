@@ -4,19 +4,20 @@
     android:layout_width="match_parent"
     android:layout_height="61dp"
     android:layout_gravity="top"
-    android:orientation="ve"
     android:background="#20000000"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <ImageView
+        android:id="@+id/general_back_button"
         android:layout_width="25dp"
         android:layout_height="25dp"
         android:layout_marginLeft="20dp"
         android:background="@drawable/baseline_arrow_back_black_18dp"
         android:backgroundTint="#E0E0E0"
         android:gravity="end"
-        android:layout_marginTop="40dp"
-        android:onClick="back"/>
+        android:visibility="invisible"
+        android:layout_marginTop="35dp"
+        android:onClick="previousScreen"/>
     <TextView
         android:id="@+id/top_fragment_text"
         android:layout_width="match_parent"
