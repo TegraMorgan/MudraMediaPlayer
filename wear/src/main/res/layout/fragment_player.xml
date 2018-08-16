@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<android.support.wear.widget.BoxInsetLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+
+    android:layout_height="match_parent"
+    android:alpha="0.9"
+    android:background="@color/black"
+    android:id="@+id/main_background"
+    android:padding="@dimen/box_inset_layout_padding"
+    tools:context="il.co.wearabledevices.mudramediaplayer.activities.MainActivity"
+    tools:deviceIds="wear">
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_marginTop="10dp">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textAlignment="gravity"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:text="Pink Floyd"
+            android:textSize="20dp"
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textAlignment="gravity"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="14dp"
+            android:layout_marginRight="14dp"
+            android:text="Shine on you crazy diamond"
+            />
+
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/ic_skip_next_white_48dp"
+            android:layout_gravity="bottom|end"
+            android:layout_marginTop="20dp"
+            />
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/uamp_ic_play_arrow_white_48dp"
+            android:layout_gravity="bottom|center"
+            android:layout_marginTop="40dp"
+            />
+    </LinearLayout>
+
+
+</android.support.wear.widget.BoxInsetLayout>
+

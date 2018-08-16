@@ -14,10 +14,6 @@
         android:gravity="center"
         android:layout_row="3"
         android:text="@string/musicActivity"
-        android:shadowColor="@color/black"
-        android:shadowDx="2"
-        android:shadowDy="2"
-        android:shadowRadius="10"
         android:textColor="@color/white"
         android:textSize="25dp"
         android:textStyle="bold" />
