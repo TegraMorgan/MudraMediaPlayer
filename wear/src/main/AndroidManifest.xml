@@ -15,10 +15,6 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
-    <uses-feature
-        android:name="android.hardware.touchscreen"
-        android:required="true" />
-
     <!-- android:theme="@android:style/Theme.DeviceDefault" -->
     <application
         android:allowBackup="true"
@@ -57,18 +53,6 @@
         <meta-data
             android:name="com.google.android.gms.cast.framework.OPTIONS_PROVIDER_CLASS_NAME"
             android:value="il.co.wearabledevices.mudramediaplayer.CastOptionsProvider" />
-
-        <!--
-             A receiver that will receive media buttons and send as
-            intents to your MediaBrowserServiceCompat implementation.
-            Required on pre-Lollipop. More information at
-            http://developer.android.com/reference/android/support/v4/media/session/MediaButtonReceiver.html
-        -->
-        <receiver android:name="android.support.v4.media.session.MediaButtonReceiver">
-            <intent-filter>
-                <action android:name="android.intent.action.MEDIA_BUTTON" />
-            </intent-filter>
-        </receiver>
 
         <activity
             android:name=".activities.PermissionRequestActivity"
