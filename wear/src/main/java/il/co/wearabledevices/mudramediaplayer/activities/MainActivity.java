@@ -41,6 +41,7 @@ import il.co.wearabledevices.mudramediaplayer.constants;
 import il.co.wearabledevices.mudramediaplayer.model.MediaLibrary;
 import il.co.wearabledevices.mudramediaplayer.model.MusicActivity;
 import il.co.wearabledevices.mudramediaplayer.model.Playlist;
+import il.co.wearabledevices.mudramediaplayer.model.Song;
 import il.co.wearabledevices.mudramediaplayer.ui.AlbumsAdapter;
 import il.co.wearabledevices.mudramediaplayer.ui.AlbumsFragment;
 import il.co.wearabledevices.mudramediaplayer.ui.MusicActivityAdapter;
@@ -514,6 +515,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         switchToSongListView(item.mItem);
         musicSrv.enqueuePlaylist(item.mItem);
         musicSrv.playSong();
+        showPlayerScreen(musicSrv.getCurrentSong());
         updateMainActivityBackgroundWithSongAlbumArt();
     }
 
@@ -533,22 +535,26 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         updateMainActivityBackgroundWithSongAlbumArt();
 
         //show player screen
+        showPlayerScreen(item.mItem);
+    }
+
+    private void showPlayerScreen(Song song){
         findViewById(R.id.songs_list_container).setVisibility(View.INVISIBLE);
 
         FragmentManager fm = getFragmentManager();
         PlayerFragment pf = new PlayerFragment();
         Bundle bdl = new Bundle();
-        bdl.putString(constants.SONG_ARTIST,item.mItem.getDisplayTitle());
-        bdl.putString(constants.SONG_TITLE,item.mItem.getDisplayArtist());
+        bdl.putString(constants.SONG_ARTIST,song.getDisplayTitle());
+        bdl.putString(constants.SONG_TITLE,song.getDisplayArtist());
         pf.setArguments(bdl);
         fm.beginTransaction().replace(R.id.upper_container,pf).addToBackStack(null).commit();
         findViewById(R.id.top_fragment_text).setVisibility(View.INVISIBLE);
     }
-
     public void play_music(View view) {
         play_music(!constants.USING_MUDRA);
     }
 
+    /** @UNUSED Don't remove it yet */
     public void play_music2(View view) {
         play_music(!constants.USING_MUDRA);
     }
