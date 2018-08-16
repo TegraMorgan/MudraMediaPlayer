@@ -125,19 +125,19 @@ public class MediaLibrary {
             Log.d("PlayList key", "PrepareMusicActivities: " + key);
         }
         /* For now MusicActivities are hand made */
-        MusicActivity act = new MusicActivity("Run", BitmapFactory.decodeResource(res, R.drawable.run_circle));
+        MusicActivity act = new MusicActivity("Run", BitmapFactory.decodeResource(res, R.drawable.run_circle_black));
         act.addPlaylist(mPlaylists.get("Walk On The Beach"));
         act.addPlaylist(mPlaylists.get("Motivation Mix"));
         act.addPlaylist(mPlaylists.get("Zumba Beats"));
         act.addPlaylist(mPlaylists.get("Give it all"));
         mActivities.put(act.getActivityFullName(), act);
-        act = new MusicActivity("Gym", BitmapFactory.decodeResource(res, R.drawable.weight_lifter));
+        act = new MusicActivity("Gym", BitmapFactory.decodeResource(res, R.drawable.weightlifting_circle_black));
         act.addPlaylist(mPlaylists.get("Beast Mode"));
         act.addPlaylist(mPlaylists.get("Hype"));
         act.addPlaylist(mPlaylists.get("Power Workout"));
         act.addPlaylist(mPlaylists.get("Give it all"));
         mActivities.put(act.getActivityFullName(), act);
-        act = new MusicActivity("Biking", BitmapFactory.decodeResource(res, R.drawable.bicycle_circle));
+        act = new MusicActivity("Biking", BitmapFactory.decodeResource(res, R.drawable.bicycle_circle_black));
         act.addPlaylist(mPlaylists.get("Beast Mode"));
         act.addPlaylist(mPlaylists.get("Motivation Mix"));
         act.addPlaylist(mPlaylists.get("Give it all"));
