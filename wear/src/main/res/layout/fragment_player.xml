@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/black"
+    android:background="@color/semitransparent_grey"
     android:id="@+id/main_player_background"
     tools:context="il.co.wearabledevices.mudramediaplayer.activities.MainActivity"
     tools:deviceIds="wear">
@@ -14,14 +14,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:layout_marginTop="20dp">
+        android:layout_marginTop="30dp">
         <TextView
             android:id="@+id/song_artist"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:textAlignment="gravity"
-            android:layout_marginTop="5dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:text="Pink Floyd"
