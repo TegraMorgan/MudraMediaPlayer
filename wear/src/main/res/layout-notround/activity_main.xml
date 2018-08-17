@@ -53,7 +53,7 @@
                 tools:ignore="RtlHardcoded" />
 
             <ImageView
-                android:id="@+id/play_pause"
+                android:id="@+id/play_pause_not_round"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:layout_column="2"

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <android.support.wear.widget.BoxInsetLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -26,17 +25,18 @@
             android:text="Pink Floyd"
             android:textColor="@color/white"
             android:textSize="20dp" />
+
         <TextView
             android:id="@+id/song_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:textAlignment="gravity"
-            android:layout_marginTop="5dp"
             android:layout_marginLeft="14dp"
             android:layout_marginRight="14dp"
-            android:text=" "
-            android:textColor="@color/white"/>
+            android:layout_marginTop="5dp"
+            android:gravity="center"
+            android:text="Marooned"
+            android:textAlignment="gravity"
+            android:textColor="@color/white" />
 
         <LinearLayout
             android:layout_width="match_parent"
