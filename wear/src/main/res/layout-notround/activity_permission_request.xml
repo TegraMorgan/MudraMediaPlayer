@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.wear.widget.BoxInsetLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#1d688f"
+    android:padding="0px"
+    tools:context=".activities.PermissionRequestActivity">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingTop="20dp"
+        app:boxedEdges="all">
+
+        <TextView
+            android:id="@+id/PermissionExplanation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|top"
+            android:paddingTop="20dp"
+            android:text="@string/PermissionExplanation"
+            android:textAlignment="center"
+            android:textSize="14sp" />
+
+        <Button
+            android:id="@+id/GivePermissions"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_gravity="center_horizontal|bottom"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/button_bg_round"
+            android:onClick="requestTime"
+            android:text="@string/btOk" />
+        <!--
+        <Button
+            android:id="@+id/GivePermissions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|bottom"
+            android:onClick="requestTime"
+            android:padding="0px"
+            android:text="@string/btOk" />-->
+
+    </FrameLayout>
+</android.support.wear.widget.BoxInsetLayout>

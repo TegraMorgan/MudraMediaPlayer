@@ -1,5 +1,6 @@
 package il.co.wearabledevices.mudramediaplayer;
 
+import android.graphics.Color;
 import android.media.AudioManager;
 
 public class constants {
@@ -11,6 +12,9 @@ public class constants {
     public static final int DATA_TYPE_UIACTION = 5;
 
     public static final String SERIALIZE_ALBUM = "serialize_album";
+    public static final String SERIALIZE_MUSIC_ACTIVITY = "serilaize_music_activity";
+    public static final String MUSIC_ACTIVITY = "music_activity";
+    public static final String PLAY_LIST = "play_list";
     public static final int REQUEST_MEDIA_ACCESS = 4769;
     public static final String ENQUEUE_ALBUM = "play_album";
 
@@ -32,10 +36,23 @@ public class constants {
     // Higher values will slow down volume change speed
     public static final int MUDRA_SMOOTH_FACTOR = 10;
     public static final String VIEW_ALBUMS = "Albums";
+    public static final String VIEW_ACTIVITIES = "ActivitieList";
+    public static final String VIEW_PLAYLISTS = "PlaylistList";
     public static final String VIEW_SONGS = "SongList";
+    public static final String VIEW_NOW_PLAYING = "NowPlaying";
+    public static final String VIEW_BACKGROUND = "NotInApp";
+
     public static final boolean USING_MUDRA = true;
     public static final int BACK_BUTTON_SOUND_EFFECT = AudioManager.FX_KEYPRESS_SPACEBAR;
     public static final int BACK_BUTTON_ICON = R.drawable.lb_ic_playback_loop;
     public static final int mInterval = 300; // miliseconds
     public static final int ACCEPTABLE_LENGTH = 20;
+    public static final String LABEL_PLAYLISTS = "Playlists";
+    public static final String LABEL_SONGS = "Songs";
+    public static final String LABEL_ACTIVITIES = "Activities";
+    public static final String SONG_TITLE = "song_title";
+    public static final String SONG_ARTIST = "song_artist";
+    public static final int SELECTOR_COLOR_GREY = Color.rgb(0x80,0x80,0x80);
+
+
 }

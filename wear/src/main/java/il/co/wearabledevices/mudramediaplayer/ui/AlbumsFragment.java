@@ -2,7 +2,6 @@ package il.co.wearabledevices.mudramediaplayer.ui;
 
 import android.app.Fragment;
 import android.content.Context;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PagerSnapHelper;
@@ -40,7 +39,6 @@ public class AlbumsFragment extends Fragment {
     private WearableRecyclerView mRecyclerView;
 
 
-
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
@@ -54,7 +52,9 @@ public class AlbumsFragment extends Fragment {
         //fakeAlbums();
     }
 
-    /**Utility for adding fake albums - leave for now plz*/
+    /**
+     * Utility for adding fake albums - leave for now plz
+     */
     public void fakeAlbums() {
         for (int i = 0; 10 > i; ++i) {
             mAlbums.add(new Album("basel " + i, "Pink Floyd"));
@@ -198,7 +198,9 @@ public class AlbumsFragment extends Fragment {
 
 
     public class CustomScrollingLayoutCallback2 extends WearableLinearLayoutManager.LayoutCallback {
-        /** How much should we scale the icon at most. */
+        /**
+         * How much should we scale the icon at most.
+         */
         private static final float MAX_ICON_PROGRESS = 0.9f;
 
         private float mProgressToCenter;
@@ -217,13 +219,12 @@ public class AlbumsFragment extends Fragment {
 
             child.setScaleX(1 - mProgressToCenter);
             child.setScaleY(1 - mProgressToCenter);
-            child.setAlpha(0.5f);
+            //child.setAlpha(0.5f);
 
             /**Item highlighting upon focus*/
-            child.setBackgroundColor(Color.DKGRAY * (int) (1 - mProgressToCenter + 0.2));
+            child.setBackgroundColor(R.color.black * (int) (1 - mProgressToCenter + 0.2));
         }
     }
-
 
 
 }

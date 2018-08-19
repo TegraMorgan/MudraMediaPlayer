@@ -1,58 +1,71 @@
 package il.co.wearabledevices.mudramediaplayer.ui;
 
+/**
+ * Created by Baselscs on 15/08/2018.
+ */
+
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.support.wear.widget.WearableRecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.util.Collection;
+import java.util.ArrayList;
 
 import il.co.wearabledevices.mudramediaplayer.R;
-import il.co.wearabledevices.mudramediaplayer.model.Album;
+import il.co.wearabledevices.mudramediaplayer.model.Playlist;
 import il.co.wearabledevices.mudramediaplayer.ui.dummy.AlbumsDummyContent;
 
 /**
  * {@link RecyclerView.Adapter} that can display a {@link AlbumsDummyContent.AlbumsDummyItem} and makes a call to the
  * specified {@link AlbumsFragment.OnAlbumsListFragmentInteractionListener}.
  */
-public class AlbumsAdapter extends WearableRecyclerView.Adapter<AlbumsAdapter.ViewHolder> {
+public class PlayListAdapter extends WearableRecyclerView.Adapter<PlayListAdapter.ViewHolder> {
 
-    private final Album[] mValues;
-    private final AlbumsFragment.OnAlbumsListFragmentInteractionListener mListener;
+    private final ArrayList<Playlist> mValues;
+    private final PlayListFragment.OnPlayListFragmentInteractionListener mListener;
 
 
-    public AlbumsAdapter(Collection<Album> items,
-                         AlbumsFragment.OnAlbumsListFragmentInteractionListener listener) {
+    public PlayListAdapter(ArrayList<Playlist> items,
+                           PlayListFragment.OnPlayListFragmentInteractionListener listener) {
         //this.setEdgeItemsCenteringEnabled(true);
 
-        mValues = items.toArray(new Album[items.size()]);
+        mValues = items;
         mListener = listener;
-
+        Log.d("Basel", "PlayListAdapter: " + items.size());
+        for (Playlist p : mValues) {
+            if (p == null) {
+                Log.d("Basel-Loop", "Found null in PlayList");
+            }
+        }
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.fragment_item_album, parent, false);
+                .inflate(R.layout.fragment_item_song, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        holder.mItem = mValues[position];
-        String aTitle = mValues[position].getAlbumName().length() > 19 ? mValues[position].getAlbumName().substring(0, 19) : mValues[position].getAlbumName();
+        Context con = holder.mView.getContext();
+        holder.mItem = mValues.get(position);
+        String aTitle = mValues.get(position).getPlaylistDisplayName() == null ? "null" : mValues.get(position).getPlaylistDisplayName();
         holder.mIdView.setText(aTitle);
-        holder.mContentView.setText(mValues[position].getaArtist());
-
+        //holder.mContentView.setText(mValues.valueAt(position).getActivityDisplayName());
+        holder.mIcon.setImageBitmap(mValues.get(position).getAlbumArt(con));
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (null != mListener) {
                     // Notify the active callbacks interface (the activity, if the
                     // fragment is attached to one) that an item has been selected.
-                    mListener.onAlbumsListFragmentInteraction(holder, position);
+                    mListener.onPlayListFragmentInteraction(holder, position);
                 }
             }
         });
@@ -60,20 +73,22 @@ public class AlbumsAdapter extends WearableRecyclerView.Adapter<AlbumsAdapter.Vi
 
     @Override
     public int getItemCount() {
-        return mValues.length;
+        return mValues.size();
     }
 
     public class ViewHolder extends WearableRecyclerView.ViewHolder {
         public final View mView;
         public final TextView mIdView;
         public final TextView mContentView;
-        public Album mItem;
+        public final ImageView mIcon;
+        public Playlist mItem;
 
         public ViewHolder(View view) {
             super(view);
             mView = view;
-            mIdView = view.findViewById(R.id.album_id);
-            mContentView = view.findViewById(R.id.album_content);
+            mIdView = view.findViewById(R.id.song_id);
+            mContentView = view.findViewById(R.id.song_content);
+            mIcon = view.findViewById(R.id.song_icon);
         }
 
         @Override
@@ -81,4 +96,6 @@ public class AlbumsAdapter extends WearableRecyclerView.Adapter<AlbumsAdapter.Vi
             return super.toString() + " '" + mContentView.getText() + "'";
         }
     }
+
+
 }

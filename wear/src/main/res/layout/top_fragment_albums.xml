@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout android:id="@+id/albums_upper_layout"
+    android:layout_width="match_parent"
+    android:layout_height="61dp"
+    android:layout_gravity="top"
+    android:background="#20000000"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <ImageView
+        android:id="@+id/general_back_button"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_marginLeft="20dp"
+        android:background="@drawable/baseline_arrow_back_black_18dp"
+        android:backgroundTint="#E0E0E0"
+        android:gravity="end"
+        android:visibility="invisible"
+        android:layout_marginTop="35dp"
+        android:onClick="navigateToPreviousScreen" />
+    <TextView
+        android:id="@+id/top_fragment_text"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_column="0"
+        android:gravity="center"
+        android:layout_row="3"
+        android:layout_marginRight="26dp"
+        android:text="@string/musicActivity"
+        android:textColor="@color/white"
+        android:textSize="25dp"
+        android:textStyle="bold"
+        android:shadowColor="@color/black"
+        android:shadowDy="3.0"
+        android:shadowDx="3.0"
+        android:shadowRadius="8"/>
+
+</LinearLayout>
