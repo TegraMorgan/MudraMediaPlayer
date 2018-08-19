@@ -1,6 +1,5 @@
 package il.co.wearabledevices.mudramediaplayer.activities;
 
-import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -19,7 +18,6 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
-import android.support.v4.media.session.MediaSessionCompat;
 import android.util.Log;
 
 import il.co.wearabledevices.mudramediaplayer.constants;
@@ -171,7 +169,7 @@ public class MudraMusicService extends Service implements MediaPlayer.OnPrepared
     public void setVolume(int newVol) {
         newVol = newVol < 0 ? 0 : newVol;
         newVol = newVol > 15 ? 15 : newVol;
-        mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, newVol, 0);
+        mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, newVol, AudioManager.FLAG_SHOW_UI);
     }
 
     public void adjustVolume(int direction, int flags) {
@@ -189,7 +187,7 @@ public class MudraMusicService extends Service implements MediaPlayer.OnPrepared
         return mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
     }
 
-    public void jumpToSong(int i) {
+    public void setNowPlayingPosition(int i) {
         songNum = i;
     }
 

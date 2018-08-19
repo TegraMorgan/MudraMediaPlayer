@@ -50,7 +50,7 @@ public class MusicActivityAdapter extends WearableRecyclerView.Adapter<MusicActi
         String aTitle = mValues.valueAt(position).getActivityDisplayName();
         holder.mIdView.setText(aTitle);
         //holder.mContentView.setText(mValues.valueAt(position).getActivityDisplayName());
-        holder.mIcon.setImageBitmap(mValues.valueAt(position).getActivityIcon());
+        holder.mIcon.setImageBitmap(mValues.valueAt(position).decodeActivityIconFromResource(holder.mView.getContext()));
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

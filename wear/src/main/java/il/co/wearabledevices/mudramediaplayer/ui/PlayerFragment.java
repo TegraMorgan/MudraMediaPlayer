@@ -35,8 +35,8 @@ public class PlayerFragment extends Fragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
+     * @param param1 Artist
+     * @param param2 Song Title
      * @return A new instance of fragment PlayerFragment.
      */
     public static PlayerFragment newInstance(String param1, String param2) {

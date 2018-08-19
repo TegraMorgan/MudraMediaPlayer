@@ -17,7 +17,7 @@
         android:gravity="end"
         android:visibility="invisible"
         android:layout_marginTop="35dp"
-        android:onClick="previousScreen"/>
+        android:onClick="navigateToPreviousScreen" />
     <TextView
         android:id="@+id/top_fragment_text"
         android:layout_width="match_parent"

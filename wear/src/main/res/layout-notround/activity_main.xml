@@ -62,7 +62,7 @@
                 android:layout_row="1"
                 android:background="@drawable/play_layer"
                 android:contentDescription="play"
-                android:onClick="play_music"
+                android:onClick="MainActivityPlayMusic"
                 android:visibility="visible" />
 
             <ImageView

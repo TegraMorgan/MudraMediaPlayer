@@ -43,15 +43,6 @@
             android:layout_height="40dp"
             android:orientation="horizontal"
             android:layout_gravity="center">
-            <ImageView
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:layout_marginLeft="4dp"
-                android:background="@drawable/baseline_arrow_back_black_18dp"
-                android:backgroundTint="#E0E0E0"
-                android:gravity="start"
-                android:onClick="back_nowPlaying"/>
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:gravity="end"

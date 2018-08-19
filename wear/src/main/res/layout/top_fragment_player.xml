@@ -34,7 +34,7 @@
         android:layout_row="1"
         android:background="@drawable/pause_icon"
         android:contentDescription="play"
-        android:onClick="play_music"
+        android:onClick="MainActivityPlayMusic"
         android:visibility="visible" />
 
     <ImageView

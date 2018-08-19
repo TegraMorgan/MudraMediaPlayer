@@ -3,7 +3,6 @@ package il.co.wearabledevices.mudramediaplayer.model;
 import android.content.ContentResolver;
 import android.content.res.Resources;
 import android.database.Cursor;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.ArrayMap;
@@ -98,12 +97,6 @@ public class MediaLibrary {
             //If the cursor was not null - we finished
             cursor.close();
 
-            /*
-            for (Album alb : mAlbumListByName.values()) {
-                inflateAlbumWithBackButtons(res, alb);
-            }
-            */
-
             PreparePlaylists();
             PrepareMusicActivities(res);
             mCurrentState = "INITIALIZED";
@@ -121,23 +114,20 @@ public class MediaLibrary {
     }
 
     private static void PrepareMusicActivities(Resources res) {
-        for (String key : mPlaylists.keySet()) {
-            Log.d("PlayList key", "PrepareMusicActivities: " + key);
-        }
         /* For now MusicActivities are hand made */
-        MusicActivity act = new MusicActivity("Run", BitmapFactory.decodeResource(res, R.drawable.run_circle_black));
+        MusicActivity act = new MusicActivity("Run", R.drawable.run_circle_black);
         act.addPlaylist(mPlaylists.get("Walk On The Beach"));
         act.addPlaylist(mPlaylists.get("Motivation Mix"));
         act.addPlaylist(mPlaylists.get("Zumba Beats"));
         act.addPlaylist(mPlaylists.get("Give it all"));
         mActivities.put(act.getActivityFullName(), act);
-        act = new MusicActivity("Gym", BitmapFactory.decodeResource(res, R.drawable.weightlifting_circle_black));
+        act = new MusicActivity("Gym", R.drawable.weightlifting_circle_black);
         act.addPlaylist(mPlaylists.get("Beast Mode"));
         act.addPlaylist(mPlaylists.get("Hype"));
         act.addPlaylist(mPlaylists.get("Power Workout"));
         act.addPlaylist(mPlaylists.get("Give it all"));
         mActivities.put(act.getActivityFullName(), act);
-        act = new MusicActivity("Biking", BitmapFactory.decodeResource(res, R.drawable.bicycle_circle_black));
+        act = new MusicActivity("Biking", R.drawable.bicycle_circle_black);
         act.addPlaylist(mPlaylists.get("Beast Mode"));
         act.addPlaylist(mPlaylists.get("Motivation Mix"));
         act.addPlaylist(mPlaylists.get("Give it all"));

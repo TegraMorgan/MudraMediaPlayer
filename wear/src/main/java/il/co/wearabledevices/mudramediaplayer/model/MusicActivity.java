@@ -1,6 +1,8 @@
 package il.co.wearabledevices.mudramediaplayer.model;
 
+import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -13,20 +15,20 @@ public class MusicActivity implements Serializable {
     private String displayName;
     private ArrayList<Playlist> mPlaylists;
     private Bitmap activityIcon;
+    private int resource;
 
-
-    public MusicActivity(String activityName, Bitmap icon) {
+    public MusicActivity(String activityName, int resourceId) {
         aName = activityName;
         displayName = MediaLibrary.trim(activityName);
         mPlaylists = new ArrayList<>();
-        activityIcon = icon;
+        resource = resourceId;
     }
 
-    public MusicActivity(String activityName, ArrayList<Playlist> playlists, Bitmap icon) {
+    public MusicActivity(String activityName, ArrayList<Playlist> playlists, int resourceId) {
         aName = activityName;
         displayName = MediaLibrary.trim(activityName);
         mPlaylists = playlists;
-        activityIcon = icon;
+        resource = resourceId;
     }
 
     public int getSize() {
@@ -36,7 +38,6 @@ public class MusicActivity implements Serializable {
     public void addPlaylist(Playlist playlist) {
         mPlaylists.add(playlist);
     }
-
 
     public String getActivityFullName() {
         return aName;
@@ -50,7 +51,8 @@ public class MusicActivity implements Serializable {
         return mPlaylists;
     }
 
-    public Bitmap getActivityIcon() {
-        return activityIcon;
+    public Bitmap decodeActivityIconFromResource(Context context) {
+        Bitmap albumArt = BitmapFactory.decodeResource(context.getResources(), resource);
+        return albumArt;
     }
 }
