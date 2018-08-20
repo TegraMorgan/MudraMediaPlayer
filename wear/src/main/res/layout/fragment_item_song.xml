@@ -13,28 +13,35 @@
         android:layout_height="match_parent" />
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical">
         <TextView
             android:id="@+id/song_id"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="25dp"
             android:fontFamily="casual"
-            android:textSize="14dp"
+            android:textSize="12dp"
             android:textStyle="bold"
             android:textColor="#fff"
-            android:layout_marginLeft="10dp"/>
+            android:text="Pink floyd hellp"
+            android:layout_marginLeft="10dp"
+            android:scrollHorizontally="true"
+            android:singleLine="true"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:focusable="true"
+            android:focusableInTouchMode="true"/>
         <!--android:textColor="#003B46"-->
 
 
         <TextView
             android:id="@+id/song_content"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:textSize="10dp"
             android:layout_marginLeft="10dp"
             android:fontFamily="casual"
             android:textStyle="italic"
-            android:layout_height="wrap_content"
+            android:layout_height="15dp"
             android:textColor="#fff" />
     </LinearLayout>
 

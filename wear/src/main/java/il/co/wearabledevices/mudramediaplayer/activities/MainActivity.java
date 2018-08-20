@@ -2,6 +2,7 @@ package il.co.wearabledevices.mudramediaplayer.activities;
 
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.FragmentManager;
 import android.content.ComponentName;
 import android.content.ContentResolver;
@@ -441,6 +442,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
             Log.d(TAG, "onResume: current screen is - " + currentScreen);
             if (currentScreen != null && !currentScreen.equals(VIEW_BACKGROUND) && !currentScreen.equals(VIEW_ACTIVITIES)) {
                 restoreCurrentPath();
+                dimGeneralBackButton();
                 while (mFragmentManager.popBackStackImmediate()) ;
                 Log.d(TAG, "onResume: fragment stack is empty : " + !mFragmentManager.popBackStackImmediate());
                 String t = currentScreen;
@@ -728,6 +730,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         ImageView view = getPlayPauseView();
         view.invalidate();
         view.setBackground(getDrawable(!playbackPaused ? R.drawable.uamp_ic_pause_white_48dp : R.drawable.uamp_ic_play_arrow_white_48dp));
+        view.invalidate();
     }
 
     public ImageView getPlayPauseView() {
@@ -921,8 +924,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         View e = findViewById(R.id.general_back_button);
         BitmapDrawable c = new BitmapDrawable(getResources(), BitmapFactory.decodeResource(getResources(), R.drawable.baseline_arrow_back_black_18dp));
         e.setBackground(c);
-        e.getBackground().setTint(0xFFD0FF00);
-        findViewById(R.id.general_back_button).getBackground().setTint(0xFFE0E0E0);
+        e.getBackground().setTint(Color.parseColor("#E0E0E0"));
         // Return song list to normal
         findViewById(R.id.songs_list_container).setAlpha(1f);
     }
@@ -1025,7 +1027,9 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         artist = findViewById(R.id.song_artist);
         song = findViewById(R.id.song_title);
         artist.setText(musicSrv.getCurrentSong().getDisplayArtist());
+        artist.setSelected(true);
         song.setText(musicSrv.getCurrentSong().getDisplayTitle());
+        song.setSelected(true);
 
     }
 
@@ -1049,6 +1053,9 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
             updateSongRecyclerPosition(cursorAtDepth[2]);
             currentPathPlaying[currentDepth] = cursorAtDepth[currentDepth];
         } else {
+            if(!backButtonSelected){
+                Toast.makeText(this,"Tap to go up",Toast.LENGTH_LONG).show();
+            }
             backButtonSelected = true;
             // if there is no song - transition to back button highlight
             highlightGeneralBackButton();
@@ -1060,6 +1067,9 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         if (--cursorAtDepth[1] >= 0) {
             updatePlaylistRecyclerPosition(cursorAtDepth[1]);
         } else {
+            if(!backButtonSelected){
+                Toast.makeText(this,"Tap to go up",Toast.LENGTH_LONG).show();
+            }
             backButtonSelected = true;
             highlightGeneralBackButton();
         }
@@ -1114,6 +1124,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         if (!currentScreen.equals(VIEW_BACKGROUND)) {
             updateMainActivityBackgroundWithSongAlbumArt();
             updateNowPlayingArtistAndSongName();
+            updatePlayButton();
         }
     }
 
