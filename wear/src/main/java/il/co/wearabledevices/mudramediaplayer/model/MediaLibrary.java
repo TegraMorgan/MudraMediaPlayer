@@ -132,6 +132,12 @@ public class MediaLibrary {
         act.addPlaylist(mPlaylists.get("Motivation Mix"));
         act.addPlaylist(mPlaylists.get("Give it all"));
         mActivities.put(act.getActivityFullName(), act);
+
+        act = new MusicActivity("All Folders",R.drawable.round_library_music_white_48);
+        for (String key: mPlaylists.keySet()) {
+            act.addPlaylist(mPlaylists.get(key));
+        }
+        mActivities.put(act.getActivityFullName(),act);
     }
 
     private static void addPlaylistIf(ArrayMap<String, Playlist> pl, Song s, String nm) {

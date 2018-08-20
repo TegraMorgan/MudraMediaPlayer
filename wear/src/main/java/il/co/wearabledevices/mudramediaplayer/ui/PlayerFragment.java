@@ -64,9 +64,10 @@ public class PlayerFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_player, container, false);
         TextView tv = v.findViewById(R.id.song_title);
         tv.setText(this.songTitle);
+        tv.setSelected(true);
         TextView tv2 = v.findViewById(R.id.song_artist);
         tv2.setText(this.songArtist);
-
+        tv2.setSelected(true);
         return v;
     }
 
