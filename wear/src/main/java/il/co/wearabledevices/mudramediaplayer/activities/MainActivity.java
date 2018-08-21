@@ -2,7 +2,6 @@ package il.co.wearabledevices.mudramediaplayer.activities;
 
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.FragmentManager;
 import android.content.ComponentName;
 import android.content.ContentResolver;
@@ -472,8 +471,8 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
                     prepareVolumeStateMachine();
                     prepareNavigationVariables();
                 }
-
                 switchToActivityView();
+
             }
         }
 
@@ -820,7 +819,8 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         currentScreen = constants.VIEW_ACTIVITIES;
         currentDepth = 0;
         showTopLabelAndBackButton();
-        hideGeneralBackButton();
+        //hideGeneralBackButton();
+        showGeneralBackButton();
         mMusicActivitiesFragment = new MusicActivityFragment();
         mFragmentManager.beginTransaction().replace(R.id.songs_list_container, mMusicActivitiesFragment).commit();
         findViewById(R.id.songs_list_container).setVisibility(ViewGroup.VISIBLE);
@@ -831,8 +831,8 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         Log.d(TAG, "switchToPlaylistsView: cursor was : " + cursorAtDepth[0]);
         currentScreen = constants.VIEW_PLAYLISTS;
         currentDepth = 1;
-        showTopLabelAndBackButton();
-        showGeneralBackButton();
+        //showTopLabelAndBackButton();
+        //showGeneralBackButton();
         this.<TextView>findViewById(R.id.top_fragment_text).setText(constants.LABEL_PLAYLISTS);
         mPlaylistsFragment = new PlayListFragment();
         Bundle bdl = new Bundle();
@@ -1053,8 +1053,8 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
             updateSongRecyclerPosition(cursorAtDepth[2]);
             currentPathPlaying[currentDepth] = cursorAtDepth[currentDepth];
         } else {
-            if(!backButtonSelected){
-                Toast.makeText(this,"Tap to go up",Toast.LENGTH_LONG).show();
+            if (!backButtonSelected) {
+                Toast.makeText(this, "Tap to go up", Toast.LENGTH_LONG).show();
             }
             backButtonSelected = true;
             // if there is no song - transition to back button highlight
@@ -1067,8 +1067,8 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         if (--cursorAtDepth[1] >= 0) {
             updatePlaylistRecyclerPosition(cursorAtDepth[1]);
         } else {
-            if(!backButtonSelected){
-                Toast.makeText(this,"Tap to go up",Toast.LENGTH_LONG).show();
+            if (!backButtonSelected) {
+                Toast.makeText(this, "Tap to go up", Toast.LENGTH_LONG).show();
             }
             backButtonSelected = true;
             highlightGeneralBackButton();
@@ -1076,7 +1076,15 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     }
 
     public void scrollActivitiesBack(boolean usingMudra) {
-        updateMusicActivitiesRecyclerPosition(cursorAtDepth[0] > 0 ? --cursorAtDepth[0] : 0);
+        if (--cursorAtDepth[0] >= 0) {
+            updateMusicActivitiesRecyclerPosition(cursorAtDepth[0] > 0 ? --cursorAtDepth[0] : 0);
+        } else {
+            if (!backButtonSelected) {
+                Toast.makeText(this, "Tap to exit", Toast.LENGTH_LONG).show();
+            }
+            backButtonSelected = true;
+            highlightGeneralBackButton();
+        }
     }
 
     public void scrollSongForward(boolean usingMudra) {
@@ -1106,8 +1114,14 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
     }
 
     public void scrollActivitiesForward(boolean usingMudra) {
-        cursorAtDepth[0] = (cursorAtDepth[0] + 1) % mMusicActivitiesFragment.getRecycler().getAdapter().getItemCount();
-        updateMusicActivitiesRecyclerPosition(cursorAtDepth[0]);
+        if (cursorAtDepth[0] < 0) {
+            cursorAtDepth[0] = 0;
+            dimGeneralBackButton();
+            backButtonSelected = false;
+        } else {
+            cursorAtDepth[0] = (cursorAtDepth[0] + 1) % mMusicActivitiesFragment.getRecycler().getAdapter().getItemCount();
+            updateMusicActivitiesRecyclerPosition(cursorAtDepth[0]);
+        }
     }
 
     public void nextSong(boolean usingMudra) {
@@ -1232,14 +1246,17 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
         Log.d(TAG, "navigateToPreviousScreen: ");
         String prevScreen = getPreviousScreen();
         Log.d(TAG, "navigateToPreviousScreen: " + prevScreen);
+        dimGeneralBackButton();
         if (prevScreen != null) {
+            if (currentScreen.equals(constants.VIEW_ACTIVITIES) && prevScreen.equals(constants.VIEW_ACTIVITIES))
+                this.finish(); // exit application since back button was pushed in the main activity
             if (mFragmentManager.popBackStackImmediate()) {
                 ((TextView) findViewById(R.id.top_fragment_text)).setText(getPreviousLabel());
                 currentScreen = prevScreen;
                 currentDepth--;
                 Log.d(TAG, "navigateToPreviousScreen: depth is " + currentDepth);
                 if (currentScreen.equals(constants.VIEW_ACTIVITIES)) {
-                    hideGeneralBackButton();
+                    //hideGeneralBackButton();
                     mMusicActivitiesFragment.scrollToPos(cursorAtDepth[0], true);
                 } else {
                     if (currentScreen.equals(constants.VIEW_PLAYLISTS)) {
