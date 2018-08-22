@@ -1077,7 +1077,7 @@ public class MainActivity extends WearableActivity implements AlbumsFragment.OnA
 
     public void scrollActivitiesBack(boolean usingMudra) {
         if (--cursorAtDepth[0] >= 0) {
-            updateMusicActivitiesRecyclerPosition(cursorAtDepth[0] > 0 ? --cursorAtDepth[0] : 0);
+            updateMusicActivitiesRecyclerPosition(cursorAtDepth[0]);
         } else {
             if (!backButtonSelected) {
                 Toast.makeText(this, "Tap to exit", Toast.LENGTH_LONG).show();
